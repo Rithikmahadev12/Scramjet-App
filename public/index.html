@@ -7,7 +7,7 @@
 
 <link rel="shortcut icon" content="favicon.webp" />
 
-<!-- Keep Scramjet backend scripts -->
+<!-- Scramjet backend scripts -->
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
 <link rel="stylesheet" href="index.css">
@@ -16,75 +16,104 @@
 <script src="index.js" defer></script>
 
 <style>
-  body, html {
-    margin: 0; padding: 0; height: 100%;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #121212, #1c1c1c);
-    display: flex; justify-content: center; align-items: center;
-    color: #fff; overflow: hidden;
-  }
+body, html {
+  margin:0; padding:0; height:100%;
+  font-family:'Segoe UI', sans-serif;
+  background: linear-gradient(135deg,#121212,#1c1c1c);
+  display:flex; justify-content:center; align-items:center;
+  color:#fff; overflow:hidden;
+}
 
-  #nova-browser {
-    text-align: center;
-    padding: 50px 30px;
-    max-width: 500px; width: 90%;
-  }
+#nova-browser {
+  text-align:center;
+  padding:40px 30px 50px 30px;
+  max-width:600px; width:90%;
+}
 
-  /* Glassy title text */
-  #nova-browser h1 {
-    font-size: 3rem;
-    color: rgba(255,255,255,0.5);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-image: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.3));
-    margin-bottom: 30px;
-  }
+#nova-browser h1 {
+  font-size:2.5rem;
+  color: rgba(255,255,255,0.5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-image: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.3));
+  margin-bottom:20px;
+}
 
-  /* Search bar container */
-  #sj-form {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 20px;
-    position: relative;
-  }
+/* Tabs bar */
+#tabs {
+  display:flex; justify-content:flex-start; gap:10px; margin-bottom:15px;
+}
 
-  /* Search icon */
-  #sj-form::before {
-    content: "🔍";
-    position: absolute;
-    left: 15px;
-    font-size: 1.2rem;
-    color: rgba(255,255,255,0.6);
-    pointer-events: none;
-  }
+.tab {
+  padding:5px 15px;
+  border-radius:8px;
+  background: rgba(255,255,255,0.05);
+  color:#fff;
+  font-size:0.9rem;
+  cursor:pointer;
+  user-select:none;
+  transition: background 0.2s;
+}
+.tab.active { background: rgba(255,255,255,0.15); }
 
-  /* Compact glassy input */
-  #sj-address {
-    width: 100%;
-    padding: 12px 15px 12px 40px; /* leave space for icon */
-    font-size: 1rem;
-    border-radius: 10px;
-    border: none;
-    outline: none;
-    background: rgba(255,255,255,0.05);
-    color: rgba(255,255,255,0.8);
-    backdrop-filter: blur(10px);
-    transition: all 0.2s ease;
-  }
+/* Compact search bar */
+#sj-form {
+  display:flex; align-items:center; justify-content:center;
+  position:relative; margin-bottom:10px;
+}
 
-  #sj-address::placeholder {
-    color: rgba(255,255,255,0.5);
-    -webkit-backdrop-filter: blur(10px);
-  }
+#sj-form::before {
+  content:"🔍";
+  position:absolute;
+  left:12px;
+  font-size:1rem;
+  color: rgba(255,255,255,0.6);
+  pointer-events:none;
+}
 
-  #sj-address:focus {
-    background: rgba(255,255,255,0.1);
-    box-shadow: 0 0 10px rgba(255,255,255,0.15);
-  }
+#sj-address {
+  width:100%;
+  padding:6px 10px 6px 30px; /* small height */
+  font-size:0.95rem;
+  border-radius:8px;
+  border:none;
+  outline:none;
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.8);
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+}
 
-  #sj-form input[type="hidden"] { display:none; }
-  #sj-error, #sj-error-code, footer { display:none; }
+#sj-address::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+#sj-address:focus {
+  background: rgba(255,255,255,0.1);
+  box-shadow:0 0 6px rgba(255,255,255,0.15);
+}
+
+/* Navigation buttons below search */
+#nav-buttons {
+  display:flex; justify-content:center; gap:15px;
+  margin-top:10px;
+}
+
+.nav-btn {
+  padding:5px 12px;
+  border-radius:6px;
+  background: rgba(255,255,255,0.05);
+  color:#fff;
+  font-size:0.9rem;
+  cursor:pointer;
+  user-select:none;
+  transition: background 0.2s;
+}
+.nav-btn:hover { background: rgba(255,255,255,0.12); }
+
+/* Hide hidden inputs & errors */
+#sj-form input[type="hidden"] { display:none; }
+#sj-error, #sj-error-code, footer { display:none; }
 
 </style>
 </head>
@@ -93,11 +122,24 @@
 <div id="nova-browser">
   <h1>Nova's Browser</h1>
 
-  <!-- Scramjet form must stay to work -->
+  <!-- Tabs -->
+  <div id="tabs">
+    <div class="tab active">Tab 1</div>
+    <div class="tab">Tab 2</div>
+  </div>
+
+  <!-- Scramjet form -->
   <form id="sj-form">
     <input id="sj-search-engine" type="hidden" value="https://www.google.com/search?q=%s">
-    <input id="sj-address" type="text" placeholder="Type a URL or search the web...">
+    <input id="sj-address" type="text" placeholder="Type URL or search...">
   </form>
+
+  <!-- Navigation buttons -->
+  <div id="nav-buttons">
+    <div class="nav-btn" onclick="history.back()">◀ Back</div>
+    <div class="nav-btn" onclick="history.forward()">▶ Forward</div>
+    <div class="nav-btn" onclick="document.getElementById('sj-address').value=''">✕ Clear</div>
+  </div>
 </div>
 
 </body>
