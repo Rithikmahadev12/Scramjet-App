@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nova's Browser</title>
 
-<link rel="shortcut icon" content="favicon.webp" />
+<link rel="shortcut icon" href="favicon.webp" />
 
 <!-- Scramjet backend scripts -->
 <script src="/scram/scramjet.all.js"></script>
@@ -16,6 +16,8 @@
 <script src="index.js" defer></script>
 
 <style>
+* { box-sizing: border-box; }
+
 body, html {
   margin:0; padding:0; height:100%;
   font-family:'Segoe UI', sans-serif;
@@ -73,7 +75,7 @@ body, html {
 
 #sj-address {
   width:100%;
-  padding:6px 10px 6px 30px; /* small height */
+  padding:6px 10px 6px 30px;
   font-size:0.95rem;
   border-radius:8px;
   border:none;
@@ -115,6 +117,22 @@ body, html {
 #sj-form input[type="hidden"] { display:none; }
 #sj-error, #sj-error-code, footer { display:none; }
 
+/* iframe content area per tab */
+.tab-content {
+  width:100%;
+  height:300px;
+  margin-top:15px;
+  border-radius:8px;
+  overflow:hidden;
+  display:none;
+  border:1px solid rgba(255,255,255,0.1);
+}
+.tab-content.active { display:block; }
+.tab-content iframe {
+  width:100%;
+  height:100%;
+  border:none;
+}
 </style>
 </head>
 <body>
@@ -124,23 +142,77 @@ body, html {
 
   <!-- Tabs -->
   <div id="tabs">
-    <div class="tab active">Tab 1</div>
-    <div class="tab">Tab 2</div>
+    <div class="tab active" data-tab="0">Tab 1</div>
+    <div class="tab" data-tab="1">Tab 2</div>
   </div>
 
   <!-- Scramjet form -->
   <form id="sj-form">
     <input id="sj-search-engine" type="hidden" value="https://www.google.com/search?q=%s">
-    <input id="sj-address" type="text" placeholder="Type URL or search...">
+    <input id="sj-address" type="text" placeholder="Type URL or search..." autocomplete="off">
   </form>
 
   <!-- Navigation buttons -->
   <div id="nav-buttons">
-    <div class="nav-btn" onclick="history.back()">◀ Back</div>
-    <div class="nav-btn" onclick="history.forward()">▶ Forward</div>
-    <div class="nav-btn" onclick="document.getElementById('sj-address').value=''">✕ Clear</div>
+    <div class="nav-btn" onclick="goBack()">◀ Back</div>
+    <div class="nav-btn" onclick="goForward()">▶ Forward</div>
+    <div class="nav-btn" onclick="clearAddress()">✕ Clear</div>
+  </div>
+
+  <!-- Tab contents -->
+  <div id="tab-contents">
+    <div class="tab-content active"><iframe src=""></iframe></div>
+    <div class="tab-content"><iframe src=""></iframe></div>
   </div>
 </div>
+
+<script>
+const tabs = document.querySelectorAll('.tab');
+const tabContents = document.querySelectorAll('.tab-content');
+const addressInput = document.getElementById('sj-address');
+let activeTab = 0;
+
+// Tab switching
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs[activeTab].classList.remove('active');
+    tabContents[activeTab].classList.remove('active');
+
+    activeTab = parseInt(tab.dataset.tab);
+    tabs[activeTab].classList.add('active');
+    tabContents[activeTab].classList.add('active');
+
+    // Update address input to current iframe URL
+    const currentURL = tabContents[activeTab].querySelector('iframe').src;
+    addressInput.value = currentURL || '';
+  });
+});
+
+// Handle search / URL
+document.getElementById('sj-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const query = addressInput.value.trim();
+  const engine = document.getElementById('sj-search-engine').value;
+  const url = query.startsWith('http://') || query.startsWith('https://') 
+              ? query 
+              : engine.replace('%s', encodeURIComponent(query));
+
+  tabContents[activeTab].querySelector('iframe').src = url;
+});
+
+// Navigation buttons
+function goBack() {
+  const iframe = tabContents[activeTab].querySelector('iframe').contentWindow;
+  if (iframe.history.length > 1) iframe.history.back();
+}
+function goForward() {
+  const iframe = tabContents[activeTab].querySelector('iframe').contentWindow;
+  iframe.history.forward();
+}
+function clearAddress() {
+  addressInput.value = '';
+}
+</script>
 
 </body>
 </html>
