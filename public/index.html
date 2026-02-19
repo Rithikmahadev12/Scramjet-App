@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Matriarchs Browser</title>
+<title>Nova's Browser</title>
 
-<link rel="shortcut icon" href="favicon.webp" />
+<link rel="shortcut icon" content="favicon.webp" />
 
 <!-- Scramjet backend scripts -->
 <script src="/scram/scramjet.all.js"></script>
@@ -16,66 +16,72 @@
 <script src="index.js" defer></script>
 
 <style>
-* { box-sizing: border-box; margin:0; padding:0; }
-
 body, html {
-  height:100%;
-  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
-  background: #1b1b1b;
-  color:#fff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+  margin:0; padding:0; height:100%;
+  font-family:'Segoe UI', sans-serif;
+  background: linear-gradient(135deg,#121212,#1c1c1c);
+  display:flex; justify-content:center; align-items:center;
+  color:#fff; overflow:hidden;
 }
 
-#matriarchs-browser {
-  width:90%;
-  max-width:800px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+#nova-browser {
+  text-align:center;
+  padding:40px 30px 50px 30px;
+  max-width:600px; width:90%;
 }
 
-#matriarchs-browser h1 {
+#nova-browser h1 {
   font-size:2.5rem;
-  font-weight:700;
-  margin-bottom:30px;
-  background: linear-gradient(135deg, #f5f5f5, #aaa);
+  color: rgba(255,255,255,0.5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-align:center;
-  user-select:none;
+  background-image: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.3));
+  margin-bottom:20px;
 }
 
-/* Search bar */
+/* Tabs bar */
+#tabs {
+  display:flex; justify-content:flex-start; gap:10px; margin-bottom:15px;
+}
+
+.tab {
+  padding:5px 15px;
+  border-radius:8px;
+  background: rgba(255,255,255,0.05);
+  color:#fff;
+  font-size:0.9rem;
+  cursor:pointer;
+  user-select:none;
+  transition: background 0.2s;
+}
+.tab.active { background: rgba(255,255,255,0.15); }
+
+/* Compact search bar */
 #sj-form {
-  position:relative;
-  width:100%;
-  margin-bottom:20px;
+  display:flex; align-items:center; justify-content:center;
+  position:relative; margin-bottom:10px;
 }
 
 #sj-form::before {
   content:"🔍";
   position:absolute;
-  left:15px;
-  top:50%;
-  transform: translateY(-50%);
-  font-size:1.1rem;
+  left:12px;
+  font-size:1rem;
   color: rgba(255,255,255,0.6);
   pointer-events:none;
-  z-index:1;
 }
 
 #sj-address {
   width:100%;
-  padding:12px 15px 12px 40px;
-  font-size:1rem;
-  border-radius:12px;
+  padding:6px 10px 6px 30px; /* small height */
+  font-size:0.95rem;
+  border-radius:8px;
   border:none;
   outline:none;
-  background: rgba(255,255,255,0.08);
-  color: rgba(255,255,255,0.95);
-  transition: all 0.25s ease;
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.8);
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
 }
 
 #sj-address::placeholder {
@@ -83,86 +89,58 @@ body, html {
 }
 
 #sj-address:focus {
-  background: rgba(255,255,255,0.15);
-  box-shadow: 0 0 8px rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.1);
+  box-shadow:0 0 6px rgba(255,255,255,0.15);
 }
 
-/* Navigation buttons */
+/* Navigation buttons below search */
 #nav-buttons {
-  display:flex;
-  justify-content:center;
-  gap:15px;
+  display:flex; justify-content:center; gap:15px;
+  margin-top:10px;
 }
 
 .nav-btn {
-  padding:8px 16px;
-  border-radius:10px;
-  background: rgba(255,255,255,0.08);
-  font-size:1rem;
+  padding:5px 12px;
+  border-radius:6px;
+  background: rgba(255,255,255,0.05);
   color:#fff;
+  font-size:0.9rem;
   cursor:pointer;
-  transition: all 0.2s ease;
   user-select:none;
+  transition: background 0.2s;
 }
-.nav-btn:hover {
-  background: rgba(255,255,255,0.15);
-  transform: translateY(-1px);
-}
+.nav-btn:hover { background: rgba(255,255,255,0.12); }
+
+/* Hide hidden inputs & errors */
+#sj-form input[type="hidden"] { display:none; }
+#sj-error, #sj-error-code, footer { display:none; }
+
 </style>
 </head>
 <body>
 
-<div id="matriarchs-browser">
-  <h1>Matriarchs Browser</h1>
+<div id="nova-browser">
+  <h1>Nova's Browser</h1>
 
-  <!-- Scramjet search form -->
+  <!-- Tabs -->
+  <div id="tabs">
+    <div class="tab active">Tab 1</div>
+    <div class="tab">Tab 2</div>
+  </div>
+
+  <!-- Scramjet form -->
   <form id="sj-form">
-    <input id="sj-proxy-endpoint" type="hidden" value="/scram/fetch?url=%s">
-    <input id="sj-address" type="text" placeholder="Type URL or search..." autocomplete="off">
+    <input id="sj-search-engine" type="hidden" value="https://www.google.com/search?q=%s">
+    <input id="sj-address" type="text" placeholder="Type URL or search...">
   </form>
 
+  <!-- Navigation buttons -->
   <div id="nav-buttons">
-    <div class="nav-btn" onclick="goBack()">◀ Back</div>
-    <div class="nav-btn" onclick="goForward()">▶ Forward</div>
-    <div class="nav-btn" onclick="clearAddress()">✕ Clear</div>
+    <div class="nav-btn" onclick="history.back()">◀ Back</div>
+    <div class="nav-btn" onclick="history.forward()">▶ Forward</div>
+    <div class="nav-btn" onclick="document.getElementById('sj-address').value=''">✕ Clear</div>
   </div>
 </div>
-
-<script>
-const addressInput = document.getElementById('sj-address');
-const proxyEndpoint = document.getElementById('sj-proxy-endpoint').value;
-
-// Helper to generate Scramjet URL
-function generateScramjetURL(rawInput) {
-  let finalURL = '';
-
-  if(rawInput.startsWith('http://') || rawInput.startsWith('https://')) {
-    // Direct URL via Scramjet
-    finalURL = proxyEndpoint.replace('%s', encodeURIComponent(rawInput));
-  } else {
-    // Treat as search query
-    const searchQuery = encodeURIComponent(rawInput);
-    finalURL = proxyEndpoint.replace('%s', encodeURIComponent(`https://www.google.com/search?q=${searchQuery}`));
-  }
-
-  return finalURL;
-}
-
-// Submit handler
-document.getElementById('sj-form').addEventListener('submit', (e) => {
-  e.preventDefault();
-  const query = addressInput.value.trim();
-  if(!query) return;
-
-  const scramjetURL = generateScramjetURL(query);
-  window.open(scramjetURL, '_blank');
-});
-
-// Navigation buttons
-function goBack() { window.history.back(); }
-function goForward() { window.history.forward(); }
-function clearAddress() { addressInput.value = ''; }
-</script>
 
 </body>
 </html>
