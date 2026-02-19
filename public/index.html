@@ -6,8 +6,6 @@
   <title>Nova's Browser</title>
 
   <link rel="shortcut icon" content="favicon.webp" />
-  
-  <!-- Keep all original scripts intact -->
   <script src="/scram/scramjet.all.js"></script>
   <script src="/baremux/index.js"></script>
   <link rel="stylesheet" href="index.css" />
@@ -16,122 +14,39 @@
   <script src="index.js" defer></script>
 
   <style>
-    /* Glassy Nova's Browser UI */
-    body, html {
-      margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #1f1f1f, #121212);
-      color: #fff;
-      overflow: hidden;
-    }
-
-    #desktop {
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      perspective: 800px;
-      padding: 20px;
-    }
-
+    body, html { margin:0; padding:0; height:100%; font-family:'Segoe UI', sans-serif; background: #121212; color:#fff; }
     #browserCard {
-      width: 90%;
-      max-width: 1200px;
-      height: 80%;
-      background: rgba(30,30,30,0.7);
-      backdrop-filter: blur(15px) saturate(180%);
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.1);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      transform: rotateX(2deg) rotateY(-2deg);
+      width: 90%; max-width: 1000px; height: 80%; margin: auto; margin-top: 40px;
+      background: rgba(30,30,30,0.7); backdrop-filter: blur(15px); border-radius:20px; border:1px solid rgba(255,255,255,0.1);
+      box-shadow:0 20px 40px rgba(0,0,0,0.6); display:flex; flex-direction:column; overflow:hidden;
     }
-
-    .titlebar {
-      height: 50px;
-      background: rgba(50,50,50,0.6);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 15px;
-      font-weight: bold;
-      font-size: 18px;
-      backdrop-filter: blur(10px);
-    }
-
-    .titlebar button {
-      background: rgba(255,255,255,0.1);
-      border: none;
-      border-radius: 6px;
-      padding: 5px 10px;
-      cursor: pointer;
-      color: #fff;
-      transition: background 0.2s;
-    }
-
-    .titlebar button:hover {
-      background: rgba(255,255,255,0.3);
-    }
-
-    #urlBar {
-      width: 100%;
-      padding: 10px 15px;
-      font-size: 16px;
-      border: none;
-      outline: none;
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-      backdrop-filter: blur(10px);
-    }
-
-    #browserView {
-      flex-grow: 1;
-      background: #fff;
-      border: none;
-    }
-
-    footer {
-      display: none; /* hide old footer */
-    }
-
+    .titlebar { background: rgba(50,50,50,0.6); padding:10px 15px; font-weight:bold; font-size:18px; display:flex; justify-content:space-between; align-items:center; backdrop-filter: blur(10px);}
+    .titlebar button { background: rgba(255,255,255,0.1); border:none; border-radius:6px; padding:5px 10px; cursor:pointer; color:#fff; transition:0.2s;}
+    .titlebar button:hover { background: rgba(255,255,255,0.3);}
+    #sj-address { flex-grow:0; padding:10px; font-size:16px; border:none; outline:none; background: rgba(255,255,255,0.1); color:#fff; margin:10px; border-radius:6px; }
+    #sj-form { display:flex; margin:10px; }
+    #sj-form input[type="hidden"] { display:none; }
+    #sj-error, #sj-error-code { display:none; } /* hide old errors */
+    footer { display:none; }
   </style>
 </head>
-
 <body>
-  <div id="desktop">
-    <div id="browserCard">
-      <div class="titlebar">
-        <span>Nova's Browser</span>
-        <button id="closeBtn">✕</button>
-      </div>
-      <input id="urlBar" type="text" placeholder="Search the web freely" />
-      <iframe id="browserView"></iframe>
-    </div>
+
+<div id="browserCard">
+  <div class="titlebar">
+    <span>Nova's Browser</span>
+    <button onclick="document.getElementById('sj-address').value='';">✕</button>
   </div>
 
-  <script>
-    const urlBar = document.getElementById('urlBar');
-    const browserView = document.getElementById('browserView');
-    const closeBtn = document.getElementById('closeBtn');
+  <!-- KEEP THE ORIGINAL SCRAMJET FORM -->
+  <form id="sj-form">
+    <input id="sj-search-engine" type="hidden" value="https://www.google.com/search?q=%s" />
+    <input id="sj-address" type="text" placeholder="Type URL or search..." />
+  </form>
 
-    // Close button clears iframe and input
-    closeBtn.addEventListener('click', () => {
-      browserView.src = '';
-      urlBar.value = '';
-    });
+  <!-- optional container for Scramjet output -->
+  <div class="output-container"></div>
+</div>
 
-    // Enter key loads URL (uses Scramjet backend already handled by index.js)
-    urlBar.addEventListener('keypress', e => {
-      if (e.key === 'Enter') {
-        const value = urlBar.value.trim();
-        if (value) {
-          // Call the Scramjet input processing (existing backend scripts)
-          document.getElementById('sj-address').value = value;
-          document.getElementById('sj-form').dispatchEvent(new Event('submit'));
-        }
-      }
-    });
-  </script>
 </body>
 </html>
