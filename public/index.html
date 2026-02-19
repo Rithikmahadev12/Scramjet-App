@@ -43,8 +43,8 @@ body, html {
   background: linear-gradient(135deg, #f5f5f5, #aaa);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  user-select:none;
   text-align:center;
+  user-select:none;
 }
 
 /* Search bar */
@@ -115,10 +115,9 @@ body, html {
 <div id="matriarchs-browser">
   <h1>Matriarchs Browser</h1>
 
-  <!-- Scramjet form -->
+  <!-- Scramjet search form -->
   <form id="sj-form">
-    <!-- Scramjet proxy endpoint for search -->
-    <input id="sj-search-engine" type="hidden" value="/scram/proxy?url=%s">
+    <input id="sj-proxy-endpoint" type="hidden" value="/scram/fetch?url=%s">
     <input id="sj-address" type="text" placeholder="Type URL or search..." autocomplete="off">
   </form>
 
@@ -131,28 +130,35 @@ body, html {
 
 <script>
 const addressInput = document.getElementById('sj-address');
-const searchEngine = document.getElementById('sj-search-engine').value;
+const proxyEndpoint = document.getElementById('sj-proxy-endpoint').value;
 
-// Use Scramjet proxy to open URLs
+// Helper to generate Scramjet URL
+function generateScramjetURL(rawInput) {
+  let finalURL = '';
+
+  if(rawInput.startsWith('http://') || rawInput.startsWith('https://')) {
+    // Direct URL via Scramjet
+    finalURL = proxyEndpoint.replace('%s', encodeURIComponent(rawInput));
+  } else {
+    // Treat as search query
+    const searchQuery = encodeURIComponent(rawInput);
+    finalURL = proxyEndpoint.replace('%s', encodeURIComponent(`https://www.google.com/search?q=${searchQuery}`));
+  }
+
+  return finalURL;
+}
+
+// Submit handler
 document.getElementById('sj-form').addEventListener('submit', (e) => {
   e.preventDefault();
   const query = addressInput.value.trim();
-  let targetURL = '';
+  if(!query) return;
 
-  if(query.startsWith('http://') || query.startsWith('https://')) {
-    // Direct URL through Scramjet proxy
-    targetURL = searchEngine.replace('%s', encodeURIComponent(query));
-  } else {
-    // Search query through Scramjet proxy
-    const searchQuery = encodeURIComponent(query);
-    targetURL = searchEngine.replace('%s', encodeURIComponent('https://www.google.com/search?q=' + searchQuery));
-  }
-
-  // Open via Scramjet
-  window.open(targetURL, '_blank');
+  const scramjetURL = generateScramjetURL(query);
+  window.open(scramjetURL, '_blank');
 });
 
-// Optional: navigation buttons just control browser history
+// Navigation buttons
 function goBack() { window.history.back(); }
 function goForward() { window.history.forward(); }
 function clearAddress() { addressInput.value = ''; }
