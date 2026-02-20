@@ -14,7 +14,7 @@ const publicPath = fileURLToPath(new URL("../public/", import.meta.url));
 // -------------------
 // Wisp Configuration
 // -------------------
-logging.set_level(logging.NONE);
+logging.set_level(logging.INFO); // Enable INFO for debugging
 Object.assign(wisp.options, {
     allow_udp_streams: false,
     hostname_blacklist: [/example\.com/],
@@ -28,7 +28,6 @@ const fastify = Fastify({
     serverFactory: (handler) => {
         return createServer()
             .on("request", (req, res) => {
-                // COOP/COEP headers for SharedArrayBuffer support
                 res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
                 res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
                 handler(req, res);
@@ -37,7 +36,7 @@ const fastify = Fastify({
                 if (req.url.startsWith("/wisp/")) {
                     wisp.routeRequest(req, socket, head);
                 } else {
-                    socket.destroy(); // ensure proper closure
+                    socket.destroy(); // Proper closure
                 }
             });
     },
@@ -55,28 +54,49 @@ fastify.register(fastifyStatic, { root: baremuxPath, prefix: "/baremux/", decora
 // Full proxy route for iframe embedding
 // -------------------
 fastify.get("/proxy/*", async (req, reply) => {
-    const targetUrl = req.params["*"];
+    const encodedUrl = req.params["*"];
+    let targetUrl;
 
-    // Validate target URL
     try {
-        const url = new URL(targetUrl.startsWith("http") ? targetUrl : `https://${targetUrl}`);
+        // Decode URL from path
+        targetUrl = decodeURIComponent(encodedUrl);
 
-        // Optional: disallow local network / file URLs
-        if (["127.0.0.1", "localhost"].includes(url.hostname)) {
-            return reply.code(403).send("Access to local URLs is forbidden.");
+        // Ensure valid protocol
+        if (!/^https?:\/\//i.test(targetUrl)) {
+            targetUrl = "https://" + targetUrl;
         }
 
+        const url = new URL(targetUrl);
+
+        // Block local/internal addresses
+        const blockedHosts = ["localhost", "127.0.0.1"];
+        if (blockedHosts.includes(url.hostname)) {
+            return reply.code(403).send(`Access to local URLs is forbidden: ${url.hostname}`);
+        }
+
+        // Fetch page via Wisp
         const frame = wisp.createFrame();
-        const html = await frame.fetch(url.href);
+        let html;
+        try {
+            html = await frame.fetch(url.href);
+        } catch (err) {
+            console.error("Wisp fetch failed:", err);
+            return reply.code(502).type("text/html").send(`
+                <h2>Scramjet Proxy Fetch Error</h2>
+                <p>Could not fetch URL: ${url.href}</p>
+                <pre>${err.toString()}</pre>
+            `);
+        }
 
         // Allow iframe embedding
         reply.header("Content-Security-Policy", "frame-ancestors *");
-
         return reply.type("text/html").send(html);
+
     } catch (err) {
-        console.error("Scramjet Proxy Error:", err);
-        return reply.code(500).type("text/html").send(`
-            <h2>Scramjet Proxy Error</h2>
+        console.error("Proxy route error:", err);
+        return reply.code(400).type("text/html").send(`
+            <h2>Invalid Proxy Request</h2>
+            <p>Could not parse URL: ${encodedUrl}</p>
             <pre>${err.toString()}</pre>
         `);
     }
