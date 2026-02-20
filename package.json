@@ -1,6 +1,6 @@
 {
   "name": "scramjet-demo",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "The demo application for Scramjet, a high-performance web proxy.",
   "type": "module",
   "engines": {
@@ -14,7 +14,9 @@
     "lint:fix": "eslint ./src/ --fix"
   },
   "keywords": [
-    "proxy"
+    "proxy",
+    "scramjet",
+    "xenos"
   ],
   "author": "Mercury Workshop",
   "license": "GNU AFFERO",
@@ -25,7 +27,8 @@
     "@mercuryworkshop/libcurl-transport": "^1.5.2",
     "@mercuryworkshop/scramjet": "https://github.com/MercuryWorkshop/scramjet/releases/download/latest/mercuryworkshop-scramjet-2.0.0-alpha.tgz",
     "@mercuryworkshop/wisp-js": "^0.4.1",
-    "ws": "^8.18.3"
+    "ws": "^8.18.3",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "eslint": "^9.13.0",
