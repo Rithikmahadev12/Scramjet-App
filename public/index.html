@@ -127,11 +127,16 @@ async function openApp(app){
   desktop.appendChild(win);
   makeDraggable(win);
 
-  // -------------------- Scramjet Frame --------------------
-  const url = app==="youtube"?"https://youtube.com":app==="tiktok"?"https://www.tiktok.com":"about:blank";
+  // -------------------- Scramjet Frame using /wisp-proxy --------------------
+  let url = "";
+  if(app==="youtube") url="/wisp-proxy?url=" + encodeURIComponent("https://youtube.com");
+  else if(app==="tiktok") url="/wisp-proxy?url=" + encodeURIComponent("https://www.tiktok.com");
+  else url="about:blank";
+
   const frame = scramjet.createFrame({ container: frameContainer });
   frame.frame.style.width="100%";
   frame.frame.style.height="100%";
+  await connection.setTransport("/libcurl/index.mjs", [{ websocket: (location.protocol==="https:"?"wss":"ws") + "://" + location.host + "/wisp/"}]);
   frame.go(url);
 }
 
