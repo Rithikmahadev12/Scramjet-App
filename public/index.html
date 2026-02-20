@@ -9,7 +9,7 @@
 <style>
 /* --- Reset & Body --- */
 body, html { margin:0; padding:0; width:100%; height:100%; overflow:hidden; font-family: 'Segoe UI', sans-serif; }
-#desktop { width:100%; height:100%; background: radial-gradient(circle at top left, #0b0c1f, #1b1c38); position: relative; }
+#desktop { width:100%; height:100%; background: radial-gradient(circle at top left, #0b0c1f, #1b1c38); position: relative; display:none; }
 
 /* --- Lock Screen --- */
 #lockscreen {
@@ -17,7 +17,8 @@ body, html { margin:0; padding:0; width:100%; height:100%; overflow:hidden; font
   display:flex; justify-content:center; align-items:center; flex-direction:column; color:white;
   font-size:1.2rem;
 }
-#lockscreen input { padding:10px 12px; font-size:1rem; border-radius:6px; border:none; outline:none; }
+#lockscreen input { padding:10px 12px; font-size:1rem; border-radius:6px; border:none; outline:none; margin-top:10px; }
+#lockscreen button { margin-top:10px; padding:8px 12px; border:none; border-radius:5px; cursor:pointer; }
 
 /* --- Taskbar --- */
 #taskbar {
@@ -41,16 +42,31 @@ body, html { margin:0; padding:0; width:100%; height:100%; overflow:hidden; font
   position:absolute; top:0; left:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; font-size:3rem; color:white; letter-spacing:0.3em; font-family:'Segoe UI', sans-serif;
 }
 .letter { display:inline-block; animation: bounce 1s infinite alternate; }
+.letter:nth-child(1) { animation-delay:0s; }
 .letter:nth-child(2) { animation-delay:0.1s; }
 .letter:nth-child(3) { animation-delay:0.2s; }
 .letter:nth-child(4) { animation-delay:0.3s; }
 .letter:nth-child(5) { animation-delay:0.4s; }
 .letter:nth-child(6) { animation-delay:0.5s; }
 .letter:nth-child(7) { animation-delay:0.6s; }
+.letter:nth-child(8) { animation-delay:0.7s; }
+.letter:nth-child(9) { animation-delay:0.8s; }
 @keyframes bounce { transform: translateY(-10px); }
 </style>
 </head>
 <body>
+
+<div id="boot">
+  <span class="letter">M</span>
+  <span class="letter">A</span>
+  <span class="letter">T</span>
+  <span class="letter">R</span>
+  <span class="letter">I</span>
+  <span class="letter">A</span>
+  <span class="letter">C</span>
+  <span class="letter">H</span>
+  <span class="letter">S</span>
+</div>
 
 <div id="desktop">
   <!-- Lock Screen -->
@@ -66,24 +82,16 @@ body, html { margin:0; padding:0; width:100%; height:100%; overflow:hidden; font
     <div id="start-menu">🪟 Matriarchs</div>
     <div id="time-date"></div>
   </div>
-
-  <!-- Boot Animation -->
-  <div id="boot">
-    <span class="letter">M</span>
-    <span class="letter">A</span>
-    <span class="letter">T</span>
-    <span class="letter">R</span>
-    <span class="letter">I</span>
-    <span class="letter">A</span>
-    <span class="letter">C</span>
-    <span class="letter">H</span>
-    <span class="letter">S</span>
-  </div>
 </div>
 
 <script>
 // --- Boot Animation ---
-setTimeout(()=>{ document.getElementById('boot').style.display='none'; }, 2500);
+const boot = document.getElementById('boot');
+const desktop = document.getElementById('desktop');
+setTimeout(() => {
+    boot.style.display = 'none';
+    desktop.style.display = 'block';
+}, 2500);
 
 // --- Lock Screen ---
 const LOCK_PASSWORD = "matriarchs";
@@ -92,60 +100,83 @@ const unlockBtn = document.getElementById("unlock");
 const lockpass = document.getElementById("lockpass");
 const lockmsg = document.getElementById("lockmsg");
 
-unlockBtn.onclick = () => {
-  if(lockpass.value === LOCK_PASSWORD){
-    lockscreen.style.display="none";
-  } else {
-    lockmsg.textContent="Wrong password!";
-  }
-}
+unlockBtn.addEventListener("click", () => {
+    if(lockpass.value === LOCK_PASSWORD){
+        lockscreen.style.display="none";
+    } else {
+        lockmsg.textContent="Wrong password!";
+    }
+});
+
+// Press Enter to unlock
+lockpass.addEventListener("keydown", (e) => {
+    if(e.key === "Enter") unlockBtn.click();
+});
 
 // --- Taskbar Clock ---
 function updateClock(){
-  const now = new Date();
-  document.getElementById("time-date").textContent = now.toLocaleTimeString() + " | " + now.toLocaleDateString();
+    const now = new Date();
+    document.getElementById("time-date").textContent = now.toLocaleTimeString() + " | " + now.toLocaleDateString();
 }
 setInterval(updateClock, 1000);
 updateClock();
 
 // --- Draggable Windows ---
 function makeDraggable(win){
-  let isDragging=false, offsetX=0, offsetY=0;
-  const header = win.querySelector('.window-header');
-  header.onmousedown = (e)=>{
-    isDragging=true;
-    offsetX = e.clientX - win.offsetLeft;
-    offsetY = e.clientY - win.offsetTop;
-  }
-  document.onmouseup = ()=>{ isDragging=false; }
-  document.onmousemove = (e)=>{
-    if(isDragging){
-      win.style.left = (e.clientX - offsetX) + "px";
-      win.style.top = (e.clientY - offsetY) + "px";
-    }
-  }
+    let isDragging=false, offsetX=0, offsetY=0;
+    const header = win.querySelector('.window-header');
+
+    header.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        offsetX = e.clientX - win.offsetLeft;
+        offsetY = e.clientY - win.offsetTop;
+    });
+
+    document.addEventListener('mouseup', () => isDragging=false);
+    document.addEventListener('mousemove', (e) => {
+        if(isDragging){
+            win.style.left = (e.clientX - offsetX) + "px";
+            win.style.top = (e.clientY - offsetY) + "px";
+        }
+    });
 }
 
 // --- Open App Window ---
 function openApp(title,url){
-  const win = document.createElement('div');
-  win.className='window';
-  win.style.left='100px'; win.style.top='50px';
+    const win = document.createElement('div');
+    win.className='window';
+    win.style.left='100px';
+    win.style.top='50px';
 
-  win.innerHTML=`
-    <div class="window-header"><span>${title}</span> <button onclick="this.parentElement.parentElement.remove()">✕</button></div>
-    <div class="window-content"><iframe src="${url}" style="width:100%;height:100%;border:none;"></iframe></div>
-  `;
-  document.getElementById('desktop').appendChild(win);
-  makeDraggable(win);
+    win.innerHTML = `
+        <div class="window-header">
+            <span>${title}</span>
+            <button>✕</button>
+        </div>
+        <div class="window-content">
+            <iframe src="${url}" style="width:100%;height:100%;border:none;"></iframe>
+        </div>
+    `;
+
+    document.getElementById('desktop').appendChild(win);
+
+    // Make draggable
+    makeDraggable(win);
+
+    // Close button
+    win.querySelector('button').addEventListener('click', () => win.remove());
 }
 
 // --- Taskbar / Start Menu Example ---
-document.getElementById("start-menu").onclick = ()=>{
-  openApp("Brave Search","/wisp/?url=https://search.brave.com");
-}
-document.addEventListener("keydown", (e)=>{
-  if(e.key==="b") openApp("GN Math Game","gn-math/index.html");
+document.getElementById("start-menu").addEventListener("click", () => {
+    openApp("Brave Search", `/proxy/${encodeURIComponent("https://search.brave.com")}`);
+});
+
+// Example keyboard shortcut: press "b" to open app
+document.addEventListener("keydown", (e) => {
+    if(e.key.toLowerCase() === "b") {
+        openApp("GN Math Game", "/gn-math/index.html");
+    }
 });
 </script>
 
