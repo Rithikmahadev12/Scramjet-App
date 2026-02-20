@@ -107,11 +107,7 @@ unlockBtn.addEventListener("click", () => {
         lockmsg.textContent="Wrong password!";
     }
 });
-
-// Press Enter to unlock
-lockpass.addEventListener("keydown", (e) => {
-    if(e.key === "Enter") unlockBtn.click();
-});
+lockpass.addEventListener("keydown", (e) => { if(e.key==="Enter") unlockBtn.click(); });
 
 // --- Taskbar Clock ---
 function updateClock(){
@@ -131,7 +127,6 @@ function makeDraggable(win){
         offsetX = e.clientX - win.offsetLeft;
         offsetY = e.clientY - win.offsetTop;
     });
-
     document.addEventListener('mouseup', () => isDragging=false);
     document.addEventListener('mousemove', (e) => {
         if(isDragging){
@@ -145,8 +140,7 @@ function makeDraggable(win){
 function openApp(title,url){
     const win = document.createElement('div');
     win.className='window';
-    win.style.left='100px';
-    win.style.top='50px';
+    win.style.left='100px'; win.style.top='50px';
 
     win.innerHTML = `
         <div class="window-header">
@@ -159,20 +153,15 @@ function openApp(title,url){
     `;
 
     document.getElementById('desktop').appendChild(win);
-
-    // Make draggable
     makeDraggable(win);
 
-    // Close button
-    win.querySelector('button').addEventListener('click', () => win.remove());
+    win.querySelector('button').addEventListener('click', ()=>win.remove());
 }
 
-// --- Taskbar / Start Menu Example ---
+// --- Taskbar / Start Menu ---
 document.getElementById("start-menu").addEventListener("click", () => {
     openApp("Brave Search", `/proxy/${encodeURIComponent("https://search.brave.com")}`);
 });
-
-// Example keyboard shortcut: press "b" to open app
 document.addEventListener("keydown", (e) => {
     if(e.key.toLowerCase() === "b") {
         openApp("GN Math Game", "/gn-math/index.html");
