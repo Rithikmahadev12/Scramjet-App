@@ -7,28 +7,21 @@
 
 <link rel="shortcut icon" href="favicon.webp" />
 
-<!-- Scramjet Backend Scripts -->
-<script src="/scram/scramjet.all.js"></script>
-<script src="/baremux/index.js"></script>
 <link rel="stylesheet" href="index.css">
-<script src="register-sw.js" defer></script>
-<script src="search.js" defer></script>
-<script src="index.js" defer></script>
 
 <style>
 body, html {
   margin:0; padding:0; height:100%;
   font-family:'Segoe UI', sans-serif;
-  background: linear-gradient(135deg,#121212,#1c1c1c);
+  background: url('moon-bg.jpg') center/cover no-repeat;
   overflow:hidden;
   color:#fff;
 }
 
-/* Desktop Area */
+/* Desktop */
 #desktop {
   position:relative;
   width:100%; height:100%;
-  background: url('moon-bg.jpg') center/cover no-repeat;
 }
 
 /* Taskbar */
@@ -39,11 +32,10 @@ body, html {
   padding:0 10px;
   font-size:0.85rem;
 }
-
 #start-button { cursor:pointer; padding:5px 10px; background:rgba(255,255,255,0.1); border-radius:4px; }
 #clock { margin-right:10px; }
 
-/* Window Style */
+/* Windows */
 .window {
   position:absolute;
   border-radius:6px;
@@ -62,11 +54,8 @@ body, html {
   justify-content:space-between;
   align-items:center;
 }
-
 .window-header span { user-select:none; }
 .window-close { cursor:pointer; padding:0 5px; }
-
-/* Iframe inside window */
 .window iframe {
   width:100%;
   height:calc(100% - 30px);
@@ -76,14 +65,13 @@ body, html {
 /* Start menu */
 #start-menu {
   position:absolute; bottom:40px; left:10px;
-  width:200px;
+  width:220px;
   background: rgba(30,30,30,0.95);
   border-radius:6px;
   display:none;
   flex-direction:column;
   padding:10px;
 }
-
 .start-menu-item { padding:6px 10px; cursor:pointer; border-radius:4px; transition:0.2s; }
 .start-menu-item:hover { background: rgba(255,255,255,0.1); }
 
@@ -96,7 +84,6 @@ body, html {
   color:#fff;
   font-size:1.2rem;
 }
-
 #lock-screen input {
   padding:8px 12px;
   border-radius:6px;
@@ -115,9 +102,7 @@ body, html {
 </head>
 <body>
 
-<div id="desktop">
-  <!-- Windows will be appended here dynamically -->
-</div>
+<div id="desktop"></div>
 
 <!-- Taskbar -->
 <div id="taskbar">
@@ -148,7 +133,7 @@ const desktop = document.getElementById('desktop');
 const lockScreen = document.getElementById('lock-screen');
 const password = "1234"; // simple password
 
-// Toggle start menu
+// Toggle Start Menu
 startButton.addEventListener('click', () => {
   startMenuVisible = !startMenuVisible;
   startMenu.style.display = startMenuVisible ? 'flex' : 'none';
@@ -171,54 +156,46 @@ function unlockScreen() {
 
 // Make windows draggable
 function dragElement(el) {
-  let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  let pos1=0,pos2=0,pos3=0,pos4=0;
   const header = el.querySelector(".window-header");
-  if(header) {
-    header.onmousedown = dragMouseDown;
-  } else {
-    el.onmousedown = dragMouseDown;
-  }
-
-  function dragMouseDown(e) {
-    e = e || window.event;
+  (header?header:el).onmousedown = function(e){
+    e = e||window.event;
     e.preventDefault();
     pos3 = e.clientX;
     pos4 = e.clientY;
-    document.onmouseup = closeDragElement;
-    document.onmousemove = elementDrag;
-  }
-
-  function elementDrag(e) {
-    e = e || window.event;
+    document.onmouseup = closeDrag;
+    document.onmousemove = drag;
+  };
+  function drag(e){
+    e = e||window.event;
     e.preventDefault();
     pos1 = pos3 - e.clientX;
     pos2 = pos4 - e.clientY;
     pos3 = e.clientX;
     pos4 = e.clientY;
-    el.style.top = (el.offsetTop - pos2) + "px";
-    el.style.left = (el.offsetLeft - pos1) + "px";
+    el.style.top = (el.offsetTop - pos2)+"px";
+    el.style.left = (el.offsetLeft - pos1)+"px";
   }
-
-  function closeDragElement() {
+  function closeDrag(){
     document.onmouseup = null;
     document.onmousemove = null;
   }
 }
 
 // Open App
-function openApp(name) {
+function openApp(name){
   let url = "";
-  if(name === "youtube") url = "/wisp-proxy?url=https://www.youtube.com";
-  if(name === "instagram") url = "/wisp-proxy?url=https://www.instagram.com";
-  if(name === "terminal") url = "about:blank"; // internal app
-  if(name === "settings") url = "about:blank";
+  if(name==="youtube") url="/wisp-proxy?url=https://www.youtube.com/embed";
+  if(name==="instagram") url="/wisp-proxy?url=https://www.instagram.com";
+  if(name==="terminal") url="about:blank";
+  if(name==="settings") url="about:blank";
 
   const win = document.createElement('div');
-  win.className = "window";
-  win.style.top = "50px";
-  win.style.left = "50px";
-  win.style.width = "800px";
-  win.style.height = "500px";
+  win.className="window";
+  win.style.top="50px";
+  win.style.left="50px";
+  win.style.width="800px";
+  win.style.height="500px";
 
   win.innerHTML = `
     <div class="window-header">
@@ -227,7 +204,6 @@ function openApp(name) {
     </div>
     <iframe src="${url}"></iframe>
   `;
-
   desktop.appendChild(win);
   dragElement(win);
 }
