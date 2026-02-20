@@ -28,13 +28,17 @@ const fastify = Fastify({
     serverFactory: (handler) => {
         return createServer()
             .on("request", (req, res) => {
+                // COOP/COEP headers for SharedArrayBuffer support
                 res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
                 res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
                 handler(req, res);
             })
             .on("upgrade", (req, socket, head) => {
-                if (req.url.startsWith("/wisp/")) wisp.routeRequest(req, socket, head);
-                else socket.end();
+                if (req.url.startsWith("/wisp/")) {
+                    wisp.routeRequest(req, socket, head);
+                } else {
+                    socket.destroy(); // ensure proper closure
+                }
             });
     },
 });
@@ -52,19 +56,26 @@ fastify.register(fastifyStatic, { root: baremuxPath, prefix: "/baremux/", decora
 // -------------------
 fastify.get("/proxy/*", async (req, reply) => {
     const targetUrl = req.params["*"];
-    try {
-        // Use wisp for fetching remote page
-        const frame = wisp.createFrame();
-        const html = await frame.fetch(targetUrl);
 
-        // Rewrite headers to allow iframe embedding
-        reply.header("X-Frame-Options", "ALLOWALL");
+    // Validate target URL
+    try {
+        const url = new URL(targetUrl.startsWith("http") ? targetUrl : `https://${targetUrl}`);
+
+        // Optional: disallow local network / file URLs
+        if (["127.0.0.1", "localhost"].includes(url.hostname)) {
+            return reply.code(403).send("Access to local URLs is forbidden.");
+        }
+
+        const frame = wisp.createFrame();
+        const html = await frame.fetch(url.href);
+
+        // Allow iframe embedding
         reply.header("Content-Security-Policy", "frame-ancestors *");
 
         return reply.type("text/html").send(html);
     } catch (err) {
         console.error("Scramjet Proxy Error:", err);
-        return reply.code(500).send(`
+        return reply.code(500).type("text/html").send(`
             <h2>Scramjet Proxy Error</h2>
             <pre>${err.toString()}</pre>
         `);
@@ -74,7 +85,7 @@ fastify.get("/proxy/*", async (req, reply) => {
 // -------------------
 // 404 handler
 // -------------------
-fastify.setNotFoundHandler((res, reply) => {
+fastify.setNotFoundHandler((request, reply) => {
     return reply.code(404).type("text/html").sendFile("404.html");
 });
 
@@ -82,18 +93,33 @@ fastify.setNotFoundHandler((res, reply) => {
 // Server listening
 // -------------------
 const port = parseInt(process.env.PORT) || 8080;
-fastify.listen({ port, host: "0.0.0.0" }, () => {
-    console.log(`Matriarchs OS backend running at http://localhost:${port}`);
-    console.log(`Access from your network: http://${hostname()}:${port}`);
-});
+
+async function startServer() {
+    try {
+        await fastify.listen({ port, host: "0.0.0.0" });
+        console.log(`Matriarchs OS backend running at http://localhost:${port}`);
+        console.log(`Access from your network: http://${hostname()}:${port}`);
+    } catch (err) {
+        console.error("Server failed to start:", err);
+        process.exit(1);
+    }
+}
+startServer();
 
 // -------------------
 // Graceful shutdown
 // -------------------
-process.on("SIGINT", shutdown);
-process.on("SIGTERM", shutdown);
-function shutdown() {
-    console.log("SIGTERM signal received: closing HTTP server");
-    fastify.close();
-    process.exit(0);
+async function shutdown(signal) {
+    console.log(`${signal} signal received: closing HTTP server...`);
+    try {
+        await fastify.close();
+        console.log("Server closed gracefully.");
+        process.exit(0);
+    } catch (err) {
+        console.error("Error during shutdown:", err);
+        process.exit(1);
+    }
 }
+
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));
