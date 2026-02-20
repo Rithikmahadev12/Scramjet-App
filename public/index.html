@@ -4,168 +4,225 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Matriarchs OS</title>
+<link rel="stylesheet" href="index.css">
+<script src="/scram/scramjet.all.js"></script>
+<script src="/baremux/index.js"></script>
+<script defer src="index.js"></script>
+
 <style>
-body, html { margin:0; padding:0; height:100%; font-family:'Segoe UI', sans-serif; overflow:hidden; background: radial-gradient(circle at top left, #0b0b1a, #1c1c2e, #0a0a0f); color:#fff; }
-#desktop { position:relative; width:100%; height:100%; }
+html, body {
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  font-family:'Segoe UI', sans-serif;
+  overflow:hidden;
+  background: radial-gradient(circle at 50% 50%, #0a0a1f 0%, #000014 100%);
+  background-size: cover;
+}
+
+/* Lock Screen */
+#lockscreen {
+  position: absolute;
+  top:0; left:0; width:100%; height:100%;
+  display:flex; justify-content:center; align-items:center;
+  flex-direction: column;
+  color:#fff;
+  background: radial-gradient(circle at 50% 50%, #0a0a1f 0%, #000014 100%);
+  z-index:9999;
+}
+
+#lockscreen input[type="password"] {
+  padding:10px 15px;
+  font-size:1rem;
+  border-radius:8px;
+  border:none;
+  outline:none;
+}
+
+/* Desktop icons */
+.desktop-icon {
+  position:absolute;
+  width:80px;
+  text-align:center;
+  color:#fff;
+  cursor:pointer;
+}
+.desktop-icon img { width:48px; height:48px; }
 
 /* Taskbar */
-#taskbar { position:absolute; bottom:0; left:0; width:100%; height:40px; background: rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:flex-start; padding:0 10px; font-family: monospace; color:#00ffcc; letter-spacing:2px; font-size:0.85rem; }
-@keyframes bounceText { 0%,100%{transform:translateY(0);} 25%{transform:translateY(-5px);} 50%{transform:translateY(5px);} 75%{transform:translateY(-5px);} }
-#taskbar span.animated { display:inline-block; animation: bounceText 1s infinite; animation-delay: calc(var(--i)*0.1s); }
+#taskbar {
+  position:absolute;
+  bottom:0; left:0; width:100%;
+  height:40px;
+  background:rgba(0,0,0,0.5);
+  display:flex;
+  align-items:center;
+  padding:0 10px;
+  font-weight:bold;
+}
+.taskbar-letter {
+  margin:0 3px;
+  display:inline-block;
+  animation: bounce 1s infinite alternate;
+}
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-5px); }
+}
 
-/* Start menu */
-#start-menu { position:absolute; bottom:40px; left:10px; width:220px; background: rgba(30,30,30,0.95); border-radius:6px; display:none; flex-direction:column; padding:10px; }
-.start-menu-item { padding:6px 10px; cursor:pointer; border-radius:4px; transition:0.2s; }
-.start-menu-item:hover { background: rgba(255,255,255,0.1); }
+/* Window */
+.window {
+  position:absolute;
+  border:2px solid #555;
+  background:#111;
+  color:#fff;
+  border-radius:6px;
+  overflow:hidden;
+  display:flex;
+  flex-direction: column;
+  z-index:10;
+}
+.window-header {
+  background:#222;
+  padding:5px 10px;
+  cursor:move;
+  user-select:none;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.window-body { flex:1; background:#111; overflow:auto; }
 
-/* Windows */
-.window { position:absolute; border-radius:6px; overflow:hidden; box-shadow:0 0 12px rgba(0,0,0,0.5); background:#222; resize:both; min-width:300px; min-height:200px; }
-.window-header { background: rgba(50,50,50,0.9); padding:5px 10px; cursor:move; display:flex; justify-content:space-between; align-items:center; }
-.window-header span { user-select:none; }
-.window-close { cursor:pointer; padding:0 5px; }
-.window iframe { width:100%; height:calc(100% - 30px); border:none; }
-
-/* Lock screen */
-#lock-screen { position:absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle at center, #0b0b1a, #1c1c2e); display:flex; justify-content:center; align-items:center; flex-direction:column; color:#fff; font-size:1.2rem; }
-#lock-screen input { padding:8px 12px; border-radius:6px; border:none; margin-top:10px; outline:none; }
-#lock-screen button { margin-top:10px; padding:6px 12px; border-radius:6px; border:none; cursor:pointer; }
-
-/* GN Math Game */
-#gn-math { padding:10px; font-size:1rem; color:#0ff; }
-.gn-question { margin-bottom:12px; }
-.gn-option { display:block; margin:4px 0; padding:6px; border-radius:4px; background: rgba(255,255,255,0.1); cursor:pointer; transition:0.2s; }
-.gn-option:hover { background: rgba(255,255,255,0.2); }
-.gn-feedback { margin-top:6px; color:#ff0; }
+/* Start Menu */
+#start-menu {
+  position:absolute;
+  bottom:40px;
+  left:10px;
+  width:200px;
+  background:rgba(0,0,0,0.7);
+  border-radius:6px;
+  display:none;
+  flex-direction:column;
+  color:#fff;
+}
+.start-item {
+  padding:8px 10px;
+  cursor:pointer;
+}
+.start-item:hover { background:rgba(255,255,255,0.1); }
 </style>
 </head>
 <body>
-<div id="desktop"></div>
+
+<!-- Lock Screen -->
+<div id="lockscreen">
+  <h1>Matriarchs OS</h1>
+  <input type="password" id="password" placeholder="Enter Password">
+  <button id="unlockBtn">Unlock</button>
+</div>
+
+<!-- Desktop Icons -->
+<div class="desktop-icon" style="top:50px; left:50px;" onclick="openApp('browser')">
+  <img src="icons/browser.png" alt="Browser"><br>Brave
+</div>
+
+<div class="desktop-icon" style="top:150px; left:50px;" onclick="openApp('gnmath')">
+  <img src="icons/game.png" alt="GN Math"><br>GN Math
+</div>
 
 <!-- Taskbar -->
 <div id="taskbar">
-<span class="animated" style="--i:0">M</span><span class="animated" style="--i:1">A</span><span class="animated" style="--i:2">T</span><span class="animated" style="--i:3">R</span><span class="animated" style="--i:4">I</span><span class="animated" style="--i:5">A</span><span class="animated" style="--i:6">R</span><span class="animated" style="--i:7">C</span><span class="animated" style="--i:8">H</span><span class="animated" style="--i:9">S</span> OS
+  <span class="taskbar-letter">M</span>
+  <span class="taskbar-letter">A</span>
+  <span class="taskbar-letter">T</span>
+  <span class="taskbar-letter">R</span>
+  <span class="taskbar-letter">I</span>
+  <span class="taskbar-letter">A</span>
+  <span class="taskbar-letter">R</span>
+  <span class="taskbar-letter">C</span>
+  <span class="taskbar-letter">H</span>
+  <span class="taskbar-letter">S</span>
 </div>
 
-<!-- Start menu -->
+<!-- Start Menu -->
 <div id="start-menu">
-  <div class="start-menu-item" onclick="openApp('browser')">Brave Browser</div>
-  <div class="start-menu-item" onclick="openApp('gnmath')">GN Math</div>
-  <div class="start-menu-item" onclick="openApp('settings')">Settings</div>
-</div>
-
-<!-- Lock screen -->
-<div id="lock-screen">
-  <div>Enter Password to Unlock</div>
-  <input type="password" id="unlock-password" placeholder="Password"/>
-  <button onclick="unlockScreen()">Unlock</button>
+  <div class="start-item" onclick="openApp('browser')">Brave Browser</div>
+  <div class="start-item" onclick="openApp('gnmath')">GN Math</div>
 </div>
 
 <script>
-const desktop = document.getElementById('desktop');
-const startMenu = document.getElementById('start-menu');
-const lockScreen = document.getElementById('lock-screen');
-const password = "1234";
+// ---------------- Lock screen
+const lockscreen = document.getElementById("lockscreen");
+const unlockBtn = document.getElementById("unlockBtn");
+const passwordInput = document.getElementById("password");
+const correctPassword = "matriarchs"; // Example password
 
-// Start menu toggle
-document.addEventListener('keydown', e => { if(e.key==="Escape") startMenu.style.display='none'; });
-document.getElementById('taskbar').addEventListener('click', () => {
-  startMenu.style.display = startMenu.style.display==='flex' ? 'none' : 'flex';
+unlockBtn.onclick = () => {
+  if (passwordInput.value === correctPassword) {
+    lockscreen.style.display = "none";
+  } else {
+    alert("Wrong password!");
+  }
+};
+
+// ---------------- Start menu toggle
+document.addEventListener("keydown", e => {
+  if (e.key === "Meta") { // Windows/Command key
+    const menu = document.getElementById("start-menu");
+    menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+  }
 });
 
-// Unlock screen
-function unlockScreen(){
-  if(document.getElementById('unlock-password').value===password) lockScreen.style.display='none';
-  else alert('Wrong password');
-}
+// ---------------- Draggable Windows
+function makeDraggable(el) {
+  const header = el.querySelector(".window-header");
+  let offsetX = 0, offsetY = 0, isDown = false;
 
-// Draggable windows
-function dragElement(el){
-  let pos1=0,pos2=0,pos3=0,pos4=0;
-  const header=el.querySelector(".window-header");
-  (header?header:el).onmousedown=function(e){
-    e.preventDefault();
-    pos3=e.clientX; pos4=e.clientY;
-    document.onmouseup=closeDrag;
-    document.onmousemove=drag;
+  header.onmousedown = (e) => {
+    isDown = true;
+    offsetX = e.clientX - el.offsetLeft;
+    offsetY = e.clientY - el.offsetTop;
+    el.style.zIndex = ++topZ;
   };
-  function drag(e){
-    e.preventDefault();
-    pos1=pos3-e.clientX; pos2=pos4-e.clientY;
-    pos3=e.clientX; pos4=e.clientY;
-    el.style.top=(el.offsetTop-pos2)+"px";
-    el.style.left=(el.offsetLeft-pos1)+"px";
-  }
-  function closeDrag(){ document.onmouseup=null; document.onmousemove=null; }
+
+  document.onmouseup = () => { isDown = false; };
+  document.onmousemove = (e) => {
+    if (!isDown) return;
+    el.style.left = (e.clientX - offsetX) + "px";
+    el.style.top = (e.clientY - offsetY) + "px";
+  };
 }
+let topZ = 10;
 
-// Open app
-function openApp(name){
-  let url="";
-  if(name==="browser") url="/wisp-proxy?url=https://search.brave.com";
-  
-  const win=document.createElement('div');
-  win.className="window";
-  win.style.top="50px"; win.style.left="50px"; win.style.width="900px"; win.style.height="600px";
+// ---------------- Open apps
+function openApp(app) {
+  let win = document.createElement("div");
+  win.className = "window";
+  win.style.top = "100px";
+  win.style.left = "100px";
+  win.style.width = "800px";
+  win.style.height = "600px";
 
-  let content="";
-  if(name==="gnmath"){
-    content = `<div id="gn-math"></div>`;
-  } else if(name==="settings"){
-    content = `<div>Settings placeholder</div>`;
-  } else {
-    content = `<iframe src="${url}"></iframe>`;
+  let header = document.createElement("div");
+  header.className = "window-header";
+  header.innerHTML = `<span>${app}</span><button onclick="this.parentNode.parentNode.remove()">✕</button>`;
+  win.appendChild(header);
+
+  let body = document.createElement("div");
+  body.className = "window-body";
+
+  if (app === "browser") {
+    body.innerHTML = `<iframe src="/wisp/?url=https://search.brave.com" style="width:100%;height:100%;border:none;"></iframe>`;
+  } else if (app === "gnmath") {
+    body.innerHTML = `<iframe src="gn-math/index.html" style="width:100%;height:100%;border:none;"></iframe>`;
   }
 
-  win.innerHTML = `
-    <div class="window-header">
-      <span>${name}</span>
-      <span class="window-close" onclick="this.parentElement.parentElement.remove()">✕</span>
-    </div>
-    ${content}
-  `;
-  desktop.appendChild(win);
-  dragElement(win);
-
-  // Load GN Math game
-  if(name==="gnmath") loadGNMath();
-}
-
-// ------------------
-// GN Math Game Implementation
-// ------------------
-function loadGNMath(){
-  const container = document.getElementById('gn-math');
-  const questions = [
-    {q:"2 + 2 = ?", a:["3","4","5"], correct:1},
-    {q:"5 * 2 = ?", a:["10","12","9"], correct:0},
-    {q:"10 / 2 = ?", a:["2","5","8"], correct:1}
-  ];
-  let current=0;
-  container.innerHTML="";
-  function showQuestion(){
-    container.innerHTML="";
-    const qObj=questions[current];
-    const qDiv=document.createElement('div');
-    qDiv.className="gn-question";
-    qDiv.textContent=qObj.q;
-    container.appendChild(qDiv);
-    qObj.a.forEach((opt,i)=>{
-      const btn=document.createElement('button');
-      btn.className="gn-option";
-      btn.textContent=opt;
-      btn.onclick=()=>{ 
-        const feedback=document.createElement('div'); 
-        feedback.className="gn-feedback";
-        if(i===qObj.correct){ feedback.textContent="Correct!"; current++; }
-        else { feedback.textContent="Wrong!"; }
-        container.appendChild(feedback);
-        setTimeout(()=>{ current>=questions.length ? container.innerHTML="<div>Game Over!</div>" : showQuestion(); },800);
-      };
-      container.appendChild(btn);
-    });
-  }
-  showQuestion();
+  win.appendChild(body);
+  document.body.appendChild(win);
+  makeDraggable(win);
 }
 </script>
+
 </body>
 </html>
