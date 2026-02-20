@@ -59,7 +59,6 @@ body, html { width:100%; height:100%; font-family:'Segoe UI', sans-serif; backgr
 
 <div id="calendar"></div>
 
-<!-- Scramjet Backend -->
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
 <script>
@@ -100,8 +99,12 @@ setInterval(updateTime,1000); updateTime();
 function makeDraggable(win){
   const header = win.querySelector(".window-header");
   let offsetX=0, offsetY=0, dragging=false;
-  header.addEventListener("mousedown", e=>{ dragging=true; offsetX=e.clientX-win.offsetLeft; offsetY=e.clientY-win.offsetTop; });
-  document.addEventListener("mousemove", e=>{ if(dragging){ win.style.left=(e.clientX-offsetX)+"px"; win.style.top=(e.clientY-offsetY)+"px"; } });
+  header.addEventListener("mousedown", e=>{
+    dragging=true; offsetX=e.clientX-win.offsetLeft; offsetY=e.clientY-win.offsetTop;
+  });
+  document.addEventListener("mousemove", e=>{
+    if(dragging){ win.style.left=(e.clientX-offsetX)+"px"; win.style.top=(e.clientY-offsetY)+"px"; }
+  });
   document.addEventListener("mouseup", ()=>dragging=false);
 }
 
@@ -112,7 +115,6 @@ async function openApp(app){
   win.className="window";
   win.style.top="50px"; win.style.left="50px";
 
-  // Header with close button
   win.innerHTML=`
     <div class="window-header">
       <span>${app}</span>
@@ -121,22 +123,28 @@ async function openApp(app){
       </div>
     </div>
   `;
+
   const frameContainer = document.createElement("div");
   frameContainer.className="window-content";
   win.appendChild(frameContainer);
   desktop.appendChild(win);
   makeDraggable(win);
 
-  // -------------------- Scramjet Frame using /wisp-proxy --------------------
-  let url = "";
-  if(app==="youtube") url="/wisp-proxy?url=" + encodeURIComponent("https://youtube.com");
-  else if(app==="tiktok") url="/wisp-proxy?url=" + encodeURIComponent("https://www.tiktok.com");
-  else url="about:blank";
+  // -------------------- Determine URL --------------------
+  let url="about:blank";
+  if(app==="youtube") url="/wisp-proxy?url="+encodeURIComponent("https://youtube.com");
+  else if(app==="tiktok") url="/wisp-proxy?url="+encodeURIComponent("https://www.tiktok.com");
 
+  // -------------------- Wait for BareMux transport --------------------
+  await connection.getTransport();
+  await connection.setTransport("/libcurl/index.mjs", [{
+      websocket: (location.protocol==="https:"?"wss":"ws")+"://"+location.host+"/wisp/"
+  }]);
+
+  // -------------------- Create Scramjet Frame --------------------
   const frame = scramjet.createFrame({ container: frameContainer });
   frame.frame.style.width="100%";
   frame.frame.style.height="100%";
-  await connection.setTransport("/libcurl/index.mjs", [{ websocket: (location.protocol==="https:"?"wss":"ws") + "://" + location.host + "/wisp/"}]);
   frame.go(url);
 }
 
