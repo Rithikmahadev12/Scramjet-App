@@ -4,10 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Matriarchs XenOS</title>
-
 <link rel="shortcut icon" href="favicon.webp">
 
-<!-- Scramjet backend scripts (keep intact) -->
+<!-- Scramjet scripts (keep these intact) -->
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
 <script src="register-sw.js" defer></script>
@@ -15,157 +14,78 @@
 <script src="index.js" defer></script>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,sans-serif;}
-
-body,html{
-  height:100%;
-  overflow:hidden;
-}
-
-/* Background - Moon wallpaper */
-body{
-  background:url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1974&auto=format&fit=crop') center/cover no-repeat;
-}
+* {margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+body, html {height:100%; overflow:hidden;}
+body {background:url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1974&auto=format&fit=crop') center/cover no-repeat;}
 
 /* LOCK SCREEN */
 #lockscreen{
-  position:absolute;
-  inset:0;
-  background:rgba(0,0,0,0.8);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  color:white;
-  z-index:9999;
+  position:absolute; inset:0;
+  background:rgba(0,0,0,0.85);
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  color:white; z-index:9999; text-align:center;
 }
-
 #lockscreen input{
-  padding:10px;
-  margin:10px;
-  border-radius:6px;
-  border:none;
-  outline:none;
-  width:200px;
-  text-align:center;
+  padding:10px; margin:10px; border-radius:6px; border:none; outline:none; width:220px; text-align:center;
 }
-
 #lockscreen button{
-  padding:10px 20px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-  background:white;
-  color:black;
+  padding:10px 20px; margin-top:10px; border:none; border-radius:6px; cursor:pointer; background:white; color:black;
 }
 
 /* DESKTOP */
-#desktop{
-  position:absolute;
-  inset:0;
-  padding:20px;
-}
+#desktop{position:absolute; inset:0; padding:20px;}
 
 /* DESKTOP ICONS */
-.desktop-icon{
-  width:80px;
-  text-align:center;
-  cursor:pointer;
-  margin:10px;
-}
-
-.desktop-icon img{
-  width:48px;
-  height:48px;
-  margin-bottom:5px;
-}
+.desktop-icon{width:80px; text-align:center; cursor:pointer; margin:10px;}
+.desktop-icon img{width:48px;height:48px;margin-bottom:5px;}
 
 /* TASKBAR / TOOLBAR */
 #taskbar{
-  position:absolute;
-  bottom:0;
-  left:0;
-  right:0;
-  height:50px;
-  background:rgba(20,20,40,0.8);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 15px;
-  backdrop-filter:blur(8px);
-  color:white;
+  position:absolute; bottom:0; left:0; right:0; height:50px;
+  background:rgba(20,20,40,0.85); display:flex; align-items:center; justify-content:space-between;
+  padding:0 15px; backdrop-filter:blur(8px); color:white;
 }
+#start{padding:8px 14px; background:rgba(255,255,255,0.1); border-radius:6px; cursor:pointer;}
+#clock, #date{font-size:0.9rem; cursor:pointer;}
+#toolbar-left{display:flex; align-items:center; gap:10px;}
+#toolbar-right{display:flex; align-items:center; gap:10px;}
 
-#start{
-  padding:8px 14px;
-  background:rgba(255,255,255,0.1);
-  border-radius:6px;
-  cursor:pointer;
-}
-
-#clock{
-  font-size:0.9rem;
-}
+/* START MENU */
+#start-menu{display:none; position:absolute; bottom:50px; left:10px; background:#1e1e2f; border-radius:10px; padding:15px; width:220px;}
+.menu-item{padding:8px; cursor:pointer;}
+.menu-item:hover{background:#27293d;}
 
 /* WINDOWS */
 .window{
-  position:absolute;
-  width:800px;
-  height:500px;
-  background:#111;
-  border-radius:12px;
-  overflow:hidden;
-  box-shadow:0 0 30px rgba(0,0,0,0.7);
-  display:flex;
-  flex-direction:column;
-  z-index:1;
+  position:absolute; width:800px; height:500px; background:#111; border-radius:12px; overflow:hidden;
+  box-shadow:0 0 30px rgba(0,0,0,0.7); display:flex; flex-direction:column; z-index:1;
 }
-
 .window-header{
-  height:40px;
-  background:#1c1c2e;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 10px;
-  cursor:move;
+  height:40px; background:#1c1c2e; display:flex; align-items:center; justify-content:space-between; padding:0 10px; cursor:move;
 }
+.window-controls{display:flex; gap:8px;}
+.control{width:12px; height:12px; border-radius:50%; cursor:pointer;}
+.close{background:#ff5f56;} .min{background:#ffbd2e;} .max{background:#27c93f;}
+.window iframe{flex:1; border:none;}
+.resize{width:15px; height:15px; position:absolute; right:0; bottom:0; cursor:nwse-resize;}
 
-.window-controls{
-  display:flex;
-  gap:8px;
-}
+/* CALENDAR */
+#calendar{display:none; position:absolute; bottom:50px; right:10px; background:#1e1e2f; color:white; padding:10px; border-radius:10px; width:220px;}
+#calendar table{width:100%; text-align:center; border-collapse:collapse;}
+#calendar th{padding:5px;}
+#calendar td{padding:8px; cursor:pointer;}
+#calendar td:hover{background:#27293d; border-radius:6px;}
 
-.control{
-  width:12px;
-  height:12px;
-  border-radius:50%;
-  cursor:pointer;
-}
-
-.close{background:#ff5f56;}
-.min{background:#ffbd2e;}
-.max{background:#27c93f;}
-
-.window iframe{
-  flex:1;
-  border:none;
-}
-
-.resize{
-  width:15px;
-  height:15px;
-  position:absolute;
-  right:0;
-  bottom:0;
-  cursor:nwse-resize;
-}
+/* SETTINGS PANEL */
+#settings-panel{display:none; position:absolute; bottom:50px; right:10px; width:250px; background:#1e1e2f; color:white; padding:15px; border-radius:10px;}
+#settings-panel h3{margin-bottom:10px;}
+#settings-panel button{margin-top:10px; padding:6px 12px; border-radius:6px; border:none; cursor:pointer; background:#27293d; color:white;}
 </style>
 </head>
 
 <body>
 
-<!-- Hidden Scramjet form -->
+<!-- HIDDEN SCRAMJET FORM -->
 <div id="matriarchs-browser" style="display:none;">
   <form id="sj-form">
     <input id="sj-search-engine" type="hidden" value="https://www.google.com/search?q=%s">
@@ -192,30 +112,79 @@ body{
 
 <!-- TASKBAR -->
 <div id="taskbar">
-  <div id="start">☰ Start</div>
-  <div id="clock"></div>
+  <div id="toolbar-left">
+    <div id="start">☰ Start</div>
+  </div>
+  <div id="toolbar-right">
+    <div id="date">--/--/----</div>
+    <div id="clock">--:--:--</div>
+  </div>
 </div>
 
 <!-- START MENU -->
-<div id="start-menu" style="display:none; position:absolute; bottom:50px; left:10px; background:#1e1e2f; border-radius:10px; padding:15px; width:220px;">
+<div id="start-menu">
   <div class="menu-item" onclick="launchApp('https://youtube.com')">YouTube</div>
   <div class="menu-item" onclick="launchApp('https://tiktok.com')">TikTok</div>
   <div class="menu-item" onclick="launchApp('https://google.com')">Google</div>
   <div class="menu-item" onclick="showSettings()">Settings</div>
 </div>
 
+<!-- CALENDAR -->
+<div id="calendar"></div>
+
+<!-- SETTINGS PANEL -->
+<div id="settings-panel">
+  <h3>System Settings</h3>
+  <label>Wallpaper URL:</label>
+  <input type="text" id="wallpaper-input" placeholder="Enter image URL" style="width:100%; margin-bottom:8px;">
+  <button id="apply-wallpaper">Apply Wallpaper</button>
+  <button onclick="logout()">Logout</button>
+</div>
+
 <script>
-const proxyForm=document.getElementById('sj-form');
+const sjForm=document.getElementById('sj-form');
 const sjInput=document.getElementById('sj-address');
 let zIndex=1;
 
-/* CLOCK */
-function updateClock(){
+/* CLOCK & DATE */
+function updateTime(){
   const now=new Date();
-  document.getElementById('clock').innerText=now.toLocaleString();
+  document.getElementById('clock').innerText=now.toLocaleTimeString();
+  document.getElementById('date').innerText=now.toLocaleDateString();
 }
-setInterval(updateClock,1000);
-updateClock();
+setInterval(updateTime,1000);
+updateTime();
+
+/* CALENDAR */
+const calendar=document.getElementById('calendar');
+document.getElementById('date').onclick=()=>{
+  calendar.style.display=calendar.style.display==='block'?'none':'block';
+  generateCalendar();
+};
+function generateCalendar(){
+  const now=new Date();
+  const month=now.getMonth();
+  const year=now.getFullYear();
+  const firstDay=new Date(year,month,1).getDay();
+  const lastDate=new Date(year,month+1,0).getDate();
+  let html='<table><tr><th>Su</th><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th></tr><tr>';
+  for(let i=0;i<firstDay;i++) html+='<td></td>';
+  for(let d=1;d<=lastDate;d++){
+    if((firstDay+d-1)%7===0 && d!==1) html+='</tr><tr>';
+    html+='<td>'+d+'</td>';
+  }
+  html+='</tr></table>';
+  calendar.innerHTML=html;
+}
+
+/* SETTINGS */
+const settingsPanel=document.getElementById('settings-panel');
+function showSettings(){settingsPanel.style.display='block';}
+document.getElementById('apply-wallpaper').onclick=()=>{
+  const url=document.getElementById('wallpaper-input').value;
+  if(url) document.body.style.background=`url('${url}') center/cover no-repeat`;
+};
+function logout(){localStorage.clear(); location.reload();}
 
 /* LOCK SCREEN */
 const accountSetup=document.getElementById('account-setup');
@@ -237,9 +206,7 @@ document.getElementById('unlock-btn').onclick=()=>{
   const p=document.getElementById('unlock-password').value;
   if(p===localStorage.getItem('xenos_password')){
     lockscreen.style.display='none';
-  }else{
-    alert('Wrong password!');
-  }
+  }else{alert('Wrong password!');}
 };
 
 /* START MENU */
@@ -256,8 +223,6 @@ function launchApp(url){
   win.style.left='150px';
   win.style.zIndex=zIndex++;
 
-  const encoded=btoa(url);
-
   win.innerHTML=`
     <div class="window-header">
       <span>${url}</span>
@@ -267,7 +232,7 @@ function launchApp(url){
         <div class="control close"></div>
       </div>
     </div>
-    <iframe src="/service/${encoded}"></iframe>
+    <iframe src="" data-url="${url}"></iframe>
     <div class="resize"></div>
   `;
 
@@ -279,12 +244,17 @@ function launchApp(url){
   win.querySelector('.close').onclick=()=>win.remove();
   win.querySelector('.min').onclick=()=>win.style.display='none';
   win.querySelector('.max').onclick=()=>{
-    win.style.top='0';
-    win.style.left='0';
-    win.style.width='100%';
-    win.style.height='calc(100% - 50px)';
+    win.style.top='0'; win.style.left='0';
+    win.style.width='100%'; win.style.height='calc(100% - 50px)';
   };
   win.onclick=()=>win.style.zIndex=zIndex++;
+
+  // Scramjet safe load
+  const iframe=win.querySelector('iframe');
+  sjInput.value=url;
+  sjForm.onsubmit=function(e){e.preventDefault();};
+  sjForm.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
+  iframe.src=url; // fallback for display, Scramjet still proxies via service worker
 }
 
 /* DRAGGING */
@@ -308,10 +278,7 @@ function drag(win){
 function resize(win){
   const handle=win.querySelector('.resize');
   let resizing=false;
-  handle.onmousedown=e=>{
-    resizing=true;
-    e.stopPropagation();
-  };
+  handle.onmousedown=e=>{resizing=true; e.stopPropagation();};
   document.onmousemove=e=>{
     if(!resizing) return;
     win.style.width=e.clientX-win.offsetLeft+'px';
@@ -328,16 +295,10 @@ function addIcon(name,url){
   icon.onclick=()=>launchApp(url);
   document.getElementById('desktop').appendChild(icon);
 }
-
 addIcon('YouTube','https://youtube.com');
 addIcon('TikTok','https://tiktok.com');
 addIcon('Google','https://google.com');
-
-/* SETTINGS MENU */
-function showSettings(){
-  alert('Settings placeholder');
-}
-
 </script>
+
 </body>
 </html>
