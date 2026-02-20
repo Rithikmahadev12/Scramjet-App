@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Matriarchs XenOS</title>
+<title>XenOS Fixed Multi-Window</title>
 <link rel="shortcut icon" href="favicon.webp">
 
-<!-- Scramjet scripts (keep these intact) -->
+<!-- Scramjet scripts -->
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
 <script src="register-sw.js" defer></script>
@@ -14,84 +14,56 @@
 <script src="index.js" defer></script>
 
 <style>
-* {margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
-body, html {height:100%; overflow:hidden;}
-body {background:url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1974&auto=format&fit=crop') center/cover no-repeat;}
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+html, body { height:100%; overflow:hidden; background:url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1974&auto=format&fit=crop') center/cover no-repeat; }
 
 /* LOCK SCREEN */
-#lockscreen{
-  position:absolute; inset:0;
-  background:rgba(0,0,0,0.85);
-  display:flex; flex-direction:column; justify-content:center; align-items:center;
-  color:white; z-index:9999; text-align:center;
-}
-#lockscreen input{
-  padding:10px; margin:10px; border-radius:6px; border:none; outline:none; width:220px; text-align:center;
-}
-#lockscreen button{
-  padding:10px 20px; margin-top:10px; border:none; border-radius:6px; cursor:pointer; background:white; color:black;
-}
+#lockscreen{ position:absolute; inset:0; background:rgba(0,0,0,0.85); display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; z-index:9999; text-align:center; }
+#lockscreen input{ padding:10px; margin:10px; border-radius:6px; border:none; outline:none; width:220px; text-align:center; }
+#lockscreen button{ padding:10px 20px; margin-top:10px; border:none; border-radius:6px; cursor:pointer; background:white; color:black; }
 
 /* DESKTOP */
-#desktop{position:absolute; inset:0; padding:20px;}
+#desktop{ position:absolute; inset:0; padding:20px; }
 
 /* DESKTOP ICONS */
-.desktop-icon{width:80px; text-align:center; cursor:pointer; margin:10px;}
-.desktop-icon img{width:48px;height:48px;margin-bottom:5px;}
+.desktop-icon{ width:80px; text-align:center; cursor:pointer; margin:10px; }
+.desktop-icon img{ width:48px; height:48px; margin-bottom:5px; }
 
-/* TASKBAR / TOOLBAR */
-#taskbar{
-  position:absolute; bottom:0; left:0; right:0; height:50px;
-  background:rgba(20,20,40,0.85); display:flex; align-items:center; justify-content:space-between;
-  padding:0 15px; backdrop-filter:blur(8px); color:white;
-}
-#start{padding:8px 14px; background:rgba(255,255,255,0.1); border-radius:6px; cursor:pointer;}
-#clock, #date{font-size:0.9rem; cursor:pointer;}
-#toolbar-left{display:flex; align-items:center; gap:10px;}
-#toolbar-right{display:flex; align-items:center; gap:10px;}
+/* TASKBAR */
+#taskbar{ position:absolute; bottom:0; left:0; right:0; height:50px; background:rgba(20,20,40,0.85); display:flex; justify-content:space-between; align-items:center; padding:0 15px; backdrop-filter:blur(8px); color:white; }
+#toolbar-left{ display:flex; align-items:center; gap:10px; }
+#toolbar-right{ display:flex; align-items:center; gap:10px; }
+#start{ padding:8px 14px; background:rgba(255,255,255,0.1); border-radius:6px; cursor:pointer; }
+#clock,#date{ cursor:pointer; font-size:0.9rem; }
 
 /* START MENU */
-#start-menu{display:none; position:absolute; bottom:50px; left:10px; background:#1e1e2f; border-radius:10px; padding:15px; width:220px;}
-.menu-item{padding:8px; cursor:pointer;}
-.menu-item:hover{background:#27293d;}
+#start-menu{ display:none; position:absolute; bottom:50px; left:10px; background:#1e1e2f; border-radius:10px; padding:15px; width:220px; }
+.menu-item{ padding:8px; cursor:pointer; }
+.menu-item:hover{ background:#27293d; }
 
 /* WINDOWS */
-.window{
-  position:absolute; width:800px; height:500px; background:#111; border-radius:12px; overflow:hidden;
-  box-shadow:0 0 30px rgba(0,0,0,0.7); display:flex; flex-direction:column; z-index:1;
-}
-.window-header{
-  height:40px; background:#1c1c2e; display:flex; align-items:center; justify-content:space-between; padding:0 10px; cursor:move;
-}
-.window-controls{display:flex; gap:8px;}
-.control{width:12px; height:12px; border-radius:50%; cursor:pointer;}
-.close{background:#ff5f56;} .min{background:#ffbd2e;} .max{background:#27c93f;}
-.window iframe{flex:1; border:none;}
-.resize{width:15px; height:15px; position:absolute; right:0; bottom:0; cursor:nwse-resize;}
+.window{ position:absolute; width:800px; height:500px; background:#111; border-radius:12px; overflow:hidden; box-shadow:0 0 30px rgba(0,0,0,0.7); display:flex; flex-direction:column; z-index:1; }
+.window-header{ height:40px; background:#1c1c2e; display:flex; justify-content:space-between; align-items:center; padding:0 10px; cursor:move; }
+.window-controls{ display:flex; gap:8px; }
+.control{ width:12px; height:12px; border-radius:50%; cursor:pointer; }
+.close{ background:#ff5f56; } .min{ background:#ffbd2e; } .max{ background:#27c93f; }
+.window iframe{ flex:1; border:none; }
+.resize{ width:15px; height:15px; position:absolute; right:0; bottom:0; cursor:nwse-resize; }
 
 /* CALENDAR */
-#calendar{display:none; position:absolute; bottom:50px; right:10px; background:#1e1e2f; color:white; padding:10px; border-radius:10px; width:220px;}
-#calendar table{width:100%; text-align:center; border-collapse:collapse;}
-#calendar th{padding:5px;}
-#calendar td{padding:8px; cursor:pointer;}
-#calendar td:hover{background:#27293d; border-radius:6px;}
+#calendar{ display:none; position:absolute; bottom:50px; right:10px; background:#1e1e2f; color:white; padding:10px; border-radius:10px; width:220px; }
+#calendar table{ width:100%; text-align:center; border-collapse:collapse; }
+#calendar th{ padding:5px; }
+#calendar td{ padding:8px; cursor:pointer; }
+#calendar td:hover{ background:#27293d; border-radius:6px; }
 
 /* SETTINGS PANEL */
-#settings-panel{display:none; position:absolute; bottom:50px; right:10px; width:250px; background:#1e1e2f; color:white; padding:15px; border-radius:10px;}
-#settings-panel h3{margin-bottom:10px;}
-#settings-panel button{margin-top:10px; padding:6px 12px; border-radius:6px; border:none; cursor:pointer; background:#27293d; color:white;}
+#settings-panel{ display:none; position:absolute; bottom:50px; right:10px; width:250px; background:#1e1e2f; color:white; padding:15px; border-radius:10px; }
+#settings-panel h3{ margin-bottom:10px; }
+#settings-panel button{ margin-top:10px; padding:6px 12px; border-radius:6px; border:none; cursor:pointer; background:#27293d; color:white; }
 </style>
 </head>
-
 <body>
-
-<!-- HIDDEN SCRAMJET FORM -->
-<div id="matriarchs-browser" style="display:none;">
-  <form id="sj-form">
-    <input id="sj-search-engine" type="hidden" value="https://www.google.com/search?q=%s">
-    <input id="sj-address" type="text">
-  </form>
-</div>
 
 <!-- LOCK SCREEN -->
 <div id="lockscreen">
@@ -112,13 +84,8 @@ body {background:url('https://images.unsplash.com/photo-1446776811953-b23d57bd21
 
 <!-- TASKBAR -->
 <div id="taskbar">
-  <div id="toolbar-left">
-    <div id="start">☰ Start</div>
-  </div>
-  <div id="toolbar-right">
-    <div id="date">--/--/----</div>
-    <div id="clock">--:--:--</div>
-  </div>
+  <div id="toolbar-left"><div id="start">☰ Start</div></div>
+  <div id="toolbar-right"><div id="date">--/--/----</div><div id="clock">--:--:--</div></div>
 </div>
 
 <!-- START MENU -->
@@ -142,8 +109,7 @@ body {background:url('https://images.unsplash.com/photo-1446776811953-b23d57bd21
 </div>
 
 <script>
-const sjForm=document.getElementById('sj-form');
-const sjInput=document.getElementById('sj-address');
+const desktop=document.getElementById('desktop');
 let zIndex=1;
 
 /* CLOCK & DATE */
@@ -152,13 +118,12 @@ function updateTime(){
   document.getElementById('clock').innerText=now.toLocaleTimeString();
   document.getElementById('date').innerText=now.toLocaleDateString();
 }
-setInterval(updateTime,1000);
-updateTime();
+setInterval(updateTime,1000); updateTime();
 
 /* CALENDAR */
 const calendar=document.getElementById('calendar');
 document.getElementById('date').onclick=()=>{
-  calendar.style.display=calendar.style.display==='block'?'none':'block';
+  calendar.style.display = calendar.style.display==='block'?'none':'block';
   generateCalendar();
 };
 function generateCalendar(){
@@ -169,7 +134,7 @@ function generateCalendar(){
   const lastDate=new Date(year,month+1,0).getDate();
   let html='<table><tr><th>Su</th><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th></tr><tr>';
   for(let i=0;i<firstDay;i++) html+='<td></td>';
-  for(let d=1;d<=lastDate;d++){
+  for(let d=1; d<=lastDate; d++){
     if((firstDay+d-1)%7===0 && d!==1) html+='</tr><tr>';
     html+='<td>'+d+'</td>';
   }
@@ -190,110 +155,93 @@ function logout(){localStorage.clear(); location.reload();}
 const accountSetup=document.getElementById('account-setup');
 const loginDiv=document.getElementById('login');
 const lockscreen=document.getElementById('lockscreen');
-
 document.getElementById('create-account').onclick=()=>{
   const u=document.getElementById('username').value;
   const p=document.getElementById('password').value;
-  if(u&&p){
-    localStorage.setItem('xenos_username',u);
-    localStorage.setItem('xenos_password',p);
-    accountSetup.style.display='none';
-    loginDiv.style.display='block';
-  }
+  if(u && p){ localStorage.setItem('xenos_username',u); localStorage.setItem('xenos_password',p); accountSetup.style.display='none'; loginDiv.style.display='block'; }
 };
-
 document.getElementById('unlock-btn').onclick=()=>{
   const p=document.getElementById('unlock-password').value;
-  if(p===localStorage.getItem('xenos_password')){
-    lockscreen.style.display='none';
-  }else{alert('Wrong password!');}
+  if(p===localStorage.getItem('xenos_password')) lockscreen.style.display='none';
+  else alert('Wrong password!');
 };
 
 /* START MENU */
 document.getElementById('start').onclick=()=>{
   const menu=document.getElementById('start-menu');
-  menu.style.display=menu.style.display==='block'?'none':'block';
+  menu.style.display = menu.style.display==='block'?'none':'block';
 };
 
-/* CREATE WINDOWS */
+/* CREATE WINDOWS WITH SCRAMJET */
 function launchApp(url){
   const win=document.createElement('div');
   win.className='window';
-  win.style.top='100px';
-  win.style.left='150px';
-  win.style.zIndex=zIndex++;
+  win.style.top='100px'; win.style.left='150px'; win.style.zIndex=zIndex++;
 
-  win.innerHTML=`
-    <div class="window-header">
-      <span>${url}</span>
-      <div class="window-controls">
-        <div class="control min"></div>
-        <div class="control max"></div>
-        <div class="control close"></div>
-      </div>
-    </div>
-    <iframe src="" data-url="${url}"></iframe>
-    <div class="resize"></div>
-  `;
+  // Create Scramjet form inside window
+  const form=document.createElement('form');
+  form.style.display='none';
+  form.innerHTML=`<input type="hidden" value="" id="sj-input">`;
+  win.appendChild(form);
 
-  document.getElementById('desktop').appendChild(win);
+  const iframe=document.createElement('iframe');
+  iframe.src='about:blank';
+  win.appendChild(iframe);
 
-  drag(win);
-  resize(win);
+  const header=document.createElement('div');
+  header.className='window-header';
+  header.innerHTML=`<span>${url}</span><div class="window-controls">
+    <div class="control min"></div><div class="control max"></div><div class="control close"></div>
+  </div>`;
+  win.insertBefore(header,iframe);
 
-  win.querySelector('.close').onclick=()=>win.remove();
-  win.querySelector('.min').onclick=()=>win.style.display='none';
-  win.querySelector('.max').onclick=()=>{
-    win.style.top='0'; win.style.left='0';
-    win.style.width='100%'; win.style.height='calc(100% - 50px)';
-  };
+  const resizeHandle=document.createElement('div'); resizeHandle.className='resize';
+  win.appendChild(resizeHandle);
+
+  desktop.appendChild(win);
+
+  // Drag & resize
+  drag(win); resize(win);
+
+  // Window buttons
+  header.querySelector('.close').onclick=()=>win.remove();
+  header.querySelector('.min').onclick=()=>win.style.display='none';
+  header.querySelector('.max').onclick=()=>{win.style.top='0'; win.style.left='0'; win.style.width='100%'; win.style.height='calc(100% - 50px)';};
   win.onclick=()=>win.style.zIndex=zIndex++;
 
-  // Scramjet safe load
-  const iframe=win.querySelector('iframe');
-  sjInput.value=url;
-  sjForm.onsubmit=function(e){e.preventDefault();};
-  sjForm.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
-  iframe.src=url; // fallback for display, Scramjet still proxies via service worker
+  // Load via Scramjet
+  const hiddenInput=form.querySelector('#sj-input');
+  hiddenInput.value=url;
+  form.onsubmit=e=>{e.preventDefault();};
+  form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
+
+  // Scramjet-safe iframe src fallback
+  iframe.src = url;
 }
 
 /* DRAGGING */
 function drag(win){
   const header=win.querySelector('.window-header');
   let offsetX,offsetY,dragging=false;
-  header.onmousedown=e=>{
-    dragging=true;
-    offsetX=e.clientX-win.offsetLeft;
-    offsetY=e.clientY-win.offsetTop;
-  };
-  document.onmousemove=e=>{
-    if(!dragging) return;
-    win.style.left=e.clientX-offsetX+'px';
-    win.style.top=e.clientY-offsetY+'px';
-  };
+  header.onmousedown=e=>{dragging=true; offsetX=e.clientX-win.offsetLeft; offsetY=e.clientY-win.offsetTop;};
+  document.onmousemove=e=>{if(dragging){win.style.left=e.clientX-offsetX+'px'; win.style.top=e.clientY-offsetY+'px';}};
   document.onmouseup=()=>dragging=false;
 }
 
 /* RESIZE */
 function resize(win){
-  const handle=win.querySelector('.resize');
-  let resizing=false;
+  const handle=win.querySelector('.resize'); let resizing=false;
   handle.onmousedown=e=>{resizing=true; e.stopPropagation();};
-  document.onmousemove=e=>{
-    if(!resizing) return;
-    win.style.width=e.clientX-win.offsetLeft+'px';
-    win.style.height=e.clientY-win.offsetTop+'px';
-  };
+  document.onmousemove=e=>{if(resizing){win.style.width=e.clientX-win.offsetLeft+'px'; win.style.height=e.clientY-win.offsetTop+'px';}};
   document.onmouseup=()=>resizing=false;
 }
 
 /* DESKTOP ICONS */
 function addIcon(name,url){
-  const icon=document.createElement('div');
-  icon.className='desktop-icon';
+  const icon=document.createElement('div'); icon.className='desktop-icon';
   icon.innerHTML=`<img src="https://cdn-icons-png.flaticon.com/512/888/888879.png"><div>${name}</div>`;
   icon.onclick=()=>launchApp(url);
-  document.getElementById('desktop').appendChild(icon);
+  desktop.appendChild(icon);
 }
 addIcon('YouTube','https://youtube.com');
 addIcon('TikTok','https://tiktok.com');
