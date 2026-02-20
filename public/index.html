@@ -1,57 +1,86 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Matriarchs XenOS</title>
 
 <link rel="shortcut icon" href="favicon.webp">
 
+<!-- Scramjet backend scripts (keep intact) -->
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
 <script src="register-sw.js" defer></script>
+<script src="search.js" defer></script>
+<script src="index.js" defer></script>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,sans-serif;}
 
-body{
-  height:100vh;
+body,html{
+  height:100%;
   overflow:hidden;
-  background:url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1974&auto=format&fit=crop') no-repeat center center/cover;
 }
 
-/* Lock Screen */
+/* Background - Moon wallpaper */
+body{
+  background:url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1974&auto=format&fit=crop') center/cover no-repeat;
+}
+
+/* LOCK SCREEN */
 #lockscreen{
   position:absolute;
   inset:0;
-  backdrop-filter:blur(10px);
-  background:rgba(0,0,0,0.6);
+  background:rgba(0,0,0,0.8);
   display:flex;
-  flex-direction:column;
   justify-content:center;
   align-items:center;
+  flex-direction:column;
   color:white;
   z-index:9999;
 }
 
-#unlock-btn{
-  margin-top:20px;
-  padding:10px 20px;
-  background:white;
-  color:black;
+#lockscreen input{
+  padding:10px;
+  margin:10px;
+  border-radius:6px;
   border:none;
-  border-radius:8px;
-  cursor:pointer;
+  outline:none;
+  width:200px;
+  text-align:center;
 }
 
-/* Desktop */
+#lockscreen button{
+  padding:10px 20px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  background:white;
+  color:black;
+}
+
+/* DESKTOP */
 #desktop{
   position:absolute;
   inset:0;
   padding:20px;
 }
 
-/* Taskbar */
+/* DESKTOP ICONS */
+.desktop-icon{
+  width:80px;
+  text-align:center;
+  cursor:pointer;
+  margin:10px;
+}
+
+.desktop-icon img{
+  width:48px;
+  height:48px;
+  margin-bottom:5px;
+}
+
+/* TASKBAR / TOOLBAR */
 #taskbar{
   position:absolute;
   bottom:0;
@@ -59,10 +88,12 @@ body{
   right:0;
   height:50px;
   background:rgba(20,20,40,0.8);
-  backdrop-filter:blur(10px);
   display:flex;
   align-items:center;
-  padding:0 10px;
+  justify-content:space-between;
+  padding:0 15px;
+  backdrop-filter:blur(8px);
+  color:white;
 }
 
 #start{
@@ -72,7 +103,11 @@ body{
   cursor:pointer;
 }
 
-/* Windows */
+#clock{
+  font-size:0.9rem;
+}
+
+/* WINDOWS */
 .window{
   position:absolute;
   width:800px;
@@ -83,6 +118,7 @@ body{
   box-shadow:0 0 30px rgba(0,0,0,0.7);
   display:flex;
   flex-direction:column;
+  z-index:1;
 }
 
 .window-header{
@@ -116,7 +152,6 @@ body{
   border:none;
 }
 
-/* Resize handle */
 .resize{
   width:15px;
   height:15px;
@@ -130,37 +165,98 @@ body{
 
 <body>
 
-<div id="lockscreen">
-  <h1>Matriarchs OS</h1>
-  <button id="unlock-btn">Unlock</button>
+<!-- Hidden Scramjet form -->
+<div id="matriarchs-browser" style="display:none;">
+  <form id="sj-form">
+    <input id="sj-search-engine" type="hidden" value="https://www.google.com/search?q=%s">
+    <input id="sj-address" type="text">
+  </form>
 </div>
 
+<!-- LOCK SCREEN -->
+<div id="lockscreen">
+  <h1>Welcome to XenOS</h1>
+  <div id="account-setup" style="display:block;">
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button id="create-account">Create Account</button>
+  </div>
+  <div id="login" style="display:none;">
+    <input type="password" id="unlock-password" placeholder="Enter Password">
+    <button id="unlock-btn">Unlock</button>
+  </div>
+</div>
+
+<!-- DESKTOP -->
 <div id="desktop"></div>
 
+<!-- TASKBAR -->
 <div id="taskbar">
-  <div id="start">+ New Window</div>
+  <div id="start">☰ Start</div>
+  <div id="clock"></div>
+</div>
+
+<!-- START MENU -->
+<div id="start-menu" style="display:none; position:absolute; bottom:50px; left:10px; background:#1e1e2f; border-radius:10px; padding:15px; width:220px;">
+  <div class="menu-item" onclick="launchApp('https://youtube.com')">YouTube</div>
+  <div class="menu-item" onclick="launchApp('https://tiktok.com')">TikTok</div>
+  <div class="menu-item" onclick="launchApp('https://google.com')">Google</div>
+  <div class="menu-item" onclick="showSettings()">Settings</div>
 </div>
 
 <script>
-const proxyPrefix = "/service/";
-let z = 1;
+const proxyForm=document.getElementById('sj-form');
+const sjInput=document.getElementById('sj-address');
+let zIndex=1;
 
-document.getElementById("unlock-btn").onclick=()=>{
-  document.getElementById("lockscreen").style.display="none";
+/* CLOCK */
+function updateClock(){
+  const now=new Date();
+  document.getElementById('clock').innerText=now.toLocaleString();
+}
+setInterval(updateClock,1000);
+updateClock();
+
+/* LOCK SCREEN */
+const accountSetup=document.getElementById('account-setup');
+const loginDiv=document.getElementById('login');
+const lockscreen=document.getElementById('lockscreen');
+
+document.getElementById('create-account').onclick=()=>{
+  const u=document.getElementById('username').value;
+  const p=document.getElementById('password').value;
+  if(u&&p){
+    localStorage.setItem('xenos_username',u);
+    localStorage.setItem('xenos_password',p);
+    accountSetup.style.display='none';
+    loginDiv.style.display='block';
+  }
 };
 
-/* Encode for Scramjet */
-function encode(url){
-  return btoa(url);
-}
+document.getElementById('unlock-btn').onclick=()=>{
+  const p=document.getElementById('unlock-password').value;
+  if(p===localStorage.getItem('xenos_password')){
+    lockscreen.style.display='none';
+  }else{
+    alert('Wrong password!');
+  }
+};
 
-/* Create Window */
-function createWindow(url){
-  const win=document.createElement("div");
-  win.className="window";
-  win.style.top="100px";
-  win.style.left="200px";
-  win.style.zIndex=z++;
+/* START MENU */
+document.getElementById('start').onclick=()=>{
+  const menu=document.getElementById('start-menu');
+  menu.style.display=menu.style.display==='block'?'none':'block';
+};
+
+/* CREATE WINDOWS */
+function launchApp(url){
+  const win=document.createElement('div');
+  win.className='window';
+  win.style.top='100px';
+  win.style.left='150px';
+  win.style.zIndex=zIndex++;
+
+  const encoded=btoa(url);
 
   win.innerHTML=`
     <div class="window-header">
@@ -171,75 +267,77 @@ function createWindow(url){
         <div class="control close"></div>
       </div>
     </div>
-    <iframe src="${proxyPrefix+encode(url)}"></iframe>
+    <iframe src="/service/${encoded}"></iframe>
     <div class="resize"></div>
   `;
 
-  document.getElementById("desktop").appendChild(win);
+  document.getElementById('desktop').appendChild(win);
 
   drag(win);
   resize(win);
 
-  win.querySelector(".close").onclick=()=>win.remove();
-  win.querySelector(".min").onclick=()=>win.style.display="none";
-  win.querySelector(".max").onclick=()=>{
-    win.style.top="0";
-    win.style.left="0";
-    win.style.width="100%";
-    win.style.height="calc(100% - 50px)";
+  win.querySelector('.close').onclick=()=>win.remove();
+  win.querySelector('.min').onclick=()=>win.style.display='none';
+  win.querySelector('.max').onclick=()=>{
+    win.style.top='0';
+    win.style.left='0';
+    win.style.width='100%';
+    win.style.height='calc(100% - 50px)';
   };
-
-  win.onclick=()=>win.style.zIndex=z++;
+  win.onclick=()=>win.style.zIndex=zIndex++;
 }
 
-/* Dragging */
+/* DRAGGING */
 function drag(win){
-  const header=win.querySelector(".window-header");
+  const header=win.querySelector('.window-header');
   let offsetX,offsetY,dragging=false;
-
   header.onmousedown=e=>{
     dragging=true;
     offsetX=e.clientX-win.offsetLeft;
     offsetY=e.clientY-win.offsetTop;
   };
-
   document.onmousemove=e=>{
     if(!dragging) return;
-    win.style.left=e.clientX-offsetX+"px";
-    win.style.top=e.clientY-offsetY+"px";
+    win.style.left=e.clientX-offsetX+'px';
+    win.style.top=e.clientY-offsetY+'px';
   };
-
   document.onmouseup=()=>dragging=false;
 }
 
-/* Resize */
+/* RESIZE */
 function resize(win){
-  const handle=win.querySelector(".resize");
+  const handle=win.querySelector('.resize');
   let resizing=false;
-
   handle.onmousedown=e=>{
     resizing=true;
     e.stopPropagation();
   };
-
   document.onmousemove=e=>{
     if(!resizing) return;
-    win.style.width=e.clientX-win.offsetLeft+"px";
-    win.style.height=e.clientY-win.offsetTop+"px";
+    win.style.width=e.clientX-win.offsetLeft+'px';
+    win.style.height=e.clientY-win.offsetTop+'px';
   };
-
   document.onmouseup=()=>resizing=false;
 }
 
-/* New window button */
-document.getElementById("start").onclick=()=>{
-  const url=prompt("Enter URL:");
-  if(url) createWindow(url.startsWith("http")?url:"https://"+url);
-};
+/* DESKTOP ICONS */
+function addIcon(name,url){
+  const icon=document.createElement('div');
+  icon.className='desktop-icon';
+  icon.innerHTML=`<img src="https://cdn-icons-png.flaticon.com/512/888/888879.png"><div>${name}</div>`;
+  icon.onclick=()=>launchApp(url);
+  document.getElementById('desktop').appendChild(icon);
+}
 
-/* Auto open Google */
-createWindow("https://google.com");
+addIcon('YouTube','https://youtube.com');
+addIcon('TikTok','https://tiktok.com');
+addIcon('Google','https://google.com');
+
+/* SETTINGS MENU */
+function showSettings(){
+  alert('Settings placeholder');
+}
+
 </script>
-
 </body>
 </html>
