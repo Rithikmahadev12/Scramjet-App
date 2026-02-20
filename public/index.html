@@ -7,13 +7,14 @@
 
 <link rel="shortcut icon" href="favicon.webp" />
 
-<link rel="stylesheet" href="index.css">
-
 <style>
 body, html {
   margin:0; padding:0; height:100%;
   font-family:'Segoe UI', sans-serif;
-  background: url('moon-bg.jpg') center/cover no-repeat;
+  background: linear-gradient(135deg,#121212,#1c1c1c);
+  background-image: url('moon-bg.jpg'); /* upload to public/ folder */
+  background-size: cover;
+  background-position: center;
   overflow:hidden;
   color:#fff;
 }
@@ -78,7 +79,10 @@ body, html {
 /* Lock screen */
 #lock-screen {
   position:absolute; top:0; left:0; width:100%; height:100%;
-  background: url('moon-bg.jpg') center/cover no-repeat;
+  background: linear-gradient(135deg,#121212,#1c1c1c);
+  background-image: url('moon-bg.jpg');
+  background-size: cover;
+  background-position: center;
   display:flex; justify-content:center; align-items:center;
   flex-direction:column;
   color:#fff;
@@ -185,8 +189,13 @@ function dragElement(el) {
 // Open App
 function openApp(name){
   let url = "";
-  if(name==="youtube") url="/wisp-proxy?url=https://www.youtube.com/embed";
+  if(name==="youtube") {
+      let videoId = prompt("Enter YouTube video ID or leave blank for default:");
+      if(!videoId) videoId="dQw4w9WgXcQ"; // default video
+      url=`/wisp-proxy?url=https://www.youtube.com/embed/${videoId}`;
+  }
   if(name==="instagram") url="/wisp-proxy?url=https://www.instagram.com";
+
   if(name==="terminal") url="about:blank";
   if(name==="settings") url="about:blank";
 
