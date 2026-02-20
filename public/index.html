@@ -3,254 +3,164 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XenOS Web</title>
+<title>XenOS</title>
+
 <link rel="shortcut icon" href="favicon.webp">
 
 <style>
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
-html, body { height:100%; overflow:hidden; background:url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1974&auto=format&fit=crop') center/cover no-repeat; }
+/* -------------------- Basic Reset -------------------- */
+* { margin:0; padding:0; box-sizing:border-box; user-select:none; }
+body, html { width:100%; height:100%; font-family:'Segoe UI', sans-serif; background: linear-gradient(135deg,#0c0c20,#1a1a40); overflow:hidden; }
 
-/* LOCK SCREEN */
-#lockscreen{ position:absolute; inset:0; background:rgba(0,0,0,0.85); display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; z-index:9999; text-align:center; }
-#lockscreen input{ padding:10px; margin:10px; border-radius:6px; border:none; outline:none; width:220px; text-align:center; }
-#lockscreen button{ padding:10px 20px; margin-top:10px; border:none; border-radius:6px; cursor:pointer; background:white; color:black; }
+/* -------------------- Desktop -------------------- */
+#desktop { width:100%; height:100%; position:relative; background: url('moon-bg.jpg') center/cover no-repeat; display:flex; flex-wrap:wrap; align-content:flex-start; padding:20px; }
+.desktop-icon { width:80px; text-align:center; margin:10px; cursor:pointer; color:white; font-size:0.8rem; }
+.desktop-icon img { width:60px; height:60px; display:block; margin:0 auto 5px; }
 
-/* DESKTOP */
-#desktop{ position:absolute; inset:0; padding:20px; display:flex; flex-wrap:wrap; align-content:flex-start; }
+/* -------------------- Windows -------------------- */
+.window { position:absolute; border:1px solid #555; border-radius:6px; background:#111; color:#fff; width:600px; height:400px; display:flex; flex-direction:column; }
+.window-header { background:#222; padding:6px 10px; cursor:move; display:flex; justify-content:space-between; align-items:center; font-size:0.9rem; }
+.window-header .controls { display:flex; gap:6px; }
+.window-header .controls div { width:14px; height:14px; border-radius:50%; cursor:pointer; }
+.window-content { flex:1; background:#000; overflow:hidden; }
 
-/* DESKTOP ICONS */
-.desktop-icon{ width:80px; text-align:center; cursor:pointer; margin:10px; }
-.desktop-icon img{ width:48px; height:48px; margin-bottom:5px; }
+/* -------------------- Toolbar -------------------- */
+#taskbar { position:absolute; bottom:0; left:0; width:100%; height:40px; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:space-between; padding:0 10px; color:white; font-size:0.9rem; }
+#taskbar #start { cursor:pointer; }
+#taskbar #time { cursor:pointer; }
 
-/* TASKBAR */
-#taskbar{ position:absolute; bottom:0; left:0; right:0; height:50px; background:rgba(20,20,40,0.85); display:flex; justify-content:space-between; align-items:center; padding:0 15px; backdrop-filter:blur(8px); color:white; }
-#toolbar-left{ display:flex; align-items:center; gap:10px; }
-#toolbar-right{ display:flex; align-items:center; gap:10px; }
-#start{ padding:8px 14px; background:rgba(255,255,255,0.1); border-radius:6px; cursor:pointer; }
-#clock,#date{ cursor:pointer; font-size:0.9rem; }
+/* -------------------- Start Menu -------------------- */
+#start-menu { position:absolute; bottom:40px; left:10px; width:200px; background:#222; border:1px solid #555; display:none; flex-direction:column; color:white; border-radius:6px; }
+#start-menu div { padding:10px; cursor:pointer; border-bottom:1px solid #333; }
+#start-menu div:hover { background:#333; }
 
-/* START MENU */
-#start-menu{ display:none; position:absolute; bottom:50px; left:10px; background:#1e1e2f; border-radius:10px; padding:15px; width:220px; }
-.menu-item{ padding:8px; cursor:pointer; }
-.menu-item:hover{ background:#27293d; }
+/* -------------------- Lock Screen -------------------- */
+#lockscreen { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; z-index:9999; }
+#lockscreen input { padding:8px 10px; border-radius:6px; border:none; outline:none; font-size:1rem; margin-top:10px; background:rgba(255,255,255,0.1); color:white; }
+#lockscreen button { margin-top:10px; padding:6px 12px; border:none; border-radius:6px; cursor:pointer; background:#444; color:white; }
+#lockscreen h1 { margin-bottom:10px; font-size:2rem; }
 
-/* WINDOWS */
-.window{ position:absolute; width:800px; height:500px; background:#111; border-radius:12px; overflow:hidden; box-shadow:0 0 30px rgba(0,0,0,0.7); display:flex; flex-direction:column; z-index:1; }
-.window-header{ height:40px; background:#1c1c2e; display:flex; justify-content:space-between; align-items:center; padding:0 10px; cursor:move; color:white; }
-.window-controls{ display:flex; gap:8px; }
-.control{ width:12px; height:12px; border-radius:50%; cursor:pointer; }
-.close{ background:#ff5f56; } .min{ background:#ffbd2e; } .max{ background:#27c93f; }
-.window iframe{ flex:1; border:none; }
-.resize{ width:15px; height:15px; position:absolute; right:0; bottom:0; cursor:nwse-resize; }
-
-/* CALENDAR */
-#calendar{ display:none; position:absolute; bottom:50px; right:10px; background:#1e1e2f; color:white; padding:10px; border-radius:10px; width:220px; }
-#calendar table{ width:100%; text-align:center; border-collapse:collapse; }
-#calendar th{ padding:5px; }
-#calendar td{ padding:8px; cursor:pointer; }
-#calendar td:hover{ background:#27293d; border-radius:6px; }
-
-/* SETTINGS PANEL */
-#settings-panel{ display:none; position:absolute; bottom:50px; right:10px; width:250px; background:#1e1e2f; color:white; padding:15px; border-radius:10px; }
-#settings-panel h3{ margin-bottom:10px; }
-#settings-panel button{ margin-top:10px; padding:6px 12px; border-radius:6px; border:none; cursor:pointer; background:#27293d; color:white; }
-#settings-panel input{ width:100%; margin-bottom:8px; padding:6px; border-radius:6px; border:none; outline:none; }
+/* -------------------- Calendar Popup -------------------- */
+#calendar { position:absolute; bottom:50px; right:10px; width:220px; background:#222; color:white; padding:10px; border-radius:6px; display:none; }
 </style>
 </head>
 <body>
 
-<!-- LOCK SCREEN -->
+<!-- Lock Screen -->
 <div id="lockscreen">
-  <h1>Welcome to XenOS</h1>
-  <div id="account-setup">
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <button id="create-account">Create Account</button>
+  <h1>XenOS</h1>
+  <input type="password" id="unlock-pass" placeholder="Enter password">
+  <button id="unlock-btn">Unlock</button>
+</div>
+
+<!-- Desktop -->
+<div id="desktop">
+  <div class="desktop-icon" data-app="youtube">
+    <img src="youtube-icon.png" alt="YouTube">
+    YouTube
   </div>
-  <div id="login" style="display:none;">
-    <input type="password" id="unlock-password" placeholder="Enter Password">
-    <button id="unlock-btn">Unlock</button>
+  <div class="desktop-icon" data-app="tiktok">
+    <img src="tiktok-icon.png" alt="TikTok">
+    TikTok
   </div>
 </div>
 
-<!-- DESKTOP -->
-<div id="desktop"></div>
-
-<!-- TASKBAR -->
+<!-- Taskbar -->
 <div id="taskbar">
-  <div id="toolbar-left"><div id="start">☰ Start</div></div>
-  <div id="toolbar-right"><div id="date">--/--/----</div><div id="clock">--:--:--</div></div>
+  <div id="start">🪟 Start</div>
+  <div id="time">12:00 PM</div>
 </div>
 
-<!-- START MENU -->
+<!-- Start Menu -->
 <div id="start-menu">
-  <div class="menu-item" onclick="launchWebApp('https://youtube.com')">YouTube</div>
-  <div class="menu-item" onclick="launchWebApp('https://tiktok.com')">TikTok</div>
-  <div class="menu-item" onclick="launchWebApp('https://google.com')">Google</div>
-  <div class="menu-item" onclick="showSettings()">Settings</div>
+  <div data-app="youtube">YouTube</div>
+  <div data-app="tiktok">TikTok</div>
+  <div data-app="settings">Settings</div>
 </div>
 
-<!-- CALENDAR -->
+<!-- Calendar Popup -->
 <div id="calendar"></div>
 
-<!-- SETTINGS PANEL -->
-<div id="settings-panel">
-  <h3>System Settings</h3>
-  <label>Wallpaper URL:</label>
-  <input type="text" id="wallpaper-input" placeholder="Enter image URL">
-  <button id="apply-wallpaper">Apply Wallpaper</button>
-  <button onclick="logout()">Logout</button>
-</div>
-
 <script>
-const desktop=document.getElementById('desktop');
-let zIndex=1;
-let scramjetWindow=null;
+// -------------------- Lock Screen --------------------
+const lockscreen = document.getElementById("lockscreen");
+const unlockBtn = document.getElementById("unlock-btn");
+unlockBtn.addEventListener("click", () => {
+  const pass = document.getElementById("unlock-pass").value;
+  if(pass === "1234") { // simple password
+    lockscreen.style.display = "none";
+  } else alert("Wrong password");
+});
 
-/* CLOCK & DATE */
+// -------------------- Desktop / Start Menu --------------------
+const startBtn = document.getElementById("start");
+const startMenu = document.getElementById("start-menu");
+startBtn.addEventListener("click", () => startMenu.style.display = startMenu.style.display==="flex"?"none":"flex");
+
+document.getElementById("time").addEventListener("click", () => {
+  const cal = document.getElementById("calendar");
+  cal.style.display = cal.style.display==="block"?"none":"block";
+  cal.innerHTML = new Date().toDateString();
+});
+
+// -------------------- Draggable Windows --------------------
+function makeDraggable(win) {
+  const header = win.querySelector(".window-header");
+  let offsetX = 0, offsetY = 0, dragging = false;
+
+  header.addEventListener("mousedown", e => {
+    dragging = true;
+    offsetX = e.clientX - win.offsetLeft;
+    offsetY = e.clientY - win.offsetTop;
+  });
+  document.addEventListener("mousemove", e => {
+    if(dragging){
+      win.style.left = (e.clientX - offsetX)+"px";
+      win.style.top = (e.clientY - offsetY)+"px";
+    }
+  });
+  document.addEventListener("mouseup", ()=> dragging=false);
+}
+
+// -------------------- Launch App --------------------
+function openApp(app){
+  const desktop = document.getElementById("desktop");
+  const win = document.createElement("div");
+  win.className = "window";
+  win.style.top = "50px";
+  win.style.left = "50px";
+  win.innerHTML = `
+    <div class="window-header">
+      <span>${app}</span>
+      <div class="controls">
+        <div style="background:#ff5c5c" onclick="this.closest('.window').remove()"></div>
+        <div style="background:#ffbd4c" onclick="alert('Minimize not implemented')"></div>
+        <div style="background:#00ca56" onclick="alert('Maximize not implemented')"></div>
+      </div>
+    </div>
+    <iframe class="window-content" src="/proxy/https://${app}.com" frameborder="0" style="width:100%;height:100%;"></iframe>
+  `;
+  desktop.appendChild(win);
+  makeDraggable(win);
+}
+
+// Desktop icons click
+document.querySelectorAll(".desktop-icon").forEach(icon => {
+  icon.addEventListener("dblclick", ()=> openApp(icon.dataset.app));
+});
+
+// Start menu app launch
+document.querySelectorAll("#start-menu div[data-app]").forEach(item => {
+  item.addEventListener("click", ()=> { openApp(item.dataset.app); startMenu.style.display="none"; });
+});
+
+// -------------------- Clock Update --------------------
 function updateTime(){
-  const now=new Date();
-  document.getElementById('clock').innerText=now.toLocaleTimeString();
-  document.getElementById('date').innerText=now.toLocaleDateString();
+  const now = new Date();
+  document.getElementById("time").textContent = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 }
-setInterval(updateTime,1000); updateTime();
-
-/* CALENDAR */
-const calendar=document.getElementById('calendar');
-document.getElementById('date').onclick=()=>{
-  calendar.style.display = calendar.style.display==='block'?'none':'block';
-  generateCalendar();
-};
-function generateCalendar(){
-  const now=new Date();
-  const month=now.getMonth();
-  const year=now.getFullYear();
-  const firstDay=new Date(year,month,1).getDay();
-  const lastDate=new Date(year,month+1,0).getDate();
-  let html='<table><tr><th>Su</th><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th></tr><tr>';
-  for(let i=0;i<firstDay;i++) html+='<td></td>';
-  for(let d=1; d<=lastDate; d++){
-    if((firstDay+d-1)%7===0 && d!==1) html+='</tr><tr>';
-    html+='<td>'+d+'</td>';
-  }
-  html+='</tr></table>';
-  calendar.innerHTML=html;
-}
-
-/* SETTINGS */
-const settingsPanel=document.getElementById('settings-panel');
-function showSettings(){settingsPanel.style.display='block';}
-document.getElementById('apply-wallpaper').onclick=()=>{
-  const url=document.getElementById('wallpaper-input').value;
-  if(url) document.body.style.background=`url('${url}') center/cover no-repeat`;
-};
-function logout(){localStorage.clear(); location.reload();}
-
-/* LOCK SCREEN */
-const accountSetup=document.getElementById('account-setup');
-const loginDiv=document.getElementById('login');
-const lockscreen=document.getElementById('lockscreen');
-document.getElementById('create-account').onclick=()=>{
-  const u=document.getElementById('username').value;
-  const p=document.getElementById('password').value;
-  if(u && p){ localStorage.setItem('xenos_username',u); localStorage.setItem('xenos_password',p); accountSetup.style.display='none'; loginDiv.style.display='block'; }
-};
-document.getElementById('unlock-btn').onclick=()=>{
-  const p=document.getElementById('unlock-password').value;
-  if(p===localStorage.getItem('xenos_password')) lockscreen.style.display='none';
-  else alert('Wrong password!');
-};
-
-/* START MENU */
-document.getElementById('start').onclick=()=>{
-  const menu=document.getElementById('start-menu');
-  menu.style.display = menu.style.display==='block'?'none':'block';
-};
-
-/* CREATE WINDOWS */
-function createWindow(name,type){
-  const win=document.createElement('div');
-  win.className='window';
-  win.style.top='100px'; win.style.left='150px'; win.style.zIndex=zIndex++;
-  const header=document.createElement('div'); header.className='window-header';
-  header.innerHTML=`<span>${name}</span><div class="window-controls">
-    <div class="control min"></div><div class="control max"></div><div class="control close"></div>
-  </div>`;
-  win.appendChild(header);
-
-  const content=document.createElement('div');
-  content.style.flex='1'; content.style.background='#222'; content.style.color='white'; content.style.padding='10px';
-  content.innerText=`This is ${name} (${type})`;
-  win.appendChild(content);
-
-  const resizeHandle=document.createElement('div'); resizeHandle.className='resize';
-  win.appendChild(resizeHandle);
-  desktop.appendChild(win);
-
-  drag(win); resize(win);
-
-  header.querySelector('.close').onclick = ()=>win.remove();
-  header.querySelector('.min').onclick = ()=>win.style.display='none';
-  header.querySelector('.max').onclick = ()=>{win.style.top='0'; win.style.left='0'; win.style.width='100%'; win.style.height='calc(100% - 50px)';};
-  win.onclick = ()=>win.style.zIndex=zIndex++;
-}
-
-/* DRAG & RESIZE */
-function drag(win){
-  const header=win.querySelector('.window-header');
-  let offsetX,offsetY,dragging=false;
-  header.onmousedown=e=>{dragging=true; offsetX=e.clientX-win.offsetLeft; offsetY=e.clientY-win.offsetTop;};
-  document.onmousemove=e=>{if(dragging){win.style.left=e.clientX-offsetX+'px'; win.style.top=e.clientY-offsetY+'px';}};
-  document.onmouseup=()=>dragging=false;
-}
-function resize(win){
-  const handle=win.querySelector('.resize'); let resizing=false;
-  handle.onmousedown=e=>{resizing=true; e.stopPropagation();};
-  document.onmousemove=e=>{if(resizing){win.style.width=e.clientX-win.offsetLeft+'px'; win.style.height=e.clientY-win.offsetTop+'px';}};
-  document.onmouseup=()=>resizing=false;
-}
-
-/* DESKTOP ICONS */
-function addIcon(name,type,url){
-  const icon=document.createElement('div'); icon.className='desktop-icon';
-  icon.innerHTML=`<img src="https://cdn-icons-png.flaticon.com/512/888/888879.png"><div>${name}</div>`;
-  icon.onclick=()=>{ type==='web'?launchWebApp(url):createWindow(name,type); };
-  desktop.appendChild(icon);
-}
-addIcon('YouTube','web','https://youtube.com');
-addIcon('TikTok','web','https://tiktok.com');
-addIcon('Terminal','native','terminal');
-addIcon('File Explorer','native','file-explorer');
-
-/* SCRAMJET SINGLE BROWSER WINDOW */
-function launchWebApp(url){
-  if(scramjetWindow){
-    scramjetWindow.querySelector('iframe').src = url;
-    scramjetWindow.style.display='block';
-    scramjetWindow.style.zIndex=zIndex++;
-    return;
-  }
-  const win=document.createElement('div'); win.className='window';
-  win.style.top='80px'; win.style.left='100px'; win.style.zIndex=zIndex++;
-  const header=document.createElement('div'); header.className='window-header';
-  header.innerHTML=`<span>Browser</span><div class="window-controls">
-    <div class="control min"></div><div class="control max"></div><div class="control close"></div>
-  </div>`;
-  win.appendChild(header);
-  const iframe=document.createElement('iframe'); iframe.src=url;
-  win.appendChild(iframe);
-  const resizeHandle=document.createElement('div'); resizeHandle.className='resize'; win.appendChild(resizeHandle);
-  desktop.appendChild(win);
-
-  drag(win); resize(win);
-
-  header.querySelector('.close').onclick=()=>{win.style.display='none';};
-  header.querySelector('.min').onclick=()=>win.style.display='none';
-  header.querySelector('.max').onclick=()=>{win.style.top='0'; win.style.left='0'; win.style.width='100%'; win.style.height='calc(100% - 50px)';};
-  win.onclick=()=>win.style.zIndex=zIndex++;
-  scramjetWindow=win;
-}
+setInterval(updateTime, 1000);
+updateTime();
 </script>
-
 </body>
 </html>
