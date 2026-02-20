@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XenOS Fixed Multi-Window</title>
+<title>XenOS Scramjet Fixed</title>
 <link rel="shortcut icon" href="favicon.webp">
 
 <!-- Scramjet scripts -->
@@ -111,6 +111,7 @@ html, body { height:100%; overflow:hidden; background:url('https://images.unspla
 <script>
 const desktop=document.getElementById('desktop');
 let zIndex=1;
+const SCRAMJET_PROXY = "https://scramjet-app-n46z.onrender.com/?url=";
 
 /* CLOCK & DATE */
 function updateTime(){
@@ -172,32 +173,26 @@ document.getElementById('start').onclick=()=>{
   menu.style.display = menu.style.display==='block'?'none':'block';
 };
 
-/* CREATE WINDOWS WITH SCRAMJET */
+/* CREATE WINDOWS WITH SCRAMJET PROXY */
 function launchApp(url){
   const win=document.createElement('div');
   win.className='window';
   win.style.top='100px'; win.style.left='150px'; win.style.zIndex=zIndex++;
 
-  // Create Scramjet form inside window
-  const form=document.createElement('form');
-  form.style.display='none';
-  form.innerHTML=`<input type="hidden" value="" id="sj-input">`;
-  win.appendChild(form);
-
-  const iframe=document.createElement('iframe');
-  iframe.src='about:blank';
-  win.appendChild(iframe);
-
-  const header=document.createElement('div');
-  header.className='window-header';
+  // window header
+  const header=document.createElement('div'); header.className='window-header';
   header.innerHTML=`<span>${url}</span><div class="window-controls">
     <div class="control min"></div><div class="control max"></div><div class="control close"></div>
   </div>`;
-  win.insertBefore(header,iframe);
+  win.appendChild(header);
+
+  // iframe loads via Scramjet proxy
+  const iframe=document.createElement('iframe');
+  iframe.src = SCRAMJET_PROXY + encodeURIComponent(url);
+  win.appendChild(iframe);
 
   const resizeHandle=document.createElement('div'); resizeHandle.className='resize';
   win.appendChild(resizeHandle);
-
   desktop.appendChild(win);
 
   // Drag & resize
@@ -208,15 +203,6 @@ function launchApp(url){
   header.querySelector('.min').onclick=()=>win.style.display='none';
   header.querySelector('.max').onclick=()=>{win.style.top='0'; win.style.left='0'; win.style.width='100%'; win.style.height='calc(100% - 50px)';};
   win.onclick=()=>win.style.zIndex=zIndex++;
-
-  // Load via Scramjet
-  const hiddenInput=form.querySelector('#sj-input');
-  hiddenInput.value=url;
-  form.onsubmit=e=>{e.preventDefault();};
-  form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
-
-  // Scramjet-safe iframe src fallback
-  iframe.src = url;
 }
 
 /* DRAGGING */
