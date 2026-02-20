@@ -1,160 +1,237 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XenOS</title>
-<link rel="shortcut icon" href="favicon.webp">
+<title>XenOS Browser</title>
+
+<link rel="shortcut icon" href="favicon.webp" />
+
+<!-- Scramjet Backend Scripts -->
+<script src="/scram/scramjet.all.js"></script>
+<script src="/baremux/index.js"></script>
+<link rel="stylesheet" href="index.css">
+<script src="register-sw.js" defer></script>
+<script src="search.js" defer></script>
+<script src="index.js" defer></script>
+
 <style>
-* { margin:0; padding:0; box-sizing:border-box; user-select:none; }
-body, html { width:100%; height:100%; font-family:'Segoe UI', sans-serif; background: linear-gradient(135deg,#0c0c20,#1a1a40); overflow:hidden; }
-#desktop { width:100%; height:100%; position:relative; background: url('moon-bg.jpg') center/cover no-repeat; display:flex; flex-wrap:wrap; align-content:flex-start; padding:20px; }
-.desktop-icon { width:80px; text-align:center; margin:10px; cursor:pointer; color:white; font-size:0.8rem; }
-.desktop-icon img { width:60px; height:60px; display:block; margin:0 auto 5px; }
-.window { position:absolute; border:1px solid #555; border-radius:6px; background:#111; color:#fff; width:600px; height:400px; display:flex; flex-direction:column; z-index:10; }
-.window-header { background:#222; padding:6px 10px; cursor:move; display:flex; justify-content:space-between; align-items:center; font-size:0.9rem; }
-.window-header .controls { display:flex; gap:6px; }
-.window-header .controls div { width:14px; height:14px; border-radius:50%; cursor:pointer; }
-.window-content { flex:1; background:#000; overflow:hidden; }
-#taskbar { position:absolute; bottom:0; left:0; width:100%; height:40px; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:space-between; padding:0 10px; color:white; font-size:0.9rem; }
-#taskbar #start { cursor:pointer; }
-#taskbar #time { cursor:pointer; }
-#start-menu { position:absolute; bottom:40px; left:10px; width:200px; background:#222; border:1px solid #555; display:none; flex-direction:column; color:white; border-radius:6px; }
-#start-menu div { padding:10px; cursor:pointer; border-bottom:1px solid #333; }
-#start-menu div:hover { background:#333; }
-#lockscreen { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; z-index:9999; }
-#lockscreen input { padding:8px 10px; border-radius:6px; border:none; outline:none; font-size:1rem; margin-top:10px; background:rgba(255,255,255,0.1); color:white; }
-#lockscreen button { margin-top:10px; padding:6px 12px; border:none; border-radius:6px; cursor:pointer; background:#444; color:white; }
-#lockscreen h1 { margin-bottom:10px; font-size:2rem; }
-#calendar { position:absolute; bottom:50px; right:10px; width:220px; background:#222; color:white; padding:10px; border-radius:6px; display:none; }
+body, html {
+  margin:0; padding:0; height:100%;
+  font-family:'Segoe UI', sans-serif;
+  background: linear-gradient(135deg,#121212,#1c1c1c);
+  overflow:hidden;
+  color:#fff;
+}
+
+/* Desktop Area */
+#desktop {
+  position:relative;
+  width:100%; height:100%;
+  background: url('moon-bg.jpg') center/cover no-repeat;
+}
+
+/* Taskbar */
+#taskbar {
+  position:absolute; bottom:0; left:0; width:100%;
+  height:40px; background: rgba(0,0,0,0.7);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 10px;
+  font-size:0.85rem;
+}
+
+#start-button { cursor:pointer; padding:5px 10px; background:rgba(255,255,255,0.1); border-radius:4px; }
+#clock { margin-right:10px; }
+
+/* Window Style */
+.window {
+  position:absolute;
+  border-radius:6px;
+  overflow:hidden;
+  box-shadow:0 0 12px rgba(0,0,0,0.5);
+  background:#222;
+  resize: both;
+  min-width:300px; min-height:200px;
+}
+
+.window-header {
+  background: rgba(50,50,50,0.9);
+  padding:5px 10px;
+  cursor:move;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.window-header span { user-select:none; }
+.window-close { cursor:pointer; padding:0 5px; }
+
+/* Iframe inside window */
+.window iframe {
+  width:100%;
+  height:calc(100% - 30px);
+  border:none;
+}
+
+/* Start menu */
+#start-menu {
+  position:absolute; bottom:40px; left:10px;
+  width:200px;
+  background: rgba(30,30,30,0.95);
+  border-radius:6px;
+  display:none;
+  flex-direction:column;
+  padding:10px;
+}
+
+.start-menu-item { padding:6px 10px; cursor:pointer; border-radius:4px; transition:0.2s; }
+.start-menu-item:hover { background: rgba(255,255,255,0.1); }
+
+/* Lock screen */
+#lock-screen {
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  background: url('moon-bg.jpg') center/cover no-repeat;
+  display:flex; justify-content:center; align-items:center;
+  flex-direction:column;
+  color:#fff;
+  font-size:1.2rem;
+}
+
+#lock-screen input {
+  padding:8px 12px;
+  border-radius:6px;
+  border:none;
+  margin-top:10px;
+  outline:none;
+}
+#lock-screen button {
+  margin-top:10px;
+  padding:6px 12px;
+  border-radius:6px;
+  border:none;
+  cursor:pointer;
+}
 </style>
 </head>
 <body>
 
-<div id="lockscreen">
-  <h1>XenOS</h1>
-  <input type="password" id="unlock-pass" placeholder="Enter password">
-  <button id="unlock-btn">Unlock</button>
-</div>
-
 <div id="desktop">
-  <div class="desktop-icon" data-app="youtube">
-    <img src="youtube-icon.png" alt="YouTube">YouTube
-  </div>
-  <div class="desktop-icon" data-app="tiktok">
-    <img src="tiktok-icon.png" alt="TikTok">TikTok
-  </div>
+  <!-- Windows will be appended here dynamically -->
 </div>
 
+<!-- Taskbar -->
 <div id="taskbar">
-  <div id="start">🪟 Start</div>
-  <div id="time">12:00 PM</div>
+  <div id="start-button">Start</div>
+  <div id="clock"></div>
 </div>
 
+<!-- Start menu -->
 <div id="start-menu">
-  <div data-app="youtube">YouTube</div>
-  <div data-app="tiktok">TikTok</div>
-  <div data-app="settings">Settings</div>
+  <div class="start-menu-item" onclick="openApp('youtube')">YouTube</div>
+  <div class="start-menu-item" onclick="openApp('instagram')">Instagram</div>
+  <div class="start-menu-item" onclick="openApp('terminal')">Terminal</div>
+  <div class="start-menu-item" onclick="openApp('settings')">Settings</div>
 </div>
 
-<div id="calendar"></div>
+<!-- Lock screen -->
+<div id="lock-screen">
+  <div>Enter Password to Unlock</div>
+  <input type="password" id="unlock-password" placeholder="Password"/>
+  <button onclick="unlockScreen()">Unlock</button>
+</div>
 
-<script src="/scram/scramjet.all.js"></script>
-<script src="/baremux/index.js"></script>
 <script>
-const { ScramjetController } = $scramjetLoadController();
-const scramjet = new ScramjetController({
-    files: {
-        wasm: "/scram/scramjet.wasm.wasm",
-        all: "/scram/scramjet.all.js",
-        sync: "/scram/scramjet.sync.js"
-    }
-});
-scramjet.init();
-const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
+let startMenuVisible = false;
+const startButton = document.getElementById('start-button');
+const startMenu = document.getElementById('start-menu');
+const desktop = document.getElementById('desktop');
+const lockScreen = document.getElementById('lock-screen');
+const password = "1234"; // simple password
 
-// -------------------- Lock Screen --------------------
-const lockscreen = document.getElementById("lockscreen");
-document.getElementById("unlock-btn").addEventListener("click", ()=>{
-  const val = document.getElementById("unlock-pass").value;
-  if(val==="1234"){ lockscreen.style.display="none"; }
-  else alert("Wrong password");
+// Toggle start menu
+startButton.addEventListener('click', () => {
+  startMenuVisible = !startMenuVisible;
+  startMenu.style.display = startMenuVisible ? 'flex' : 'none';
 });
 
-// -------------------- Start Menu --------------------
-const startBtn = document.getElementById("start");
-const startMenu = document.getElementById("start-menu");
-startBtn.addEventListener("click", ()=> startMenu.style.display = startMenu.style.display==="flex"?"none":"flex");
+// Clock
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').innerText = now.toLocaleTimeString();
+}
+setInterval(updateClock, 1000);
+updateClock();
 
-// -------------------- Clock & Calendar --------------------
-document.getElementById("time").addEventListener("click", ()=>{
-  const cal = document.getElementById("calendar");
-  cal.style.display = cal.style.display==="block"?"none":"block";
-  cal.innerHTML = new Date().toDateString();
-});
-function updateTime(){ document.getElementById("time").textContent = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
-setInterval(updateTime,1000); updateTime();
-
-// -------------------- Draggable Windows --------------------
-function makeDraggable(win){
-  const header = win.querySelector(".window-header");
-  let offsetX=0, offsetY=0, dragging=false;
-  header.addEventListener("mousedown", e=>{
-    dragging=true; offsetX=e.clientX-win.offsetLeft; offsetY=e.clientY-win.offsetTop;
-  });
-  document.addEventListener("mousemove", e=>{
-    if(dragging){ win.style.left=(e.clientX-offsetX)+"px"; win.style.top=(e.clientY-offsetY)+"px"; }
-  });
-  document.addEventListener("mouseup", ()=>dragging=false);
+// Unlock screen
+function unlockScreen() {
+  const val = document.getElementById('unlock-password').value;
+  if(val === password) lockScreen.style.display = 'none';
+  else alert('Wrong password');
 }
 
-// -------------------- Open App in Scramjet Frame --------------------
-async function openApp(app){
-  const desktop = document.getElementById("desktop");
-  const win = document.createElement("div");
-  win.className="window";
-  win.style.top="50px"; win.style.left="50px";
+// Make windows draggable
+function dragElement(el) {
+  let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  const header = el.querySelector(".window-header");
+  if(header) {
+    header.onmousedown = dragMouseDown;
+  } else {
+    el.onmousedown = dragMouseDown;
+  }
 
-  win.innerHTML=`
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    document.onmousemove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    el.style.top = (el.offsetTop - pos2) + "px";
+    el.style.left = (el.offsetLeft - pos1) + "px";
+  }
+
+  function closeDragElement() {
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+}
+
+// Open App
+function openApp(name) {
+  let url = "";
+  if(name === "youtube") url = "/wisp-proxy?url=https://www.youtube.com";
+  if(name === "instagram") url = "/wisp-proxy?url=https://www.instagram.com";
+  if(name === "terminal") url = "about:blank"; // internal app
+  if(name === "settings") url = "about:blank";
+
+  const win = document.createElement('div');
+  win.className = "window";
+  win.style.top = "50px";
+  win.style.left = "50px";
+  win.style.width = "800px";
+  win.style.height = "500px";
+
+  win.innerHTML = `
     <div class="window-header">
-      <span>${app}</span>
-      <div class="controls">
-        <div style="background:#ff5c5c" onclick="this.closest('.window').remove()"></div>
-      </div>
+      <span>${name}</span>
+      <span class="window-close" onclick="this.parentElement.parentElement.remove()">✕</span>
     </div>
+    <iframe src="${url}"></iframe>
   `;
 
-  const frameContainer = document.createElement("div");
-  frameContainer.className="window-content";
-  win.appendChild(frameContainer);
   desktop.appendChild(win);
-  makeDraggable(win);
-
-  // -------------------- Determine URL --------------------
-  let url="about:blank";
-  if(app==="youtube") url="/wisp-proxy?url="+encodeURIComponent("https://youtube.com");
-  else if(app==="tiktok") url="/wisp-proxy?url="+encodeURIComponent("https://www.tiktok.com");
-
-  // -------------------- Wait for BareMux transport --------------------
-  await connection.getTransport();
-  await connection.setTransport("/libcurl/index.mjs", [{
-      websocket: (location.protocol==="https:"?"wss":"ws")+"://"+location.host+"/wisp/"
-  }]);
-
-  // -------------------- Create Scramjet Frame --------------------
-  const frame = scramjet.createFrame({ container: frameContainer });
-  frame.frame.style.width="100%";
-  frame.frame.style.height="100%";
-  frame.go(url);
+  dragElement(win);
 }
-
-// -------------------- Launch Apps --------------------
-document.querySelectorAll(".desktop-icon").forEach(icon=>{
-  icon.addEventListener("dblclick", ()=> openApp(icon.dataset.app));
-});
-document.querySelectorAll("#start-menu div[data-app]").forEach(item=>{
-  item.addEventListener("click", ()=> { openApp(item.dataset.app); startMenu.style.display="none"; });
-});
 </script>
+
 </body>
 </html>
