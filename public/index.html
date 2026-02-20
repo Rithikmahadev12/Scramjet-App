@@ -3,16 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XenOS Browser</title>
-
-<link rel="shortcut icon" href="favicon.webp" />
-
+<title>XenOS</title>
+<link rel="shortcut icon" href="favicon.webp">
 <style>
 body, html {
   margin:0; padding:0; height:100%;
   font-family:'Segoe UI', sans-serif;
-  background: linear-gradient(135deg,#121212,#1c1c1c);
-  background-image: url('moon-bg.jpg'); /* upload to public/ folder */
+  background: linear-gradient(135deg,#0a0a0a,#1c1c1c);
+  background-image: url('moon-bg.jpg'); /* Upload to public folder */
   background-size: cover;
   background-position: center;
   overflow:hidden;
@@ -20,18 +18,14 @@ body, html {
 }
 
 /* Desktop */
-#desktop {
-  position:relative;
-  width:100%; height:100%;
-}
+#desktop { position:relative; width:100%; height:100%; }
 
 /* Taskbar */
 #taskbar {
-  position:absolute; bottom:0; left:0; width:100%;
-  height:40px; background: rgba(0,0,0,0.7);
+  position:absolute; bottom:0; left:0; width:100%; height:40px;
+  background: rgba(0,0,0,0.7);
   display:flex; align-items:center; justify-content:space-between;
-  padding:0 10px;
-  font-size:0.85rem;
+  padding:0 10px; font-size:0.85rem;
 }
 #start-button { cursor:pointer; padding:5px 10px; background:rgba(255,255,255,0.1); border-radius:4px; }
 #clock { margin-right:10px; }
@@ -46,22 +40,14 @@ body, html {
   resize: both;
   min-width:300px; min-height:200px;
 }
-
 .window-header {
   background: rgba(50,50,50,0.9);
-  padding:5px 10px;
-  cursor:move;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+  padding:5px 10px; cursor:move;
+  display:flex; justify-content:space-between; align-items:center;
 }
 .window-header span { user-select:none; }
 .window-close { cursor:pointer; padding:0 5px; }
-.window iframe {
-  width:100%;
-  height:calc(100% - 30px);
-  border:none;
-}
+.window iframe { width:100%; height:calc(100% - 30px); border:none; }
 
 /* Start menu */
 #start-menu {
@@ -69,8 +55,7 @@ body, html {
   width:220px;
   background: rgba(30,30,30,0.95);
   border-radius:6px;
-  display:none;
-  flex-direction:column;
+  display:none; flex-direction:column;
   padding:10px;
 }
 .start-menu-item { padding:6px 10px; cursor:pointer; border-radius:4px; transition:0.2s; }
@@ -84,24 +69,10 @@ body, html {
   background-size: cover;
   background-position: center;
   display:flex; justify-content:center; align-items:center;
-  flex-direction:column;
-  color:#fff;
-  font-size:1.2rem;
+  flex-direction:column; color:#fff; font-size:1.2rem;
 }
-#lock-screen input {
-  padding:8px 12px;
-  border-radius:6px;
-  border:none;
-  margin-top:10px;
-  outline:none;
-}
-#lock-screen button {
-  margin-top:10px;
-  padding:6px 12px;
-  border-radius:6px;
-  border:none;
-  cursor:pointer;
-}
+#lock-screen input { padding:8px 12px; border-radius:6px; border:none; margin-top:10px; outline:none; }
+#lock-screen button { margin-top:10px; padding:6px 12px; border-radius:6px; border:none; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -130,17 +101,15 @@ body, html {
 </div>
 
 <script>
-let startMenuVisible = false;
 const startButton = document.getElementById('start-button');
 const startMenu = document.getElementById('start-menu');
 const desktop = document.getElementById('desktop');
 const lockScreen = document.getElementById('lock-screen');
-const password = "1234"; // simple password
+const password = "1234";
 
-// Toggle Start Menu
+// Start menu toggle
 startButton.addEventListener('click', () => {
-  startMenuVisible = !startMenuVisible;
-  startMenu.style.display = startMenuVisible ? 'flex' : 'none';
+  startMenu.style.display = startMenu.style.display==='flex' ? 'none' : 'flex';
 });
 
 // Clock
@@ -151,62 +120,45 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-// Unlock screen
+// Unlock
 function unlockScreen() {
-  const val = document.getElementById('unlock-password').value;
-  if(val === password) lockScreen.style.display = 'none';
+  if(document.getElementById('unlock-password').value===password) lockScreen.style.display='none';
   else alert('Wrong password');
 }
 
-// Make windows draggable
+// Draggable
 function dragElement(el) {
   let pos1=0,pos2=0,pos3=0,pos4=0;
   const header = el.querySelector(".window-header");
-  (header?header:el).onmousedown = function(e){
-    e = e||window.event;
-    e.preventDefault();
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    document.onmouseup = closeDrag;
-    document.onmousemove = drag;
+  (header?header:el).onmousedown=function(e){
+    e=e||window.event; e.preventDefault();
+    pos3=e.clientX; pos4=e.clientY;
+    document.onmouseup=closeDrag;
+    document.onmousemove=drag;
   };
   function drag(e){
-    e = e||window.event;
-    e.preventDefault();
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    el.style.top = (el.offsetTop - pos2)+"px";
-    el.style.left = (el.offsetLeft - pos1)+"px";
+    e=e||window.event; e.preventDefault();
+    pos1=pos3-e.clientX; pos2=pos4-e.clientY;
+    pos3=e.clientX; pos4=e.clientY;
+    el.style.top=(el.offsetTop-pos2)+"px";
+    el.style.left=(el.offsetLeft-pos1)+"px";
   }
-  function closeDrag(){
-    document.onmouseup = null;
-    document.onmousemove = null;
-  }
+  function closeDrag(){ document.onmouseup=null; document.onmousemove=null; }
 }
 
-// Open App
+// Open app
 function openApp(name){
-  let url = "";
-  if(name==="youtube") {
-      let videoId = prompt("Enter YouTube video ID or leave blank for default:");
-      if(!videoId) videoId="dQw4w9WgXcQ"; // default video
-      url=`/wisp-proxy?url=https://www.youtube.com/embed/${videoId}`;
-  }
+  let url="";
+  if(name==="youtube") url="/wisp-proxy?url=https://www.youtube.com";
   if(name==="instagram") url="/wisp-proxy?url=https://www.instagram.com";
-
   if(name==="terminal") url="about:blank";
   if(name==="settings") url="about:blank";
 
-  const win = document.createElement('div');
+  const win=document.createElement('div');
   win.className="window";
-  win.style.top="50px";
-  win.style.left="50px";
-  win.style.width="800px";
-  win.style.height="500px";
+  win.style.top="50px"; win.style.left="50px"; win.style.width="900px"; win.style.height="600px";
 
-  win.innerHTML = `
+  win.innerHTML=`
     <div class="window-header">
       <span>${name}</span>
       <span class="window-close" onclick="this.parentElement.parentElement.remove()">✕</span>
