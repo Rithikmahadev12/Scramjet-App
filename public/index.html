@@ -4,163 +4,144 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>XenOS</title>
-
 <link rel="shortcut icon" href="favicon.webp">
-
 <style>
-/* -------------------- Basic Reset -------------------- */
 * { margin:0; padding:0; box-sizing:border-box; user-select:none; }
 body, html { width:100%; height:100%; font-family:'Segoe UI', sans-serif; background: linear-gradient(135deg,#0c0c20,#1a1a40); overflow:hidden; }
-
-/* -------------------- Desktop -------------------- */
 #desktop { width:100%; height:100%; position:relative; background: url('moon-bg.jpg') center/cover no-repeat; display:flex; flex-wrap:wrap; align-content:flex-start; padding:20px; }
 .desktop-icon { width:80px; text-align:center; margin:10px; cursor:pointer; color:white; font-size:0.8rem; }
 .desktop-icon img { width:60px; height:60px; display:block; margin:0 auto 5px; }
-
-/* -------------------- Windows -------------------- */
-.window { position:absolute; border:1px solid #555; border-radius:6px; background:#111; color:#fff; width:600px; height:400px; display:flex; flex-direction:column; }
+.window { position:absolute; border:1px solid #555; border-radius:6px; background:#111; color:#fff; width:600px; height:400px; display:flex; flex-direction:column; z-index:10; }
 .window-header { background:#222; padding:6px 10px; cursor:move; display:flex; justify-content:space-between; align-items:center; font-size:0.9rem; }
 .window-header .controls { display:flex; gap:6px; }
 .window-header .controls div { width:14px; height:14px; border-radius:50%; cursor:pointer; }
 .window-content { flex:1; background:#000; overflow:hidden; }
-
-/* -------------------- Toolbar -------------------- */
 #taskbar { position:absolute; bottom:0; left:0; width:100%; height:40px; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:space-between; padding:0 10px; color:white; font-size:0.9rem; }
 #taskbar #start { cursor:pointer; }
 #taskbar #time { cursor:pointer; }
-
-/* -------------------- Start Menu -------------------- */
 #start-menu { position:absolute; bottom:40px; left:10px; width:200px; background:#222; border:1px solid #555; display:none; flex-direction:column; color:white; border-radius:6px; }
 #start-menu div { padding:10px; cursor:pointer; border-bottom:1px solid #333; }
 #start-menu div:hover { background:#333; }
-
-/* -------------------- Lock Screen -------------------- */
 #lockscreen { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; z-index:9999; }
 #lockscreen input { padding:8px 10px; border-radius:6px; border:none; outline:none; font-size:1rem; margin-top:10px; background:rgba(255,255,255,0.1); color:white; }
 #lockscreen button { margin-top:10px; padding:6px 12px; border:none; border-radius:6px; cursor:pointer; background:#444; color:white; }
 #lockscreen h1 { margin-bottom:10px; font-size:2rem; }
-
-/* -------------------- Calendar Popup -------------------- */
 #calendar { position:absolute; bottom:50px; right:10px; width:220px; background:#222; color:white; padding:10px; border-radius:6px; display:none; }
 </style>
 </head>
 <body>
 
-<!-- Lock Screen -->
 <div id="lockscreen">
   <h1>XenOS</h1>
   <input type="password" id="unlock-pass" placeholder="Enter password">
   <button id="unlock-btn">Unlock</button>
 </div>
 
-<!-- Desktop -->
 <div id="desktop">
   <div class="desktop-icon" data-app="youtube">
-    <img src="youtube-icon.png" alt="YouTube">
-    YouTube
+    <img src="youtube-icon.png" alt="YouTube">YouTube
   </div>
   <div class="desktop-icon" data-app="tiktok">
-    <img src="tiktok-icon.png" alt="TikTok">
-    TikTok
+    <img src="tiktok-icon.png" alt="TikTok">TikTok
   </div>
 </div>
 
-<!-- Taskbar -->
 <div id="taskbar">
   <div id="start">🪟 Start</div>
   <div id="time">12:00 PM</div>
 </div>
 
-<!-- Start Menu -->
 <div id="start-menu">
   <div data-app="youtube">YouTube</div>
   <div data-app="tiktok">TikTok</div>
   <div data-app="settings">Settings</div>
 </div>
 
-<!-- Calendar Popup -->
 <div id="calendar"></div>
 
+<!-- Scramjet Backend -->
+<script src="/scram/scramjet.all.js"></script>
+<script src="/baremux/index.js"></script>
 <script>
+const { ScramjetController } = $scramjetLoadController();
+const scramjet = new ScramjetController({
+    files: {
+        wasm: "/scram/scramjet.wasm.wasm",
+        all: "/scram/scramjet.all.js",
+        sync: "/scram/scramjet.sync.js"
+    }
+});
+scramjet.init();
+const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
+
 // -------------------- Lock Screen --------------------
 const lockscreen = document.getElementById("lockscreen");
-const unlockBtn = document.getElementById("unlock-btn");
-unlockBtn.addEventListener("click", () => {
-  const pass = document.getElementById("unlock-pass").value;
-  if(pass === "1234") { // simple password
-    lockscreen.style.display = "none";
-  } else alert("Wrong password");
+document.getElementById("unlock-btn").addEventListener("click", ()=>{
+  const val = document.getElementById("unlock-pass").value;
+  if(val==="1234"){ lockscreen.style.display="none"; }
+  else alert("Wrong password");
 });
 
-// -------------------- Desktop / Start Menu --------------------
+// -------------------- Start Menu --------------------
 const startBtn = document.getElementById("start");
 const startMenu = document.getElementById("start-menu");
-startBtn.addEventListener("click", () => startMenu.style.display = startMenu.style.display==="flex"?"none":"flex");
+startBtn.addEventListener("click", ()=> startMenu.style.display = startMenu.style.display==="flex"?"none":"flex");
 
-document.getElementById("time").addEventListener("click", () => {
+// -------------------- Clock & Calendar --------------------
+document.getElementById("time").addEventListener("click", ()=>{
   const cal = document.getElementById("calendar");
   cal.style.display = cal.style.display==="block"?"none":"block";
   cal.innerHTML = new Date().toDateString();
 });
+function updateTime(){ document.getElementById("time").textContent = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
+setInterval(updateTime,1000); updateTime();
 
 // -------------------- Draggable Windows --------------------
-function makeDraggable(win) {
+function makeDraggable(win){
   const header = win.querySelector(".window-header");
-  let offsetX = 0, offsetY = 0, dragging = false;
-
-  header.addEventListener("mousedown", e => {
-    dragging = true;
-    offsetX = e.clientX - win.offsetLeft;
-    offsetY = e.clientY - win.offsetTop;
-  });
-  document.addEventListener("mousemove", e => {
-    if(dragging){
-      win.style.left = (e.clientX - offsetX)+"px";
-      win.style.top = (e.clientY - offsetY)+"px";
-    }
-  });
-  document.addEventListener("mouseup", ()=> dragging=false);
+  let offsetX=0, offsetY=0, dragging=false;
+  header.addEventListener("mousedown", e=>{ dragging=true; offsetX=e.clientX-win.offsetLeft; offsetY=e.clientY-win.offsetTop; });
+  document.addEventListener("mousemove", e=>{ if(dragging){ win.style.left=(e.clientX-offsetX)+"px"; win.style.top=(e.clientY-offsetY)+"px"; } });
+  document.addEventListener("mouseup", ()=>dragging=false);
 }
 
-// -------------------- Launch App --------------------
-function openApp(app){
+// -------------------- Open App in Scramjet Frame --------------------
+async function openApp(app){
   const desktop = document.getElementById("desktop");
   const win = document.createElement("div");
-  win.className = "window";
-  win.style.top = "50px";
-  win.style.left = "50px";
-  win.innerHTML = `
+  win.className="window";
+  win.style.top="50px"; win.style.left="50px";
+
+  // Header with close button
+  win.innerHTML=`
     <div class="window-header">
       <span>${app}</span>
       <div class="controls">
         <div style="background:#ff5c5c" onclick="this.closest('.window').remove()"></div>
-        <div style="background:#ffbd4c" onclick="alert('Minimize not implemented')"></div>
-        <div style="background:#00ca56" onclick="alert('Maximize not implemented')"></div>
       </div>
     </div>
-    <iframe class="window-content" src="/proxy/https://${app}.com" frameborder="0" style="width:100%;height:100%;"></iframe>
   `;
+  const frameContainer = document.createElement("div");
+  frameContainer.className="window-content";
+  win.appendChild(frameContainer);
   desktop.appendChild(win);
   makeDraggable(win);
+
+  // -------------------- Scramjet Frame --------------------
+  const url = app==="youtube"?"https://youtube.com":app==="tiktok"?"https://www.tiktok.com":"about:blank";
+  const frame = scramjet.createFrame({ container: frameContainer });
+  frame.frame.style.width="100%";
+  frame.frame.style.height="100%";
+  frame.go(url);
 }
 
-// Desktop icons click
-document.querySelectorAll(".desktop-icon").forEach(icon => {
+// -------------------- Launch Apps --------------------
+document.querySelectorAll(".desktop-icon").forEach(icon=>{
   icon.addEventListener("dblclick", ()=> openApp(icon.dataset.app));
 });
-
-// Start menu app launch
-document.querySelectorAll("#start-menu div[data-app]").forEach(item => {
+document.querySelectorAll("#start-menu div[data-app]").forEach(item=>{
   item.addEventListener("click", ()=> { openApp(item.dataset.app); startMenu.style.display="none"; });
 });
-
-// -------------------- Clock Update --------------------
-function updateTime(){
-  const now = new Date();
-  document.getElementById("time").textContent = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-}
-setInterval(updateTime, 1000);
-updateTime();
 </script>
 </body>
 </html>
