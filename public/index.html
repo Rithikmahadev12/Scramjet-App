@@ -3,123 +3,157 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Matriarchs Browser</title>
+<title>Matriarchs OS</title>
 
 <link rel="shortcut icon" href="favicon.webp" />
 
-<!-- Scramjet backend scripts -->
+<!-- Scramjet backend scripts (DO NOT REMOVE) -->
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
-<link rel="stylesheet" href="index.css">
 <script src="register-sw.js" defer></script>
 <script src="search.js" defer></script>
 <script src="index.js" defer></script>
 
 <style>
-body, html {
-  margin:0; padding:0; height:100%;
-  font-family:'Segoe UI', sans-serif;
-  background: linear-gradient(135deg,#121212,#1c1c1c);
-  display:flex; justify-content:center; align-items:center;
-  color:#fff; overflow:hidden;
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+
+body {
+  height:100vh;
+  overflow:hidden;
+  background:linear-gradient(135deg,#111,#1a1a2e);
+  color:white;
 }
 
-#matriarchs-browser {
-  text-align:center;
-  padding:50px 30px;
-  max-width:600px; width:90%;
-}
-
-#matriarchs-browser h1 {
-  font-size:2.5rem;
-  color: rgba(255,255,255,0.5);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-image: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.3));
-  margin-bottom:30px;
-}
-
-/* Compact search bar */
-#sj-form {
-  position:relative; 
-  width:100%;
-  margin-bottom:20px;
-}
-
-#sj-form::before {
-  content:"🔍";
+/* Desktop */
+#desktop {
   position:absolute;
-  left:12px;
-  top:50%;
-  transform: translateY(-50%);
-  font-size:1rem;
-  color: rgba(255,255,255,0.6);
-  pointer-events:none;
+  top:0;
+  left:0;
+  right:0;
+  bottom:50px;
+  padding:20px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:20px;
 }
 
-#sj-address {
-  width:100%;
-  padding:10px 12px 10px 35px;
-  font-size:0.95rem;
-  border-radius:8px;
-  border:none;
-  outline:none;
-  background: rgba(255,255,255,0.05);
-  color: rgba(255,255,255,0.8);
-  backdrop-filter: blur(10px);
-  transition: all 0.2s ease;
-}
-
-#sj-address::placeholder {
-  color: rgba(255,255,255,0.5);
-}
-
-#sj-address:focus {
-  background: rgba(255,255,255,0.1);
-  box-shadow:0 0 6px rgba(255,255,255,0.15);
-}
-
-/* Navigation buttons */
-#nav-buttons {
-  display:flex; justify-content:center; gap:15px;
-}
-
-.nav-btn {
-  padding:6px 14px;
-  border-radius:6px;
-  background: rgba(255,255,255,0.05);
-  color:#fff;
-  font-size:0.9rem;
+.desktop-icon {
+  width:80px;
+  text-align:center;
   cursor:pointer;
-  user-select:none;
-  transition: background 0.2s;
 }
-.nav-btn:hover { background: rgba(255,255,255,0.12); }
 
-/* Hide hidden inputs & errors */
-#sj-form input[type="hidden"] { display:none; }
-#sj-error, #sj-error-code, footer { display:none; }
+.desktop-icon img {
+  width:48px;
+  height:48px;
+  margin-bottom:5px;
+}
 
+/* Taskbar */
+#taskbar {
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+  height:50px;
+  background:#151525;
+  display:flex;
+  align-items:center;
+  padding:0 10px;
+}
+
+#start-btn {
+  background:#27293d;
+  padding:8px 14px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+#start-menu {
+  position:absolute;
+  bottom:50px;
+  left:10px;
+  width:220px;
+  background:#1e1e2f;
+  border-radius:10px;
+  padding:15px;
+  display:none;
+}
+
+.menu-item {
+  padding:8px;
+  cursor:pointer;
+}
+
+.menu-item:hover {
+  background:#27293d;
+}
+
+/* Hide original browser UI */
+#matriarchs-browser {
+  display:none;
+}
 </style>
 </head>
+
 <body>
 
+<!-- ORIGINAL SCRAMJET FORM (HIDDEN BUT REQUIRED) -->
 <div id="matriarchs-browser">
-  <h1>Matriarchs Browser</h1>
-
-  <!-- Scramjet form -->
   <form id="sj-form">
     <input id="sj-search-engine" type="hidden" value="https://www.google.com/search?q=%s">
-    <input id="sj-address" type="text" placeholder="Type URL or search...">
+    <input id="sj-address" type="text">
   </form>
-
-  <!-- Navigation buttons -->
-  <div id="nav-buttons">
-    <div class="nav-btn" onclick="history.back()">◀ Back</div>
-    <div class="nav-btn" onclick="history.forward()">▶ Forward</div>
-    <div class="nav-btn" onclick="document.getElementById('sj-address').value=''">✕ Clear</div>
-  </div>
 </div>
+
+<!-- DESKTOP -->
+<div id="desktop"></div>
+
+<!-- START MENU -->
+<div id="start-menu">
+  <div class="menu-item" onclick="launchSite('https://youtube.com')">YouTube</div>
+  <div class="menu-item" onclick="launchSite('https://tiktok.com')">TikTok</div>
+  <div class="menu-item" onclick="launchSite('https://google.com')">Google</div>
+</div>
+
+<!-- TASKBAR -->
+<div id="taskbar">
+  <div id="start-btn" onclick="toggleStart()">Start</div>
+</div>
+
+<script>
+function toggleStart(){
+  const m = document.getElementById("start-menu");
+  m.style.display = m.style.display === "block" ? "none" : "block";
+}
+
+/* THIS is the magic */
+function launchSite(url){
+  const input = document.getElementById("sj-address");
+  const form = document.getElementById("sj-form");
+
+  input.value = url;
+
+  // Submit Scramjet form properly
+  form.dispatchEvent(new Event("submit", { bubbles:true, cancelable:true }));
+}
+
+/* Desktop icons */
+function addIcon(name, url){
+  const icon = document.createElement("div");
+  icon.className="desktop-icon";
+  icon.innerHTML=`
+    <img src="https://cdn-icons-png.flaticon.com/512/888/888879.png">
+    <div>${name}</div>
+  `;
+  icon.onclick=()=>launchSite(url);
+  document.getElementById("desktop").appendChild(icon);
+}
+
+addIcon("YouTube","https://youtube.com");
+addIcon("TikTok","https://tiktok.com");
+addIcon("Google","https://google.com");
+</script>
 
 </body>
 </html>
