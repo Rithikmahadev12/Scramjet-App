@@ -1,3 +1,4 @@
+// src/index.js
 import { createServer } from "node:http";
 import { fileURLToPath } from "url";
 import { hostname } from "node:os";
@@ -18,7 +19,7 @@ logging.set_level(logging.NONE);
 Object.assign(wisp.options, {
     allow_udp_streams: false,
     hostname_blacklist: [/example\.com/],
-    hostname_whitelist: [/youtube\.com/, /tiktok\.com/], // allow these for Scramjet frames
+    hostname_whitelist: [/youtube\.com/, /tiktok\.com/, /.*\.google\.com/],
     dns_servers: ["1.1.1.3", "1.0.0.3"],
 });
 
@@ -46,26 +47,29 @@ fastify.register(fastifyStatic, { root: libcurlPath, prefix: "/libcurl/", decora
 fastify.register(fastifyStatic, { root: baremuxPath, prefix: "/baremux/", decorateReply: false });
 
 // -------------------
-// Wisp Proxy Route
+// Wisp Proxy Route (Scramjet Transport)
 // -------------------
+// This replaces node-fetch for sites like YouTube/TikTok
 fastify.get("/wisp-proxy", async (req, reply) => {
     const targetUrl = req.query.url;
     if (!targetUrl) return reply.code(400).send("Missing URL parameter");
 
     try {
-        const fetch = (await import("node-fetch")).default;
+        // Use Wisp transport to fetch the URL
+        // Returns a streaming HTML response suitable for Scramjet iframe
+        const frame = await wisp.fetch(targetUrl, {
+            redirect: "follow",
+            // Cookies are handled by Wisp
+            headers: {
+                "User-Agent": req.headers["user-agent"] || "Mozilla/5.0",
+            },
+        });
 
-        // Fetch the site
-        const res = await fetch(targetUrl, { redirect: "follow" });
-        let body = await res.text();
-
-        // Remove blocking headers for iframe embedding
         reply.header("X-Frame-Options", "ALLOWALL");
         reply.header("Content-Security-Policy", "frame-ancestors *");
-
-        return reply.type("text/html").send(body);
+        return reply.type("text/html").send(frame.body);
     } catch (err) {
-        console.error("Proxy error:", err);
+        console.error("Scramjet/Wisp Proxy Error:", err);
         return reply.code(500).send("Scramjet Proxy Error: " + err.toString());
     }
 });
@@ -78,7 +82,7 @@ fastify.setNotFoundHandler((res, reply) => {
 });
 
 // -------------------
-// Server startup
+// Server listening
 // -------------------
 fastify.server.on("listening", () => {
     const address = fastify.server.address();
@@ -96,6 +100,9 @@ function shutdown() {
     process.exit(0);
 }
 
+// -------------------
+// Start server
+// -------------------
 let port = parseInt(process.env.PORT || "");
 if (isNaN(port)) port = 8080;
 
