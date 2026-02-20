@@ -33,7 +33,7 @@ const fastify = Fastify({
                 handler(req, res);
             })
             .on("upgrade", (req, socket, head) => {
-                if (req.url.endsWith("/wisp/")) wisp.routeRequest(req, socket, head);
+                if (req.url.startsWith("/wisp/")) wisp.routeRequest(req, socket, head);
                 else socket.end();
             });
     },
@@ -46,6 +46,30 @@ fastify.register(fastifyStatic, { root: publicPath, decorateReply: true });
 fastify.register(fastifyStatic, { root: scramjetPath, prefix: "/scram/", decorateReply: false });
 fastify.register(fastifyStatic, { root: libcurlPath, prefix: "/libcurl/", decorateReply: false });
 fastify.register(fastifyStatic, { root: baremuxPath, prefix: "/baremux/", decorateReply: false });
+
+// -------------------
+// Full proxy route for iframe embedding
+// -------------------
+fastify.get("/proxy/*", async (req, reply) => {
+    const targetUrl = req.params["*"];
+    try {
+        // Use wisp for fetching remote page
+        const frame = wisp.createFrame();
+        const html = await frame.fetch(targetUrl);
+
+        // Rewrite headers to allow iframe embedding
+        reply.header("X-Frame-Options", "ALLOWALL");
+        reply.header("Content-Security-Policy", "frame-ancestors *");
+
+        return reply.type("text/html").send(html);
+    } catch (err) {
+        console.error("Scramjet Proxy Error:", err);
+        return reply.code(500).send(`
+            <h2>Scramjet Proxy Error</h2>
+            <pre>${err.toString()}</pre>
+        `);
+    }
+});
 
 // -------------------
 // 404 handler
