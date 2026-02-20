@@ -18,6 +18,7 @@ logging.set_level(logging.NONE);
 Object.assign(wisp.options, {
     allow_udp_streams: false,
     hostname_blacklist: [/example\.com/],
+    hostname_whitelist: [/youtube\.com/, /tiktok\.com/], // allow these for Scramjet frames
     dns_servers: ["1.1.1.3", "1.0.0.3"],
 });
 
@@ -30,14 +31,14 @@ const fastify = Fastify({
                 handler(req, res);
             })
             .on("upgrade", (req, socket, head) => {
-                if (req.url.startsWith("/wisp/")) wisp.routeRequest(req, socket, head);
+                if (req.url.endsWith("/wisp/")) wisp.routeRequest(req, socket, head);
                 else socket.end();
             });
     },
 });
 
 // -------------------
-// Static file serving
+// Serve static files
 // -------------------
 fastify.register(fastifyStatic, { root: publicPath, decorateReply: true });
 fastify.register(fastifyStatic, { root: scramjetPath, prefix: "/scram/", decorateReply: false });
@@ -45,51 +46,27 @@ fastify.register(fastifyStatic, { root: libcurlPath, prefix: "/libcurl/", decora
 fastify.register(fastifyStatic, { root: baremuxPath, prefix: "/baremux/", decorateReply: false });
 
 // -------------------
-// Wisp Proxy Route (for TikTok, YouTube, etc.)
+// Wisp Proxy Route
 // -------------------
 fastify.get("/wisp-proxy", async (req, reply) => {
-    const url = req.query.url;
-    if (!url) return reply.code(400).send("Missing url parameter");
+    const targetUrl = req.query.url;
+    if (!targetUrl) return reply.code(400).send("Missing URL parameter");
 
     try {
-        // Create a temporary Scramjet/Wisp frame URL
-        // The frontend will call: frame.go(`/wisp-proxy?url=${encodeURIComponent(url)}`)
-        // Scramjet/Wisp will handle the site correctly even with redirects/cookies
-        // Here, we just return an HTML page that launches the Wisp frame
-        const html = `
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <title>Scramjet Proxy</title>
-            </head>
-            <body style="margin:0;padding:0;overflow:hidden;">
-                <script src="/scram/scramjet.all.js"></script>
-                <script src="/baremux/index.js"></script>
-                <script>
-                    const { ScramjetController } = $scramjetLoadController();
-                    const scramjet = new ScramjetController({
-                        files:{
-                            wasm:"/scram/scramjet.wasm.wasm",
-                            all:"/scram/scramjet.all.js",
-                            sync:"/scram/scramjet.sync.js"
-                        }
-                    });
-                    scramjet.init();
-                    const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
-                    (async()=>{
-                        const frame = scramjet.createFrame();
-                        document.body.appendChild(frame.frame);
-                        await connection.setTransport("/libcurl/index.mjs", [{ websocket: (location.protocol==="https:"?"wss":"ws") + "://" + location.host + "/wisp/"}]);
-                        frame.go("${url}");
-                    })();
-                </script>
-            </body>
-            </html>
-        `;
-        return reply.type("text/html").send(html);
+        const fetch = (await import("node-fetch")).default;
+
+        // Fetch the site
+        const res = await fetch(targetUrl, { redirect: "follow" });
+        let body = await res.text();
+
+        // Remove blocking headers for iframe embedding
+        reply.header("X-Frame-Options", "ALLOWALL");
+        reply.header("Content-Security-Policy", "frame-ancestors *");
+
+        return reply.type("text/html").send(body);
     } catch (err) {
-        return reply.code(500).send(err.toString());
+        console.error("Proxy error:", err);
+        return reply.code(500).send("Scramjet Proxy Error: " + err.toString());
     }
 });
 
@@ -101,19 +78,16 @@ fastify.setNotFoundHandler((res, reply) => {
 });
 
 // -------------------
-// Server listening
+// Server startup
 // -------------------
 fastify.server.on("listening", () => {
     const address = fastify.server.address();
     console.log("Listening on:");
     console.log(`\thttp://localhost:${address.port}`);
     console.log(`\thttp://${hostname()}:${address.port}`);
-    console.log(`\thttp://${address.family==="IPv6" ? `[${address.address}]` : address.address}:${address.port}`);
+    console.log(`\thttp://${address.family === "IPv6" ? `[${address.address}]` : address.address}:${address.port}`);
 });
 
-// -------------------
-// Graceful shutdown
-// -------------------
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 function shutdown() {
@@ -122,9 +96,6 @@ function shutdown() {
     process.exit(0);
 }
 
-// -------------------
-// Start server
-// -------------------
 let port = parseInt(process.env.PORT || "");
 if (isNaN(port)) port = 8080;
 
