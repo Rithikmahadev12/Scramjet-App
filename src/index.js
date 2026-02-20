@@ -1,9 +1,10 @@
 import { createServer } from "node:http";
 import { fileURLToPath } from "url";
 import { hostname } from "node:os";
-import { server as wisp, logging } from "@mercuryworkshop/wisp-js/server";
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
+
+import { server as wisp, logging } from "@mercuryworkshop/wisp-js/server";
 import { scramjetPath } from "@mercuryworkshop/scramjet/path";
 import { libcurlPath } from "@mercuryworkshop/libcurl-transport";
 import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
@@ -21,7 +22,7 @@ Object.assign(wisp.options, {
 });
 
 // -------------------
-// Fastify setup
+// Fastify Setup
 // -------------------
 const fastify = Fastify({
     serverFactory: (handler) => {
@@ -47,28 +48,6 @@ fastify.register(fastifyStatic, { root: libcurlPath, prefix: "/libcurl/", decora
 fastify.register(fastifyStatic, { root: baremuxPath, prefix: "/baremux/", decorateReply: false });
 
 // -------------------
-// Proxy route for Matriarchs OS apps
-// -------------------
-fastify.get("/wisp-proxy", async (req, reply) => {
-    const target = req.query.url;
-    if (!target) return reply.code(400).send("Missing ?url= parameter");
-
-    try {
-        // Wisp fetch: works like node-fetch but routed via Scramjet
-        const res = await wisp.fetch(target, { redirect: "follow" });
-        let body = await res.text();
-
-        // Remove iframe restrictions
-        reply.header("X-Frame-Options", "ALLOWALL");
-        reply.header("Content-Security-Policy", "frame-ancestors *");
-        return reply.type("text/html").send(body);
-    } catch (err) {
-        console.error("Proxy error:", err);
-        return reply.code(500).send(`<h2>Scramjet Proxy Error</h2><pre>${err.toString()}</pre>`);
-    }
-});
-
-// -------------------
 // 404 handler
 // -------------------
 fastify.setNotFoundHandler((res, reply) => {
@@ -76,7 +55,7 @@ fastify.setNotFoundHandler((res, reply) => {
 });
 
 // -------------------
-// Start server
+// Server listening
 // -------------------
 const port = parseInt(process.env.PORT) || 8080;
 fastify.listen({ port, host: "0.0.0.0" }, () => {
