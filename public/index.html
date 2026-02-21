@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Matriarchs</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="index.css">
 
 <script src="/scram/scramjet.all.js"></script>
@@ -16,56 +16,50 @@
 
 <body>
 
-<!-- LANDING -->
-<div id="home-screen" class="screen active">
-  <div class="center-box">
-    <h1 class="brand">Matriarchs</h1>
-    <p class="subtitle">private browsing space</p>
+<div class="app">
 
-    <input id="home-search" placeholder="search anything..." />
-    <div class="stats">
-      <span>● 106 online</span>
-      <span>• 175,925 visits</span>
-    </div>
-  </div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">M</div>
+    <button class="nav-btn active" data-screen="home">Home</button>
+    <button class="nav-btn" data-screen="games">Games</button>
+    <button class="nav-btn" data-screen="browser">Browser</button>
+  </aside>
 
-  <div class="dock">
-    <button data-screen="home-screen">🏠</button>
-    <button data-screen="games-screen">🎮</button>
-    <button data-screen="browser-screen">🌐</button>
-  </div>
-</div>
+  <!-- MAIN -->
+  <main class="main">
 
-<!-- GAMES -->
-<div id="games-screen" class="screen">
-  <div class="games-wrapper">
-    <h2>Games</h2>
-    <div id="games-grid"></div>
-  </div>
+    <!-- HOME -->
+    <section id="home" class="screen active">
+      <div class="hero">
+        <h1>Matriarchs</h1>
+        <p>A private universe.</p>
+        <input id="home-search" placeholder="Search or enter URL...">
+      </div>
+    </section>
 
-  <div class="dock">
-    <button data-screen="home-screen">🏠</button>
-    <button data-screen="games-screen">🎮</button>
-    <button data-screen="browser-screen">🌐</button>
-  </div>
-</div>
+    <!-- GAMES -->
+    <section id="games" class="screen">
+      <div class="games-header">
+        <h2>Explore Games</h2>
+        <input id="game-search" placeholder="Search games...">
+      </div>
+      <div id="games-grid" class="games-grid"></div>
+    </section>
 
-<!-- BROWSER -->
-<div id="browser-screen" class="screen">
-  <div class="browser-bar">
-    <button id="back">←</button>
-    <button id="forward">→</button>
-    <button id="reload">⟳</button>
-    <input id="url-bar" placeholder="Enter URL or search..." />
-  </div>
+    <!-- BROWSER -->
+    <section id="browser" class="screen">
+      <div class="browser-bar">
+        <button id="back">←</button>
+        <button id="forward">→</button>
+        <button id="reload">⟳</button>
+        <input id="url-bar" placeholder="Enter URL or search...">
+      </div>
+      <div id="proxy-container"></div>
+    </section>
 
-  <div id="proxy-container"></div>
+  </main>
 
-  <div class="dock">
-    <button data-screen="home-screen">🏠</button>
-    <button data-screen="games-screen">🎮</button>
-    <button data-screen="browser-screen">🌐</button>
-  </div>
 </div>
 
 </body>
