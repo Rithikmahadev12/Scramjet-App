@@ -1,114 +1,257 @@
-// ================= PARTICLES =================
-const canvas=document.getElementById("particles");
-const ctx=canvas.getContext("2d");
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-let parts=[];
-for(let i=0;i<120;i++){
-  parts.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2});
+// ==========================
+// PARTICLES SYSTEM
+// ==========================
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 }
-function drawParticles(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  parts.forEach(p=>{
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+let particles = [];
+
+for (let i = 0; i < 120; i++) {
+  particles.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 2 + 0.5,
+    speed: Math.random() * 0.5 + 0.2
+  });
+}
+
+function drawParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "white";
+
+  particles.forEach(p => {
+    p.y -= p.speed;
+    if (p.y < 0) p.y = canvas.height;
+
     ctx.beginPath();
-    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    ctx.fillStyle="white";
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
     ctx.fill();
   });
+
   requestAnimationFrame(drawParticles);
 }
 drawParticles();
 
-// ================= BOOT + ONBOARDING =================
-let bootText="Matriarchs OS", idx=0;
-const bootEl=document.getElementById("bootText");
-function typeBoot(){
-  if(idx<bootText.length){
-    bootEl.textContent+=bootText[idx++];
-    setTimeout(typeBoot,100);
+
+// ==========================
+// BOOT ANIMATION
+// ==========================
+let bootText = "Matriarchs OS";
+let bootIndex = 0;
+const bootEl = document.getElementById("bootText");
+
+function typeBoot() {
+  if (bootIndex < bootText.length) {
+    bootEl.textContent += bootText[bootIndex];
+    bootIndex++;
+    setTimeout(typeBoot, 100);
   } else {
-    setTimeout(()=>{
+    setTimeout(() => {
       document.getElementById("bootScreen").classList.add("hidden");
       document.getElementById("onboarding").classList.remove("hidden");
-    },800);
+      animateIntroTitle();
+    }, 1000);
   }
 }
+
 typeBoot();
 
-document.addEventListener("keydown",(e)=>{
-  if(e.code==="Space"){
-    document.getElementById("onboarding").classList.add("hidden");
-    document.getElementById("nameInputScreen").classList.remove("hidden");
+
+// ==========================
+// INTRO LETTER ANIMATION
+// ==========================
+function animateIntroTitle() {
+  const title = "Matriarchs OS";
+  const el = document.getElementById("introTitle");
+  el.innerHTML = "";
+
+  title.split("").forEach((char, i) => {
+    const span = document.createElement("span");
+    span.textContent = char;
+    span.style.opacity = 0;
+    span.style.display = "inline-block";
+    span.style.transform = "translateY(40px)";
+    span.style.transition = "0.5s ease";
+    el.appendChild(span);
+
+    setTimeout(() => {
+      span.style.opacity = 1;
+      span.style.transform = "translateY(0px)";
+    }, i * 80);
+  });
+}
+
+
+// ==========================
+// SPACE TO CONTINUE
+// ==========================
+document.addEventListener("keydown", (e) => {
+  if (e.code === "Space") {
+    if (!document.getElementById("onboarding").classList.contains("hidden")) {
+      document.getElementById("onboarding").classList.add("hidden");
+      document.getElementById("nameInputScreen").classList.remove("hidden");
+    }
   }
 });
 
-function saveName(){
-  const name=document.getElementById("nameField").value;
-  localStorage.setItem("username",name);
+
+// ==========================
+// NAME SAVE
+// ==========================
+document.getElementById("saveNameBtn").addEventListener("click", () => {
+  const name = document.getElementById("nameField").value.trim();
+  if (!name) return;
+
+  localStorage.setItem("username", name);
+
   document.getElementById("nameInputScreen").classList.add("hidden");
   document.getElementById("bgPickerScreen").classList.remove("hidden");
-}
+});
 
-function setBG(url){
-  document.getElementById("desktop").style.backgroundImage=`url(${url})`;
+
+// ==========================
+// BACKGROUND PICKER
+// ==========================
+const backgrounds = [
+  "https://images.unsplash.com/photo-1514897575457-c4db467cf78e?q=80&w=1600",
+  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600",
+  "https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?q=80&w=1600"
+];
+
+const bgContainer = document.getElementById("bgOptions");
+
+backgrounds.forEach(url => {
+  const img = document.createElement("img");
+  img.src = url;
+  img.onclick = () => setBG(url);
+  bgContainer.appendChild(img);
+});
+
+function setBG(url) {
+  document.getElementById("desktop").style.backgroundImage = `url(${url})`;
   document.getElementById("bgPickerScreen").classList.add("hidden");
   document.getElementById("desktop").classList.remove("hidden");
-  document.getElementById("welcomeText").innerText="Welcome, "+localStorage.getItem("username");
+
+  const name = localStorage.getItem("username");
+  document.getElementById("welcomeText").innerText = "Welcome, " + name;
+
   startClock();
 }
 
-// ================= CLOCK =================
-function startClock(){
-  setInterval(()=>{
-    const d=new Date();
-    document.getElementById("clock").innerText=
-      d.toLocaleTimeString()+" | "+d.toLocaleDateString();
-  },1000);
+
+// ==========================
+// CLOCK
+// ==========================
+function startClock() {
+  setInterval(() => {
+    const d = new Date();
+    document.getElementById("clock").innerText =
+      d.toLocaleTimeString() + " | " +
+      d.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
+  }, 1000);
 }
 
-// ================= LAUNCHPAD =================
-document.getElementById("launchBtn").onclick=()=>{
+
+// ==========================
+// LAUNCHPAD
+// ==========================
+document.getElementById("launchBtn").onclick = () => {
   document.getElementById("launchpad").classList.toggle("hidden");
 };
 
-document.querySelectorAll("#launchpad button").forEach(btn=>{
-  btn.onclick=()=>openApp(btn.dataset.app);
+document.querySelectorAll("#launchpad button").forEach(btn => {
+  btn.onclick = () => openApp(btn.dataset.app);
 });
 
-// ================= WINDOW + BROWSER =================
-let scramjetInstance=null;
-async function initScramjet(){
-  if(scramjetInstance) return scramjetInstance;
+
+// ==========================
+// WINDOW CONTROLS
+// ==========================
+function openApp(id) {
+  const win = document.getElementById(id + "App");
+  win.classList.remove("hidden");
+
+  if (id === "browser") openBrowser();
+}
+
+function closeWin(id) {
+  document.getElementById(id + "App").classList.add("hidden");
+}
+
+function minWin(id) {
+  document.getElementById(id + "App").classList.add("hidden");
+}
+
+function maximizeWin(id) {
+  const win = document.getElementById(id + "App");
+  win.style.width = "100%";
+  win.style.height = "90%";
+  win.style.top = "0";
+  win.style.left = "0";
+}
+
+
+// ==========================
+// TAB CLOAK
+// ==========================
+function cloakTab(title, icon) {
+  document.title = title;
+
+  let link = document.querySelector("link[rel='icon']");
+  if (!link) {
+    link = document.createElement("link");
+    link.rel = "icon";
+    document.head.appendChild(link);
+  }
+
+  link.href = icon;
+}
+
+
+// ==========================
+// SCRAMJET BROWSER
+// ==========================
+let scramjetController = null;
+
+async function initScramjet() {
+  if (scramjetController) return scramjetController;
+
   const { ScramjetController } = $scramjetLoadController();
+
   const sj = new ScramjetController({
-    files:{
-      wasm:"/scram/scramjet.wasm.wasm",
-      all:"/scram/scramjet.all.js",
-      sync:"/scram/scramjet.sync.js"
+    files: {
+      wasm: "/scram/scramjet.wasm.wasm",
+      all: "/scram/scramjet.all.js",
+      sync: "/scram/scramjet.sync.js"
     }
   });
+
   await sj.init();
-  scramjetInstance=sj;
+  await registerSW();
+
+  scramjetController = sj;
   return sj;
 }
 
-async function openBrowser(){
-  const container=document.getElementById("browserContent");
+async function openBrowser() {
+  const container = document.getElementById("browserContent");
+  container.innerHTML = "";
+
   const sj = await initScramjet();
-  await registerSW();
   const frame = sj.createFrame();
-  frame.frame.style.width="100%";
-  frame.frame.style.height="100%";
+
+  frame.frame.style.width = "100%";
+  frame.frame.style.height = "100%";
+
   container.appendChild(frame.frame);
+
   await frame.waitUntilReady();
   frame.go("https://search.brave.com/");
 }
-
-function openApp(id){
-  document.getElementById(id+"App").classList.remove("hidden");
-  if(id==="browser") openBrowser();
-}
-
-function closeWin(id){document.getElementById(id+"App").classList.add("hidden");}
-function minWin(id){document.getElementById(id+"App").classList.add("hidden");}
-...
