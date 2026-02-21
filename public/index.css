@@ -25,7 +25,8 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  transition: background .3s, color .3s;
+  transition: all 0.3s ease;
+  overflow-x: hidden;
 }
 
 /* NAVIGATION */
@@ -41,7 +42,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 12px;
+  padding: 14px;
   border-radius: 16px;
   background: var(--glass);
   border: 1px solid var(--border);
@@ -52,16 +53,16 @@ body {
   background: none;
   border: none;
   color: var(--muted);
-  font-size: 20px;
+  font-size: 22px;
   padding: 10px;
   cursor: pointer;
   border-radius: 12px;
-  transition: .2s, transform .15s;
+  transition: .2s, transform .2s;
 }
 
 .nav-btn:hover {
   color: var(--text);
-  transform: scale(1.1);
+  transform: scale(1.15);
 }
 
 .nav-btn.active {
@@ -101,16 +102,17 @@ body {
 
 .header-center {
   flex-direction: column;
-  margin-top: 10%;
   text-align: center;
+  gap: 12px;
 }
 
-.desc {
-  color: rgba(255,255,255,0.6);
+/* ONBOARDING INPUTS */
+input, select, button {
+  font-family: "Roboto", sans-serif;
+  outline: none;
 }
 
-/* SEARCH INPUT */
-#sj-address, #profile-name, #onboard-name {
+#sj-address, #profile-name, #onboard-name, select {
   background: var(--glass);
   border: 1px solid var(--border);
   color: var(--text);
@@ -118,12 +120,26 @@ body {
   height: 48px;
   width: 300px;
   border-radius: 50px;
-  outline: none;
   transition: border .2s;
 }
 
 #sj-address:focus, #profile-name:focus, #onboard-name:focus {
   border: 1px solid rgba(0,150,255,0.6);
+}
+
+button {
+  background: #007aff;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all .2s;
+}
+
+button:hover {
+  transform: scale(1.05);
 }
 
 /* SETTINGS */
