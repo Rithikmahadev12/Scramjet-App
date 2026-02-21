@@ -1,52 +1,49 @@
 /* GLOBAL */
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", sans-serif; }
+* { margin:0; padding:0; box-sizing:border-box; font-family:"Inter",sans-serif; cursor: url('https://cdn.iconscout.com/icon/free/png-256/cursor-152-458097.png'), auto; }
 
-/* MOON BACKGROUND */
-body { 
-  background: url("https://unsplash.com/photos/half-moon-visible-in-a-dark-blue-sky-bz9pZYavM90") center/cover no-repeat fixed;
-  color: white; height: 100vh; overflow: hidden;
+/* BACKGROUND */
+body {
+  background: url("https://images.unsplash.com/photo-1582256778744-4e0f0e44b0c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80") center/cover no-repeat fixed;
+  color:white; height:100vh; overflow:hidden;
 }
 
 /* STATUS BAR */
 .status-bar {
-  position: fixed; top: 0; left: 0; right: 0; height: 30px;
-  display: flex; justify-content: space-between; padding: 0 15px;
-  font-weight: 600; background: rgba(0,0,0,0.5); z-index: 10;
+  position:fixed; top:0; left:0; right:0; height:30px;
+  display:flex; justify-content:space-between; padding:0 15px;
+  font-weight:600; background: rgba(0,0,0,0.5); z-index:100;
 }
 
 /* ONBOARDING */
-.onboard-background {
-  position: absolute; top:0; left:0; width:100%; height:100%;
-  background: rgba(0,0,0,0.6);
-  animation: fadeIn 2s ease forwards;
-  z-index: -1;
+#particle-canvas {
+  position:absolute; top:0; left:0; width:100%; height:100%; z-index:-1;
 }
 .onboard-content {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  height: 100vh; text-align: center; animation: slideUp 1.5s ease forwards;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh;
+  text-align:center; animation:fadeIn 2s ease forwards;
 }
-.onboard-content h1 { font-size: 60px; background: linear-gradient(45deg,#00eaff,#8a2be2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation: glow 2s infinite alternate; }
-.onboard-content p { margin: 20px 0; opacity:0.8; font-size:20px; }
-.onboard-content button { padding:15px 50px; border:none; border-radius:30px; background: linear-gradient(45deg,#00eaff,#8a2be2); color:white; font-size:18px; cursor:pointer; transition:.3s; }
-.onboard-content button:hover { transform: scale(1.1); }
+.onboard-content h1 { font-size:60px; background:linear-gradient(45deg,#00eaff,#8a2be2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:glow 2s infinite alternate; }
+.onboard-content p { margin:20px 0; font-size:20px; opacity:0.8; }
+.onboard-content button { padding:15px 50px; border:none; border-radius:30px; background:linear-gradient(45deg,#00eaff,#8a2be2); color:white; font-size:18px; cursor:pointer; transition:.3s; }
+.onboard-content button:hover { transform:scale(1.1); }
 
 /* APP LAYOUT */
-.app { display: flex; height: 100%; margin-top: 30px; }
+.app { display:flex; height:100%; margin-top:30px; }
 
 /* SIDEBAR */
-.sidebar { width:90px; background: rgba(0,0,0,0.4); display:flex; flex-direction:column; align-items:center; gap:15px; padding-top:30px; }
+.sidebar { width:90px; background: rgba(0,0,0,0.4); display:flex; flex-direction:column; align-items:center; gap:15px; padding-top:30px; border-radius:20px 0 0 20px; }
 .logo { font-size:32px; background:linear-gradient(45deg,#00eaff,#8a2be2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
 .nav-btn { background:none; border:none; padding:10px; opacity:.6; transition:.2s; color:white; cursor:pointer; }
-.nav-btn.active, .nav-btn:hover { opacity:1; transform: scale(1.1); }
+.nav-btn.active, .nav-btn:hover { opacity:1; transform:scale(1.1); }
 
 /* MAIN */
-.main { flex:1; display:flex; flex-direction:column; padding:20px; }
+.main { flex:1; display:flex; flex-direction:column; padding:20px; overflow:hidden; }
 .screen { display:none; flex-direction:column; height:100%; transition: all .5s ease; }
-.screen.active { display:flex; animation: fadeIn 1s ease forwards; }
+.screen.active { display:flex; animation:fadeIn 1s ease forwards; }
 
 /* HERO */
 .hero { text-align:center; margin-top:50px; }
-.hero h1 { font-size:60px; background:linear-gradient(90deg,#00eaff,#8a2be2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation: slideUp 1.5s ease forwards; }
+.hero h1 { font-size:60px; background:linear-gradient(90deg,#00eaff,#8a2be2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:slideUp 1.5s ease forwards; }
 .hero input { width:80%; margin:20px auto; padding:15px; border-radius:30px; background: rgba(255,255,255,0.1); border:none; color:white; }
 
 /* GAMES */
@@ -63,6 +60,6 @@ body {
 #proxy-container { flex:1; border-radius:15px; overflow:hidden; background:black; }
 
 /* ANIMATIONS */
-@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-@keyframes slideUp { from { opacity:0; transform: translateY(50px); } to { opacity:1; transform:translateY(0); } }
-@keyframes glow { from { text-shadow:0 0 5px #00eaff; } to { text-shadow:0 0 20px #8a2be2; } }
+@keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+@keyframes slideUp { from {opacity:0; transform:translateY(50px);} to {opacity:1; transform:translateY(0);} }
+@keyframes glow { from {text-shadow:0 0 5px #00eaff;} to {text-shadow:0 0 20px #8a2be2;} }
