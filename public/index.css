@@ -1,113 +1,72 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap");
-
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: "Roboto", sans-serif;
+  font-family: Arial, sans-serif;
   height: 100vh;
   overflow: hidden;
-
-  /* FIXED BACKGROUND */
-  background: url("https://images.unsplash.com/photo-1506744038136-46273834b3fb")
-              no-repeat center center fixed;
-  background-size: cover;
+  background: #111;
   color: white;
 }
 
-/* Overlay for dark effect */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  z-index: -1;
-}
-
-.title {
-  text-align: center;
-  margin-top: 12%;
-  font-size: 48px;
-}
-
-.search-bar {
+/* Browser Bar */
+#browser-bar {
   display: flex;
-  justify-content: center;
-  margin-top: 20px;
-  gap: 10px;
+  gap: 6px;
+  padding: 8px;
+  background: #1a1a1a;
+  align-items: center;
 }
 
-#sj-address {
-  width: 400px;
-  padding: 14px 20px;
-  border-radius: 50px;
+#browser-bar button {
+  background: #333;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+#browser-bar button:hover {
+  background: #444;
+}
+
+#url-bar {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 6px;
   border: none;
   outline: none;
-  font-size: 16px;
 }
 
-button {
-  padding: 14px 20px;
-  border-radius: 50px;
-  border: none;
-  cursor: pointer;
-  background: #00ff99;
-  font-weight: bold;
-}
-
-/* Sidebar */
-.nav {
-  position: fixed;
-  left: 20px;
-  top: 50%;
-  transform: translateY(-50%);
+/* Tabs */
+#tab-bar {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  background: #222;
+  padding: 5px;
+  gap: 5px;
+  overflow-x: auto;
 }
 
-.nav-btn {
-  background: rgba(0,0,0,0.4);
-  color: #00ff99;
-  border: none;
-  padding: 10px;
-  border-radius: 12px;
+.tab {
+  background: #333;
+  padding: 6px 12px;
+  border-radius: 6px;
   cursor: pointer;
 }
 
-/* FULLSCREEN PROXY */
+.tab.active {
+  background: #00aa66;
+}
+
+/* Proxy Fullscreen */
 #proxy-container {
-  position: fixed;
-  inset: 0;
-  background: black;
-  display: none;
-  z-index: 1000;
-}
-
-/* Footer */
-footer {
-  position: fixed;
+  position: absolute;
+  top: 80px;
   bottom: 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 20px;
-  background: rgba(0,0,0,0.5);
-}
-
-/* Onboarding */
-.onboarding {
-  position: fixed;
-  inset: 0;
+  left: 0;
+  right: 0;
   background: black;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-}
-
-.hidden {
-  display: none;
 }
