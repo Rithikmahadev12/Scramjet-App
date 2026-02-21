@@ -1,105 +1,173 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Matriarchs OS</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="index.css">
+/* ===== GLOBAL ===== */
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: Inter, sans-serif;
+  overflow: hidden;
+  background: black;
+}
 
-<script src="/scram/scramjet.all.js"></script>
-<script src="/baremux/index.js"></script>
-<script src="/register-sw.js"></script>
-<script defer src="index.js"></script>
-</head>
-<body>
+.hidden { display: none; }
 
-<canvas id="particles"></canvas>
+/* ===== PARTICLES ===== */
+#particles {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
 
-<!-- BOOT SCREEN -->
-<div id="bootScreen">
-  <h1 id="bootText"></h1>
-</div>
+/* ===== BOOT SCREEN ===== */
+#bootScreen {
+  position: fixed;
+  inset: 0;
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 60px;
+  z-index: 10;
+}
 
-<!-- ONBOARDING -->
-<div id="onboarding" class="hidden">
-  <h1 id="introTitle"></h1>
-  <p class="press-space">Press SPACE to continue</p>
-</div>
+/* ===== ONBOARDING ===== */
+#introTitle {
+  font-size: 80px;
+  font-weight: 900;
+  color: white;
+}
 
-<!-- NAME INPUT -->
-<div id="nameInputScreen" class="hidden">
-  <input id="nameField" placeholder="Enter your name">
-  <button id="saveNameBtn">Continue</button>
-</div>
+.press-space {
+  color: white;
+  opacity: .7;
+  animation: blink 2s infinite;
+  font-size: 24px;
+  margin-top: 20px;
+}
 
-<!-- BACKGROUND PICKER -->
-<div id="bgPickerScreen" class="hidden">
-  <h2>Choose Background</h2>
-  <div id="bgOptions" class="bgOptions"></div>
-</div>
+/* ===== NAME INPUT ===== */
+#nameInputScreen, #bgPickerScreen {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
 
-<!-- DESKTOP -->
-<div id="desktop" class="hidden">
-  <div id="welcomeText"></div>
+#nameField { padding: 12px 18px; border-radius: 10px; border: none; margin-bottom: 10px; width: 250px; }
+#saveNameBtn { padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; }
 
-  <!-- TASKBAR -->
-  <div id="taskbar">
-    <button id="launchBtn">☰</button>
-    <div id="openApps"></div>
-    <div id="clock"></div>
-  </div>
+/* ===== BG PICKER ===== */
+.bgOptions { display: flex; gap: 10px; margin-top: 20px; }
+.bgOptions img {
+  width: 180px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.bgOptions img:hover { transform: scale(1.1); }
 
-  <!-- LAUNCHPAD -->
-  <div id="launchpad" class="hidden">
-    <button data-app="browser">🌐 Browser</button>
-    <button data-app="games">🎮 Games</button>
-    <button data-app="settings">⚙️ Settings</button>
-  </div>
+/* ===== DESKTOP ===== */
+#desktop {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  z-index: 1;
+}
 
-  <!-- BROWSER APP -->
-  <div id="browserApp" class="window hidden">
-    <div class="title-bar">
-      <span>Browser</span>
-      <div class="buttons">
-        <button class="minimize" onclick="minWin('browser')"></button>
-        <button class="maximize" onclick="maximizeWin('browser')"></button>
-        <button class="close" onclick="closeWin('browser')"></button>
-      </div>
-    </div>
-    <div class="content" id="browserContent"></div>
-  </div>
+#welcomeText {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 28px;
+  font-weight: 600;
+  color: white;
+}
 
-  <!-- GAMES APP -->
-  <div id="gamesApp" class="window hidden">
-    <div class="title-bar">
-      <span>Games</span>
-      <div class="buttons">
-        <button class="minimize" onclick="minWin('games')"></button>
-        <button class="maximize" onclick="maximizeWin('games')"></button>
-        <button class="close" onclick="closeWin('games')"></button>
-      </div>
-    </div>
-    <div class="content">Games Coming Soon</div>
-  </div>
+/* ===== TASKBAR ===== */
+#taskbar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(15px);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  gap: 10px;
+  z-index: 5;
+}
 
-  <!-- SETTINGS APP -->
-  <div id="settingsApp" class="window hidden">
-    <div class="title-bar">
-      <span>Settings</span>
-      <div class="buttons">
-        <button class="minimize" onclick="minWin('settings')"></button>
-        <button class="maximize" onclick="maximizeWin('settings')"></button>
-        <button class="close" onclick="closeWin('settings')"></button>
-      </div>
-    </div>
-    <div class="content">
-      <h3>Tab Cloak</h3>
-      <button onclick="cloakTab('Google','https://www.google.com/favicon.ico')">Google</button>
-      <button onclick="cloakTab('YouTube','https://www.youtube.com/favicon.ico')">YouTube</button>
-      <button onclick="cloakTab('Blank','')">Blank</button>
-    </div>
-  </div>
+#clock { margin-left: auto; }
 
-</div>
-</body>
-</html>
+/* ===== LAUNCHPAD ===== */
+#launchpad {
+  position: absolute;
+  bottom: 60px;
+  left: 10px;
+  background: rgba(30,30,40,0.8);
+  backdrop-filter: blur(15px);
+  padding: 10px;
+  border-radius: 10px;
+  z-index: 5;
+}
+
+#launchpad button {
+  padding: 10px 15px;
+  margin: 5px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: rgba(255,255,255,0.1);
+  color: white;
+  border: none;
+}
+
+/* ===== WINDOWS ===== */
+.window {
+  position: absolute;
+  width: 600px;
+  height: 400px;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(20px);
+  border-radius: 12px;
+  z-index: 5;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.title-bar {
+  background: rgba(20,20,30,0.8);
+  padding: 8px 12px;
+  cursor: move;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.buttons button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-left: 6px;
+  background: #888;
+  border: none;
+  cursor: pointer;
+}
+
+.content {
+  height: calc(100% - 32px);
+  background: rgba(0,0,0,0.5);
+  color: white;
+  padding: 10px;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes blink { 50% { opacity: 0.2; } }
