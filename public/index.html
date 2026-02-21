@@ -1,17 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Matriarchs OS</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="index.css">
 
-<!-- Load Scramjet frontend scripts exactly as in your working project -->
+<!-- Scramjet frontend scripts -->
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
 <script src="/register-sw.js"></script>
-
 <script defer src="index.js"></script>
 </head>
 <body>
@@ -19,30 +18,31 @@
 <!-- PARTICLES BACKGROUND -->
 <canvas id="particles"></canvas>
 
-<!-- BOOT SPLASH -->
+<!-- BOOT SCREEN -->
 <div id="bootScreen">
   <h1 id="bootText"></h1>
 </div>
 
-<!-- ONBOARDING STEPS -->
+<!-- ONBOARDING -->
 <div id="onboarding" class="hidden">
   <h1 id="introTitle"></h1>
   <p class="press-space">Press SPACE to continue</p>
 </div>
 
+<!-- NAME INPUT -->
 <div id="nameInputScreen" class="hidden">
   <input id="nameField" placeholder="Enter your name">
   <button id="saveNameBtn">Continue</button>
 </div>
 
+<!-- BACKGROUND PICKER -->
 <div id="bgPickerScreen" class="hidden">
   <h2>Choose Background</h2>
-  <div id="bgOptions"></div>
+  <div id="bgOptions" class="bgOptions"></div>
 </div>
 
-<!-- DESKTOP UI -->
+<!-- DESKTOP -->
 <div id="desktop" class="hidden">
-
   <div id="welcomeText"></div>
 
   <!-- TASKBAR -->
@@ -59,38 +59,40 @@
     <button data-app="settings">⚙️ Settings</button>
   </div>
 
-  <!-- APP WINDOWS -->
+  <!-- BROWSER APP -->
   <div id="browserApp" class="window hidden">
     <div class="title-bar">
       <span>Browser</span>
       <div class="buttons">
-        <button class="minimize"></button>
-        <button class="maximize"></button>
-        <button class="close"></button>
+        <button class="minimize" onclick="minWin('browser')"></button>
+        <button class="maximize" onclick="maximizeWin('browser')"></button>
+        <button class="close" onclick="closeWin('browser')"></button>
       </div>
     </div>
     <div class="content" id="browserContent"></div>
   </div>
 
+  <!-- GAMES APP -->
   <div id="gamesApp" class="window hidden">
     <div class="title-bar">
       <span>Games</span>
       <div class="buttons">
-        <button class="minimize"></button>
-        <button class="maximize"></button>
-        <button class="close"></button>
+        <button class="minimize" onclick="minWin('games')"></button>
+        <button class="maximize" onclick="maximizeWin('games')"></button>
+        <button class="close" onclick="closeWin('games')"></button>
       </div>
     </div>
     <div class="content">Games Coming Soon</div>
   </div>
 
+  <!-- SETTINGS APP -->
   <div id="settingsApp" class="window hidden">
     <div class="title-bar">
       <span>Settings</span>
       <div class="buttons">
-        <button class="minimize"></button>
-        <button class="maximize"></button>
-        <button class="close"></button>
+        <button class="minimize" onclick="minWin('settings')"></button>
+        <button class="maximize" onclick="maximizeWin('settings')"></button>
+        <button class="close" onclick="closeWin('settings')"></button>
       </div>
     </div>
     <div class="content">
