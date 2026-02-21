@@ -1,44 +1,57 @@
+/* GLOBAL */
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", sans-serif; }
-body { height: 100vh; overflow: hidden; background: radial-gradient(circle at 20% 20%, #1f1f3a, transparent 40%), radial-gradient(circle at 80% 80%, #0f3057, transparent 40%), #0a0a12; color: white; }
 
-/* APP */
-.app { display: flex; height: 100%; }
+/* MOON BACKGROUND */
+body {
+  background: url("https://images.unsplash.com/photo-1532298229144-0ec0c57515c7") center/cover no-repeat fixed;
+  color: white;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* STATUS BAR */
+.status-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 30px;
+  display: flex; justify-content: space-between; padding: 0 15px;
+  font-weight: 600; background: rgba(0,0,0,0.5);
+}
+
+/* APP LAYOUT */
+.app { display: flex; height: 100%; margin-top: 30px; }
 
 /* SIDEBAR */
-.sidebar { width: 90px; background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border-right: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; align-items: center; padding-top: 30px; gap: 20px; }
-.logo { font-size: 32px; font-weight: 800; background: linear-gradient(45deg,#00eaff,#8a2be2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.nav-btn { background: none; border: none; color: white; cursor: pointer; padding: 10px; opacity: .6; transition: .2s; }
-.nav-btn:hover, .nav-btn.active { opacity: 1; transform: scale(1.1); }
+.sidebar {
+  width: 90px; background: rgba(0,0,0,0.4); display: flex; flex-direction: column;
+  align-items: center; gap: 15px; padding-top: 30px;
+}
+.logo { font-size: 32px; background: linear-gradient(45deg,#00eaff,#8a2be2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.nav-btn { background: none; border: none; padding: 10px; opacity: .6; transition: .2s; color: white; cursor: pointer; }
+.nav-btn.active, .nav-btn:hover { opacity: 1; transform: scale(1.1); }
 
 /* MAIN */
-.main { flex: 1; display: flex; flex-direction: column; padding: 20px; overflow: hidden; }
-.screen { display: none; height: 100%; }
-.screen.active { display: flex; flex-direction: column; }
+.main { flex: 1; display: flex; flex-direction: column; padding: 20px; }
+.screen { display: none; flex-direction: column; height: 100%; }
+.screen.active { display: flex; }
 
 /* HERO */
-.hero { max-width: 600px; margin-top: 50px; }
-.hero h1 { font-size: 72px; font-weight: 800; background: linear-gradient(90deg,#00eaff,#8a2be2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: fadeIn 1s ease-out; }
-.hero p { opacity: .6; margin: 15px 0 30px; }
-.hero input { width: 100%; padding: 18px; border-radius: 50px; border: none; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); color: white; outline: none; }
+.hero { text-align: center; margin-top: 50px; }
+.hero h1 { font-size: 60px; background: linear-gradient(90deg,#00eaff,#8a2be2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero input { width: 80%; margin: 20px auto; padding: 15px; border-radius: 30px; background: rgba(255,255,255,0.1); border: none; color: white; }
 
 /* GAMES */
-.games-header { display: flex; justify-content: space-between; margin-bottom: 30px; }
-.games-header input { padding: 12px; border-radius: 20px; border: none; background: rgba(255,255,255,0.05); color: white; }
-.games-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap: 25px; overflow-y: auto; padding-right: 10px; }
-.game-card { aspect-ratio: 1/1; border-radius: 20px; overflow: hidden; background: rgba(255,255,255,0.04); backdrop-filter: blur(10px); cursor: pointer; transition: .3s; position: relative; }
-.game-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,.5); }
-.game-card img { width: 100%; height: 100%; object-fit: cover; }
+.games-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+.games-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(160px,1fr)); gap: 20px; overflow-y: auto; }
+.game-card { border-radius: 15px; overflow: hidden; background: rgba(0,0,0,0.5); padding: 10px; cursor: pointer; transition: .3s; text-align: center; }
+.game-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.6); }
+.game-card img { width: 100%; height: 100px; object-fit: cover; }
+.game-card p { margin-top: 8px; font-size: 14px; }
 
 /* BROWSER */
-.browser-bar { display: flex; gap: 10px; margin-bottom: 10px; }
-.browser-bar input { flex: 1; padding: 12px 18px; border-radius: 30px; border: none; background: rgba(255,255,255,0.08); color: white; outline: none; font-size: 16px; }
-#proxy-container { flex: 1; border-radius: 20px; overflow: hidden; }
+.browser-bar { display: flex; gap: 8px; margin-bottom: 10px; }
+.browser-bar input { flex: 1; padding: 10px; border-radius: 25px; border: none; background: rgba(255,255,255,0.1); color: white; }
+#proxy-container { flex: 1; border-radius: 15px; overflow: hidden; background: black; }
 
 /* ONBOARDING */
-.onboarding-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; gap: 20px; }
-.onboarding-container h1 { font-size: 64px; background: linear-gradient(90deg,#00eaff,#8a2be2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.onboarding-container p { opacity: .7; font-size: 18px; }
-.onboarding-container button { padding: 15px 40px; font-size: 18px; border-radius: 30px; border: none; cursor: pointer; background: linear-gradient(45deg,#00eaff,#8a2be2); color: white; transition: .2s; }
-.onboarding-container button:hover { transform: scale(1.05); }
-
-@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.onboard-content { text-align: center; margin: auto; }
+.onboard-content h1 { font-size: 50px; }
+.onboard-content button { padding: 15px 40px; border: none; border-radius: 25px; background: linear-gradient(45deg,#00eaff,#8a2be2); color: white; font-size: 18px; cursor: pointer; }
