@@ -3,75 +3,69 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="theme-color" content="#0f2027" />
 <title>Matriarchs</title>
 
-<!-- Google Font -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="index.css">
 
-<link rel="stylesheet" href="index.css" />
-
-<!-- Scramjet / Proxy -->
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
 <script src="/register-sw.js"></script>
-
-<!-- Main App -->
 <script src="index.js" defer></script>
 </head>
 
 <body>
 
-<!-- ========================
-        ONBOARDING
-========================= -->
-<div id="onboarding" class="overlay hidden">
-  <div class="card">
-    <h1>Welcome to Matriarchs</h1>
-    <p>Your private browsing space.</p>
-    <input id="username" type="text" placeholder="Enter your name" />
-    <button id="start-btn">Enter</button>
-  </div>
-</div>
-
-<!-- ========================
-        HOME SCREEN
-========================= -->
+<!-- LANDING -->
 <div id="home-screen" class="screen active">
-  <div class="home-center">
-    <h1 class="logo">Matriarchs</h1>
-    <input id="home-search" type="text" placeholder="Search or enter URL" />
-    <br />
-    <button id="home-go">Browse</button>
+  <div class="center-box">
+    <h1 class="brand">Matriarchs</h1>
+    <p class="subtitle">private browsing space</p>
+
+    <input id="home-search" placeholder="search anything..." />
+    <div class="stats">
+      <span>● 106 online</span>
+      <span>• 175,925 visits</span>
+    </div>
+  </div>
+
+  <div class="dock">
+    <button data-screen="home-screen">🏠</button>
+    <button data-screen="games-screen">🎮</button>
+    <button data-screen="browser-screen">🌐</button>
   </div>
 </div>
 
-<!-- ========================
-        BROWSER SCREEN
-========================= -->
-<div id="browser-screen" class="screen">
-
-  <!-- Top Navigation Bar -->
-  <div id="browser-bar">
-    <button id="back-btn">←</button>
-    <button id="forward-btn">→</button>
-    <button id="reload-btn">⟳</button>
-    <button id="home-btn">🏠</button>
-
-    <input id="url-bar" type="text" placeholder="Enter URL or search..." />
-
-    <button id="new-tab-btn">＋</button>
-    <button id="exit-btn">✕</button>
+<!-- GAMES -->
+<div id="games-screen" class="screen">
+  <div class="games-wrapper">
+    <h2>Games</h2>
+    <div id="games-grid"></div>
   </div>
 
-  <!-- Tabs -->
-  <div id="tab-bar"></div>
+  <div class="dock">
+    <button data-screen="home-screen">🏠</button>
+    <button data-screen="games-screen">🎮</button>
+    <button data-screen="browser-screen">🌐</button>
+  </div>
+</div>
 
-  <!-- Proxy / Iframe Container -->
+<!-- BROWSER -->
+<div id="browser-screen" class="screen">
+  <div class="browser-bar">
+    <button id="back">←</button>
+    <button id="forward">→</button>
+    <button id="reload">⟳</button>
+    <input id="url-bar" placeholder="Enter URL or search..." />
+  </div>
+
   <div id="proxy-container"></div>
 
+  <div class="dock">
+    <button data-screen="home-screen">🏠</button>
+    <button data-screen="games-screen">🎮</button>
+    <button data-screen="browser-screen">🌐</button>
+  </div>
 </div>
 
 </body>
