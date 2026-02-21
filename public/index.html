@@ -15,44 +15,27 @@
 
 <body>
 
-<!-- Onboarding -->
-<div id="onboarding" class="onboarding hidden">
-  <div class="onboarding-content">
-    <h1>Welcome to Matriarchs</h1>
-    <input type="text" id="user-name" placeholder="Enter your name" />
-    <button id="start-btn">Start</button>
-  </div>
+<!-- TOP NAVIGATION BAR -->
+<div id="browser-bar">
+
+  <button id="back-btn">⬅</button>
+  <button id="forward-btn">➡</button>
+  <button id="reload-btn">⟳</button>
+  <button id="home-btn">🏠</button>
+
+  <input id="url-bar" type="text" placeholder="Enter URL or search..." />
+
+  <button id="go-btn">Go</button>
+  <button id="new-tab-btn">＋</button>
+  <button id="exit-btn">✖</button>
+
 </div>
 
-<!-- Sidebar -->
-<div class="nav">
-  <button class="nav-btn active" data-page="home">🏠</button>
-  <button class="nav-btn" data-page="settings">⚙️</button>
-</div>
+<!-- TAB BAR -->
+<div id="tab-bar"></div>
 
-<!-- Main -->
-<main id="main">
-  <div id="page-home" class="page">
-    <h1 class="title">Matriarchs</h1>
-
-    <form id="sj-form" class="search-bar">
-      <input id="sj-search-engine"
-        value="https://www.google.com/search?q=%s"
-        type="hidden" />
-      <input id="sj-address" type="text"
-        placeholder="Search the web freely" />
-      <button type="submit">Go</button>
-    </form>
-  </div>
-</main>
-
-<!-- FULLSCREEN FRAME -->
+<!-- PROXY VIEW -->
 <div id="proxy-container"></div>
-
-<footer>
-  <span id="welcome-msg">Welcome back</span>
-  <span id="time"></span>
-</footer>
 
 </body>
 </html>
