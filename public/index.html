@@ -16,9 +16,9 @@
 	<script src="index.js" defer></script>
 </head>
 
-<body>
+<body data-theme="dark">
 
-<!-- NAV -->
+<!-- Left Navigation -->
 <div class="nav nav-left">
 	<div class="nav-inner">
 		<button type="button" class="nav-btn active" data-page="home">🏠</button>
@@ -29,19 +29,6 @@
 
 <main id="main">
 
-	<!-- ONBOARDING -->
-	<div id="page-onboarding" class="page" hidden>
-		<div class="flex-center header-center">
-			<h1>Welcome 👋</h1>
-			<input id="onboard-name" type="text" placeholder="Your name" />
-			<select id="onboard-theme">
-				<option value="dark">Dark</option>
-				<option value="light">Light</option>
-			</select>
-			<button id="onboard-start">Continue</button>
-		</div>
-	</div>
-
 	<!-- HOME -->
 	<div id="page-home" class="page">
 		<div class="flex-center logo-wrapper header-center">
@@ -49,11 +36,8 @@
 		</div>
 
 		<form id="sj-form" class="flex-center">
-			<input id="sj-search-engine"
-				value="https://www.google.com/search?q=%s"
-				type="hidden"/>
-			<input id="sj-address" type="text"
-				placeholder="Search the web freely" />
+			<input id="sj-search-engine" value="https://www.google.com/search?q=%s" type="hidden"/>
+			<input id="sj-address" type="text" placeholder="Search the web freely" />
 		</form>
 
 		<p id="sj-error"></p>
@@ -79,17 +63,11 @@
 
 </main>
 
-<!-- PROXY TOP BAR WITH TABS -->
+<!-- Proxy Top Bar With Tabs -->
 <div id="proxy-bar" hidden>
 	<div id="tabs"></div>
 	<button id="new-tab">＋</button>
 	<button id="proxy-back">Home</button>
-</div>
-
-<!-- LOADER -->
-<div id="proxy-loading" hidden>
-	<div class="loader"></div>
-	<p>Loading...</p>
 </div>
 
 </body>
