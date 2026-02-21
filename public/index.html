@@ -1,88 +1,107 @@
 <!doctype html>
 <html>
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Matriarchs</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+	<title>Matriarchs</title>
 
-<link rel="shortcut icon" href="favicon.webp" type="image/webp" />
+	<link rel="shortcut icon" href="favicon.webp" type="image/webp" />
 
-<script src="/scram/scramjet.all.js"></script>
-<script src="/baremux/index.js"></script>
+	<script src="/scram/scramjet.all.js"></script>
+	<script src="/baremux/index.js"></script>
 
-<link rel="stylesheet" href="index.css" />
-<script src="register-sw.js" defer></script>
-<script src="search.js" defer></script>
-<script src="index.js" defer></script>
+	<link rel="stylesheet" href="index.css" />
+	<script src="register-sw.js" defer></script>
+	<script src="search.js" defer></script>
+	<script src="index.js" defer></script>
 </head>
 
 <body>
 
-<div class="nav nav-left">
+<!-- Left vertical navigation -->
+<div class="nav nav-left" aria-label="Main navigation">
 	<div class="nav-inner">
-		<button type="button" class="nav-btn active" data-page="home">🏠</button>
-		<button type="button" class="nav-btn" data-page="game">🎮</button>
-		<button type="button" class="nav-btn" data-page="settings">⚙️</button>
+		<button type="button" class="nav-btn active" data-page="home" title="Home">🏠</button>
+		<button type="button" class="nav-btn" data-page="game" title="Games">🎮</button>
+		<button type="button" class="nav-btn" data-page="settings" title="Settings">⚙️</button>
 	</div>
 </div>
 
 <main id="main">
 
-<!-- ONBOARDING -->
-<div id="page-onboarding" class="page">
-	<div class="glass-card center-card">
-		<h1>Welcome 👋</h1>
-		<input id="onboard-name" type="text" placeholder="Your name" />
-		<select id="onboard-theme">
-			<option value="dark">Dark Mode</option>
-			<option value="light">Light Mode</option>
-		</select>
-		<button id="onboard-start">Continue</button>
-	</div>
-</div>
+	<!-- ONBOARDING -->
+	<div id="page-onboarding" class="page" hidden>
+		<div class="flex-center header-center">
+			<h1>Welcome 👋</h1>
 
-<!-- HOME -->
-<div id="page-home" class="page">
-	<div class="glass-card center-card">
-		<h1 id="welcome-title">matriarchs</h1>
-		<form id="sj-form">
-			<input id="sj-search-engine"
+			<input id="onboard-name" type="text" placeholder="Your name" />
+
+			<select id="onboard-theme">
+				<option value="dark">Dark Theme</option>
+				<option value="light">Light Theme</option>
+			</select>
+
+			<button id="onboard-start">Continue</button>
+		</div>
+	</div>
+
+	<!-- HOME -->
+	<div id="page-home" class="page">
+		<div title="Scramjet Logo" class="flex-center logo-wrapper header-center">
+			<h1>matriarchs</h1>
+		</div>
+
+		<form id="sj-form" class="flex-center">
+			<input
+				id="sj-search-engine"
 				value="https://www.google.com/search?q=%s"
-				type="hidden"/>
-			<input id="sj-address" type="text"
-				placeholder="Search the web freely" />
+				type="hidden"
+			/>
+			<input id="sj-address" type="text" placeholder="Search the web freely" />
 		</form>
-		<p id="sj-error"></p>
-		<pre id="sj-error-code"></pre>
+
+		<div class="desc left-margin">
+			<p id="sj-error"></p>
+			<pre id="sj-error-code"></pre>
+		</div>
 	</div>
-</div>
 
-<!-- GAMES -->
-<div id="page-game" class="page">
-	<div class="glass-card center-card">
-		<h2>Games</h2>
-		<p>Coming soon 🎮</p>
+	<!-- GAMES -->
+	<div id="page-game" class="page" hidden>
+		<div class="page-placeholder left-margin">
+			Games page coming soon 🎮
+		</div>
 	</div>
-</div>
 
-<!-- SETTINGS -->
-<div id="page-settings" class="page">
-	<div class="glass-card center-card">
-		<h2>Settings</h2>
+	<!-- SETTINGS -->
+	<div id="page-settings" class="page" hidden>
+		<div class="page-placeholder left-margin">
+			<h2>Settings</h2>
 
-		<label>Theme</label>
-		<select id="theme-select">
-			<option value="dark">Dark</option>
-			<option value="light">Light</option>
-		</select>
+			<label>Theme</label>
+			<select id="theme-select">
+				<option value="dark">Dark</option>
+				<option value="light">Light</option>
+			</select>
 
-		<br><br>
+			<br /><br />
 
-		<button id="reset-onboarding">Reset Profile</button>
+			<button id="reset-onboarding">Reset Profile</button>
+		</div>
 	</div>
-</div>
 
 </main>
+
+<footer>
+	<div>
+		<a href="https://github.com/MercuryWorkshop">Mercury Workshop</a>
+		<a href="https://github.com/MercuryWorkshop/Scramjet-Demo">GitHub</a>
+		<a href="credits.html">Credits</a>
+	</div>
+	<div>
+		<span>Scramjet &copy; MW 2025</span>
+	</div>
+</footer>
 
 </body>
 </html>
