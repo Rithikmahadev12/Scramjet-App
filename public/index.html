@@ -1,21 +1,57 @@
-was an error loading https://search.brave.com/
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matriarchs OS</title>
 
-Message: wasm not loaded yet, please call libcurl.load_wasm first
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="index.css">
 
-Url: https://scramjet-app-n46z.onrender.com/scramjet/https%3A%2F%2Fsearch.brave.com%2F
+<script src="/scram/scramjet.all.js"></script>
+<script src="/baremux/index.js"></script>
+<script src="/register-sw.js"></script>
+<script src="index.js" defer></script>
+</head>
+<body>
 
-Destination: iframe
+<!-- Background particles -->
+<canvas id="particle-canvas"></canvas>
 
-Stack: Error: wasm not loaded yet, please call libcurl.load_wasm first
-    at check_loaded (https://scramjet-app-n46z.onrender.com/libcurl/index.mjs:6242:13)
-    at new CurlSession (https://scramjet-app-n46z.onrender.com/libcurl/index.mjs:5583:7)
-    at new HTTPSession (https://scramjet-app-n46z.onrender.com/libcurl/index.mjs:5752:7)
-    at LibcurlClient.init (https://scramjet-app-n46z.onrender.com/libcurl/index.mjs:6401:20)
-    at t.onmessage (https://scramjet-app-n46z.onrender.com/baremux/worker.js:1:1890)
-Copy
-Try:
+<!-- Status Bar -->
+<div class="status-bar">
+  <div id="time"></div>
+  <div id="battery"></div>
+  <div id="theme-toggle">🌙</div>
+</div>
 
-Checking your internet connection
-Verifying you entered the correct address
-Clearing the site data
-Contacting 
+<!-- Taskbar -->
+<div class="taskbar">
+  <button id="start-btn">☰ Start</button>
+  <div id="taskbar-windows"></div>
+</div>
+
+<!-- Launchpad -->
+<div id="launchpad" class="launchpad hidden">
+  <button class="launch-app" data-app="browser">Browser</button>
+  <button class="launch-app" data-app="games">Games</button>
+  <button class="launch-app" data-app="chat">Chat</button>
+  <button class="launch-app" data-app="settings">Settings</button>
+</div>
+
+<!-- Onboarding / Welcome screen -->
+<section id="onboarding" class="screen active">
+  <div class="onboard-content">
+    <h1>Welcome to Matriarchs OS</h1>
+    <p>Your private universe awaits</p>
+    <button id="enter-os-btn">Enter OS</button>
+  </div>
+</section>
+
+<!-- Desktop -->
+<div id="desktop" class="desktop">
+  <!-- Windows will be dynamically created -->
+</div>
+
+</body>
+</html>
