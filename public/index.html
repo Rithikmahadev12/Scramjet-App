@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Matriarchs</title>
   <link rel="stylesheet" href="index.css" />
-  <script src="scramjet.all.js" defer></script>
-  <script src="baremux/worker.js" defer></script>
-  <script src="index.js" defer></script>
 </head>
 <body>
 
@@ -38,15 +35,9 @@
   <!-- Navigation sidebar -->
   <nav class="nav nav-left" aria-label="Primary navigation">
     <div class="nav-inner">
-      <button class="nav-btn active" data-page="home" aria-label="Home" title="Home">
-        🏠
-      </button>
-      <button class="nav-btn" data-page="games" aria-label="Games" title="Games">
-        🎮
-      </button>
-      <button class="nav-btn" data-page="settings" aria-label="Settings" title="Settings">
-        ⚙️
-      </button>
+      <button class="nav-btn active" data-page="home" aria-label="Home" title="Home">🏠</button>
+      <button class="nav-btn" data-page="games" aria-label="Games" title="Games">🎮</button>
+      <button class="nav-btn" data-page="settings" aria-label="Settings" title="Settings">⚙️</button>
     </div>
   </nav>
 
@@ -109,5 +100,10 @@
     <span id="bottom-battery">🔋--%</span>
   </footer>
 
+  <!-- Scramjet and BareMux -->
+  <script src="https://cdn.jsdelivr.net/npm/@scramjet/core"></script>
+  <script src="https://cdn.jsdelivr.net/npm/baremux/dist/baremux.js"></script>
+
+  <script src="index.js" defer></script>
 </body>
 </html>
