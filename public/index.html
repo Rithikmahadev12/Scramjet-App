@@ -3,19 +3,30 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0f2027" />
 <title>Matriarchs</title>
+
+<!-- Google Font -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="index.css" />
 
+<!-- Scramjet / Proxy -->
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
 <script src="/register-sw.js"></script>
+
+<!-- Main App -->
 <script src="index.js" defer></script>
 </head>
 
 <body>
 
-<!-- ONBOARDING -->
+<!-- ========================
+        ONBOARDING
+========================= -->
 <div id="onboarding" class="overlay hidden">
   <div class="card">
     <h1>Welcome to Matriarchs</h1>
@@ -25,31 +36,40 @@
   </div>
 </div>
 
-<!-- HOME SCREEN -->
+<!-- ========================
+        HOME SCREEN
+========================= -->
 <div id="home-screen" class="screen active">
   <div class="home-center">
     <h1 class="logo">Matriarchs</h1>
     <input id="home-search" type="text" placeholder="Search or enter URL" />
+    <br />
     <button id="home-go">Browse</button>
   </div>
 </div>
 
-<!-- BROWSER SCREEN -->
+<!-- ========================
+        BROWSER SCREEN
+========================= -->
 <div id="browser-screen" class="screen">
 
+  <!-- Top Navigation Bar -->
   <div id="browser-bar">
     <button id="back-btn">←</button>
     <button id="forward-btn">→</button>
     <button id="reload-btn">⟳</button>
     <button id="home-btn">🏠</button>
 
-    <input id="url-bar" type="text" />
+    <input id="url-bar" type="text" placeholder="Enter URL or search..." />
 
     <button id="new-tab-btn">＋</button>
     <button id="exit-btn">✕</button>
   </div>
 
+  <!-- Tabs -->
   <div id="tab-bar"></div>
+
+  <!-- Proxy / Iframe Container -->
   <div id="proxy-container"></div>
 
 </div>
