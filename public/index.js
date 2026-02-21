@@ -1,23 +1,11 @@
 "use strict";
-/**
- * @type {HTMLFormElement}
- */
+
+/* ---------- SCRAMJET ---------- */
+
 const form = document.getElementById("sj-form");
-/**
- * @type {HTMLInputElement}
- */
 const address = document.getElementById("sj-address");
-/**
- * @type {HTMLInputElement}
- */
 const searchEngine = document.getElementById("sj-search-engine");
-/**
- * @type {HTMLParagraphElement}
- */
 const error = document.getElementById("sj-error");
-/**
- * @type {HTMLPreElement}
- */
 const errorCode = document.getElementById("sj-error-code");
 
 const { ScramjetController } = $scramjetLoadController();
@@ -33,51 +21,95 @@ const scramjet = new ScramjetController({
 scramjet.init();
 
 const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
+let currentFrame = null;
 
-form.addEventListener("submit", async (event) => {
+/* ---------- PAGE SWITCHING ---------- */
+
+function showPage(name) {
+	document.querySelectorAll(".page").forEach(p => {
+		p.classList.remove("active");
+	});
+	const page = document.getElementById(`page-${name}`);
+	page.classList.add("active");
+
+	document.querySelectorAll(".nav-btn").forEach(btn => {
+		btn.classList.toggle("active", btn.dataset.page === name);
+	});
+}
+
+document.querySelectorAll(".nav-btn").forEach(btn => {
+	btn.addEventListener("click", () => {
+		showPage(btn.dataset.page);
+	});
+});
+
+/* ---------- SEARCH ---------- */
+
+form?.addEventListener("submit", async (event) => {
 	event.preventDefault();
 
 	try {
 		await registerSW();
 	} catch (err) {
-		error.textContent = "Failed to register service worker.";
+		error.textContent = "Service worker failed.";
 		errorCode.textContent = err.toString();
-		throw err;
+		return;
 	}
 
 	const url = search(address.value, searchEngine.value);
 
-	let wispUrl =
-		(location.protocol === "https:" ? "wss" : "ws") +
-		"://" +
-		location.host +
-		"/wisp/";
-	if ((await connection.getTransport()) !== "/libcurl/index.mjs") {
-		await connection.setTransport("/libcurl/index.mjs", [
-			{ websocket: wispUrl },
-		]);
-	}
-	const frame = scramjet.createFrame();
-	frame.frame.id = "sj-frame";
-	const homeEl = document.getElementById("page-home") || document.body;
-	homeEl.appendChild(frame.frame);
-	frame.go(url);
+	if (currentFrame) currentFrame.frame.remove();
+
+	currentFrame = scramjet.createFrame();
+	currentFrame.frame.id = "sj-frame";
+	document.body.appendChild(currentFrame.frame);
+
+	currentFrame.go(url);
 });
 
-// Navigation handling for left navbar
-function showPage(name) {
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.page===name));
-  document.querySelectorAll('[id^="page-"]').forEach(p=>{
-    if (p.id === `page-${name}`) { p.hidden = false; } else { p.hidden = true; }
-  });
+/* ---------- THEME ---------- */
+
+function applyTheme(theme) {
+	document.documentElement.setAttribute("data-theme", theme);
+	localStorage.setItem("theme", theme);
 }
 
-document.querySelectorAll('.nav-btn').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    const page = btn.dataset.page || 'home';
-    showPage(page);
-  });
+const savedTheme = localStorage.getItem("theme") || "dark";
+applyTheme(savedTheme);
+
+const themeSelect = document.getElementById("theme-select");
+if (themeSelect) themeSelect.value = savedTheme;
+
+themeSelect?.addEventListener("change", e => {
+	applyTheme(e.target.value);
 });
 
-// Ensure initial page is home
-showPage('home');
+/* ---------- ONBOARDING ---------- */
+
+function checkOnboarding() {
+	const name = localStorage.getItem("userName");
+	if (!name) {
+		showPage("onboarding");
+	} else {
+		document.getElementById("welcome-title").textContent =
+			`Welcome back, ${name}`;
+		showPage("home");
+	}
+}
+
+document.getElementById("onboard-start")?.addEventListener("click", () => {
+	const name = document.getElementById("onboard-name").value.trim();
+	const theme = document.getElementById("onboard-theme").value;
+	if (!name) return;
+
+	localStorage.setItem("userName", name);
+	applyTheme(theme);
+	checkOnboarding();
+});
+
+document.getElementById("reset-onboarding")?.addEventListener("click", () => {
+	localStorage.clear();
+	location.reload();
+});
+
+checkOnboarding();
