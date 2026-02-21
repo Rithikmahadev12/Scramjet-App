@@ -1,12 +1,14 @@
 "use strict";
 
-/* ---------- SCRAMJET ---------- */
+/* ---------- ELEMENTS ---------- */
 
 const form = document.getElementById("sj-form");
 const address = document.getElementById("sj-address");
 const searchEngine = document.getElementById("sj-search-engine");
 const error = document.getElementById("sj-error");
 const errorCode = document.getElementById("sj-error-code");
+
+/* ---------- SCRAMJET ---------- */
 
 const { ScramjetController } = $scramjetLoadController();
 
@@ -21,16 +23,23 @@ const scramjet = new ScramjetController({
 scramjet.init();
 
 const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
+
 let currentFrame = null;
 
 /* ---------- PAGE SWITCHING ---------- */
 
 function showPage(name) {
-	document.querySelectorAll(".page").forEach(p => {
-		p.classList.remove("active");
+	document.querySelectorAll(".page").forEach(page => {
+		if (page.id === `page-${name}`) {
+			page.hidden = false;
+			requestAnimationFrame(() => {
+				page.classList.add("active-page");
+			});
+		} else {
+			page.classList.remove("active-page");
+			setTimeout(() => page.hidden = true, 200);
+		}
 	});
-	const page = document.getElementById(`page-${name}`);
-	page.classList.add("active");
 
 	document.querySelectorAll(".nav-btn").forEach(btn => {
 		btn.classList.toggle("active", btn.dataset.page === name);
@@ -43,31 +52,49 @@ document.querySelectorAll(".nav-btn").forEach(btn => {
 	});
 });
 
-/* ---------- SEARCH ---------- */
+/* ---------- SEARCH (FIXED PROPERLY) ---------- */
 
-form?.addEventListener("submit", async (event) => {
+form.addEventListener("submit", async (event) => {
 	event.preventDefault();
 
 	try {
 		await registerSW();
 	} catch (err) {
-		error.textContent = "Service worker failed.";
+		error.textContent = "Failed to register service worker.";
 		errorCode.textContent = err.toString();
+		console.error(err);
 		return;
 	}
 
 	const url = search(address.value, searchEngine.value);
 
-	if (currentFrame) currentFrame.frame.remove();
+	let wispUrl =
+		(location.protocol === "https:" ? "wss" : "ws") +
+		"://" +
+		location.host +
+		"/wisp/";
+
+	if ((await connection.getTransport()) !== "/libcurl/index.mjs") {
+		await connection.setTransport("/libcurl/index.mjs", [
+			{ websocket: wispUrl },
+		]);
+	}
+
+	// Remove old frame
+	if (currentFrame) {
+		currentFrame.frame.remove();
+	}
 
 	currentFrame = scramjet.createFrame();
 	currentFrame.frame.id = "sj-frame";
-	document.body.appendChild(currentFrame.frame);
+
+	const homeEl = document.getElementById("page-home");
+	homeEl.appendChild(currentFrame.frame);
 
 	currentFrame.go(url);
 });
 
-/* ---------- THEME ---------- */
+/* ---------- THEME SYSTEM ---------- */
 
 function applyTheme(theme) {
 	document.documentElement.setAttribute("data-theme", theme);
@@ -91,7 +118,7 @@ function checkOnboarding() {
 	if (!name) {
 		showPage("onboarding");
 	} else {
-		document.getElementById("welcome-title").textContent =
+		document.querySelector(".logo-wrapper h1").textContent =
 			`Welcome back, ${name}`;
 		showPage("home");
 	}
@@ -100,16 +127,23 @@ function checkOnboarding() {
 document.getElementById("onboard-start")?.addEventListener("click", () => {
 	const name = document.getElementById("onboard-name").value.trim();
 	const theme = document.getElementById("onboard-theme").value;
+
 	if (!name) return;
 
 	localStorage.setItem("userName", name);
 	applyTheme(theme);
-	checkOnboarding();
+
+	document.querySelector(".logo-wrapper h1").textContent =
+		`Hello, ${name}`;
+
+	showPage("home");
 });
 
 document.getElementById("reset-onboarding")?.addEventListener("click", () => {
 	localStorage.clear();
 	location.reload();
 });
+
+/* ---------- INIT ---------- */
 
 checkOnboarding();
