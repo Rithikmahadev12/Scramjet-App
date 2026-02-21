@@ -15,6 +15,7 @@
 
 <body>
 
+<!-- Onboarding -->
 <div id="onboarding" class="onboarding hidden">
   <div class="onboarding-content">
     <h1>Welcome to Matriarchs</h1>
@@ -23,21 +24,18 @@
   </div>
 </div>
 
-<div class="nav nav-left">
-  <div class="nav-inner">
-    <button class="nav-btn active" data-page="home">🏠</button>
-    <button class="nav-btn" data-page="game">🎮</button>
-    <button class="nav-btn" data-page="settings">⚙️</button>
-  </div>
+<!-- Sidebar -->
+<div class="nav">
+  <button class="nav-btn active" data-page="home">🏠</button>
+  <button class="nav-btn" data-page="settings">⚙️</button>
 </div>
 
+<!-- Main -->
 <main id="main">
   <div id="page-home" class="page">
-    <div class="header-center flex-center">
-      <h1>Matriarchs</h1>
-    </div>
+    <h1 class="title">Matriarchs</h1>
 
-    <form id="sj-form" class="flex-center">
+    <form id="sj-form" class="search-bar">
       <input id="sj-search-engine"
         value="https://www.google.com/search?q=%s"
         type="hidden" />
@@ -45,25 +43,15 @@
         placeholder="Search the web freely" />
       <button type="submit">Go</button>
     </form>
-
-    <div id="frame-container"></div>
-
-    <div class="desc left-margin">
-      <p id="sj-error"></p>
-      <pre id="sj-error-code"></pre>
-    </div>
   </div>
 </main>
 
+<!-- FULLSCREEN FRAME -->
+<div id="proxy-container"></div>
+
 <footer>
-  <div class="info-left">
-    <span id="welcome-msg">Welcome back, User</span>
-    <span id="online-count">Online: 0</span>
-  </div>
-  <div class="info-right">
-    <span id="time">--:--:--</span>
-    <span id="battery">🔋100%</span>
-  </div>
+  <span id="welcome-msg">Welcome back</span>
+  <span id="time"></span>
 </footer>
 
 </body>
