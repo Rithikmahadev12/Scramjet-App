@@ -1,17 +1,17 @@
 "use strict";
 
-/* ---------- ELEMENTS ---------- */
-
+/* ELEMENTS */
 const form = document.getElementById("sj-form");
 const address = document.getElementById("sj-address");
 const searchEngine = document.getElementById("sj-search-engine");
-const error = document.getElementById("sj-error");
-const errorCode = document.getElementById("sj-error-code");
+const proxyBar = document.getElementById("proxy-bar");
+const proxyLoading = document.getElementById("proxy-loading");
+const proxyBack = document.getElementById("proxy-back");
+const tabsContainer = document.getElementById("tabs");
+const newTabBtn = document.getElementById("new-tab");
 
-/* ---------- SCRAMJET ---------- */
-
+/* SCRAMJET */
 const { ScramjetController } = $scramjetLoadController();
-
 const scramjet = new ScramjetController({
 	files: {
 		wasm: "/scram/scramjet.wasm.wasm",
@@ -19,52 +19,92 @@ const scramjet = new ScramjetController({
 		sync: "/scram/scramjet.sync.js",
 	},
 });
-
 scramjet.init();
 
 const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
 
-let currentFrame = null;
+let tabs = [];
+let activeTab = null;
 
-/* ---------- PAGE SWITCHING ---------- */
-
+/* PAGE SWITCH */
 function showPage(name) {
-	document.querySelectorAll(".page").forEach(page => {
-		if (page.id === `page-${name}`) {
-			page.hidden = false;
-			requestAnimationFrame(() => {
-				page.classList.add("active-page");
-			});
-		} else {
-			page.classList.remove("active-page");
-			setTimeout(() => page.hidden = true, 200);
-		}
-	});
-
-	document.querySelectorAll(".nav-btn").forEach(btn => {
-		btn.classList.toggle("active", btn.dataset.page === name);
+	document.querySelectorAll(".page").forEach(p => {
+		p.hidden = p.id !== `page-${name}`;
+		p.classList.toggle("active-page", p.id === `page-${name}`);
 	});
 }
 
-document.querySelectorAll(".nav-btn").forEach(btn => {
-	btn.addEventListener("click", () => {
-		showPage(btn.dataset.page);
+/* CREATE TAB */
+function createTab(url) {
+	const frame = scramjet.createFrame();
+	frame.frame.id = "sj-frame";
+
+	document.body.appendChild(frame.frame);
+
+	const id = Date.now();
+	tabs.push({ id, frame });
+
+	setActiveTab(id);
+
+	frame.go(url);
+
+	return id;
+}
+
+/* SET ACTIVE TAB */
+function setActiveTab(id) {
+	tabs.forEach(tab => {
+		tab.frame.frame.style.display = tab.id === id ? "block" : "none";
 	});
-});
 
-/* ---------- SEARCH (FIXED PROPERLY) ---------- */
+	activeTab = id;
+	renderTabs();
+}
 
-form.addEventListener("submit", async (event) => {
-	event.preventDefault();
+/* CLOSE TAB */
+function closeTab(id) {
+	const index = tabs.findIndex(t => t.id === id);
+	if (index === -1) return;
 
-	try {
-		await registerSW();
-	} catch (err) {
-		error.textContent = "Failed to register service worker.";
-		errorCode.textContent = err.toString();
-		console.error(err);
-		return;
+	tabs[index].frame.frame.remove();
+	tabs.splice(index, 1);
+
+	if (tabs.length) {
+		setActiveTab(tabs[0].id);
+	} else {
+		proxyBar.hidden = true;
+		showPage("home");
 	}
+}
+
+/* RENDER TABS */
+function renderTabs() {
+	tabsContainer.innerHTML = "";
+
+	tabs.forEach(tab => {
+		const el = document.createElement("div");
+		el.className = "tab" + (tab.id === activeTab ? " active" : "");
+		el.textContent = "Tab";
+
+		el.onclick = () => setActiveTab(tab.id);
+
+		const closeBtn = document.createElement("button");
+		closeBtn.textContent = "×";
+		closeBtn.onclick = (e) => {
+			e.stopPropagation();
+			closeTab(tab.id);
+		};
+
+		el.appendChild(closeBtn);
+		tabsContainer.appendChild(el);
+	});
+}
+
+/* SEARCH */
+form.addEventListener("submit", async (e) => {
+	e.preventDefault();
+
+	await registerSW();
 
 	const url = search(address.value, searchEngine.value);
 
@@ -80,70 +120,29 @@ form.addEventListener("submit", async (event) => {
 		]);
 	}
 
-	// Remove old frame
-	if (currentFrame) {
-		currentFrame.frame.remove();
-	}
+	proxyLoading.hidden = false;
 
-	currentFrame = scramjet.createFrame();
-	currentFrame.frame.id = "sj-frame";
-
-	const homeEl = document.getElementById("page-home");
-	homeEl.appendChild(currentFrame.frame);
-
-	currentFrame.go(url);
+	setTimeout(() => {
+		createTab(url);
+		proxyLoading.hidden = true;
+		proxyBar.hidden = false;
+	}, 600);
 });
 
-/* ---------- THEME SYSTEM ---------- */
-
-function applyTheme(theme) {
-	document.documentElement.setAttribute("data-theme", theme);
-	localStorage.setItem("theme", theme);
-}
-
-const savedTheme = localStorage.getItem("theme") || "dark";
-applyTheme(savedTheme);
-
-const themeSelect = document.getElementById("theme-select");
-if (themeSelect) themeSelect.value = savedTheme;
-
-themeSelect?.addEventListener("change", e => {
-	applyTheme(e.target.value);
-});
-
-/* ---------- ONBOARDING ---------- */
-
-function checkOnboarding() {
-	const name = localStorage.getItem("userName");
-	if (!name) {
-		showPage("onboarding");
-	} else {
-		document.querySelector(".logo-wrapper h1").textContent =
-			`Welcome back, ${name}`;
-		showPage("home");
+/* NEW TAB */
+newTabBtn.onclick = () => {
+	if (activeTab) {
+		createTab("https://www.google.com");
 	}
-}
+};
 
-document.getElementById("onboard-start")?.addEventListener("click", () => {
-	const name = document.getElementById("onboard-name").value.trim();
-	const theme = document.getElementById("onboard-theme").value;
-
-	if (!name) return;
-
-	localStorage.setItem("userName", name);
-	applyTheme(theme);
-
-	document.querySelector(".logo-wrapper h1").textContent =
-		`Hello, ${name}`;
-
+/* HOME BUTTON */
+proxyBack.onclick = () => {
+	tabs.forEach(tab => tab.frame.frame.remove());
+	tabs = [];
+	proxyBar.hidden = true;
 	showPage("home");
-});
+};
 
-document.getElementById("reset-onboarding")?.addEventListener("click", () => {
-	localStorage.clear();
-	location.reload();
-});
-
-/* ---------- INIT ---------- */
-
-checkOnboarding();
+/* INIT */
+showPage("home");
