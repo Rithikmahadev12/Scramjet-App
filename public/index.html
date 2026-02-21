@@ -5,13 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Matriarchs</title>
 
-<!-- Font -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-<!-- CSS -->
 <link rel="stylesheet" href="index.css">
 
-<!-- Scramjet -->
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
 <script src="/register-sw.js"></script>
@@ -44,17 +40,18 @@
     <button class="nav-btn active" data-screen="home">Home</button>
     <button class="nav-btn" data-screen="games">Games</button>
     <button class="nav-btn" data-screen="browser">Browser</button>
+    <button class="nav-btn" data-screen="chat">Chat</button>
     <button class="nav-btn" data-screen="settings">Settings</button>
   </aside>
 
-  <!-- Main -->
+  <!-- Main Area -->
   <main class="main">
 
     <!-- Home -->
     <section id="home" class="screen">
       <div class="hero">
         <h1>Matriarchs</h1>
-        <p>A universe of games & browsing</p>
+        <p>A universe of games, chat, and browsing</p>
         <input id="home-search" placeholder="Search or enter URL...">
       </div>
     </section>
@@ -79,6 +76,14 @@
       <div id="proxy-container"></div>
     </section>
 
+    <!-- Chat -->
+    <section id="chat" class="screen">
+      <h2>Global Chat</h2>
+      <div id="chat-window" class="chat-window"></div>
+      <input type="text" id="chat-input" placeholder="Type a message...">
+      <button id="chat-send">Send</button>
+    </section>
+
     <!-- Settings -->
     <section id="settings" class="screen">
       <h2>Settings</h2>
@@ -90,7 +95,7 @@
           <input type="radio" name="theme" value="light"> Light
         </label>
         <label>
-          <input type="color" id="accent-color" value="#00eaff"> Accent Color
+          Accent Color: <input type="color" id="accent-color" value="#ff6a00">
         </label>
       </div>
     </section>
