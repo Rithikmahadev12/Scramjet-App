@@ -1,11 +1,8 @@
 "use strict";
 
-// Elements
 const form = document.getElementById("sj-form");
 const address = document.getElementById("sj-address");
 const searchEngine = document.getElementById("sj-search-engine");
-const error = document.getElementById("sj-error");
-const errorCode = document.getElementById("sj-error-code");
 
 const onboarding = document.getElementById("onboarding");
 const userNameInput = document.getElementById("user-name");
@@ -13,21 +10,22 @@ const startBtn = document.getElementById("start-btn");
 const onboardThemeToggle = document.getElementById("onboard-theme-toggle");
 const themeToggle = document.getElementById("theme-toggle");
 
+const navButtons = document.querySelectorAll(".nav-btn");
+const pages = document.querySelectorAll(".page");
+const shortcutButtons = document.querySelectorAll(".shortcut-btn");
 const proxyBar = document.getElementById("proxy-bar");
-const proxyBackBtn = document.getElementById("proxy-back");
 const tabsContainer = document.getElementById("tabs");
 const newTabBtn = document.getElementById("new-tab");
+const proxyBackBtn = document.getElementById("proxy-back");
 
 const bottomWelcome = document.getElementById("bottom-welcome");
 const bottomOnline = document.getElementById("bottom-online");
 const bottomTime = document.getElementById("bottom-time");
 const bottomBattery = document.getElementById("bottom-battery");
 
-const navButtons = document.querySelectorAll(".nav-btn");
-const pages = document.querySelectorAll(".page");
 const gameListEl = document.getElementById("game-list");
 
-// Proxy & Scramjet setup (assuming your existing setup)
+// Scramjet and BareMux setup
 const { ScramjetController } = $scramjetLoadController();
 
 const scramjet = new ScramjetController({
@@ -41,201 +39,47 @@ scramjet.init();
 
 const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
 
+// Tabs state
 let tabs = [];
 let currentTabId = null;
 
-// Onboarding logic
+// Utils
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+
 function saveSettings(name, darkTheme) {
-  localStorage.setItem("username", name);
-  localStorage.setItem("darkTheme", darkTheme);
-  applyTheme(darkTheme);
+  localStorage.setItem("matriarchs-name", name);
+  localStorage.setItem("matriarchs-dark", darkTheme ? "1" : "0");
+}
+
+function loadSettings() {
+  return {
+    name: localStorage.getItem("matriarchs-name") || null,
+    darkTheme: localStorage.getItem("matriarchs-dark") === "1",
+  };
+}
+
+function applyTheme(isDark) {
+  if (isDark) document.body.classList.add("dark-theme");
+  else document.body.classList.remove("dark-theme");
+  themeToggle.checked = isDark;
+  onboardThemeToggle.checked = isDark;
+}
+
+function updateBottomBar(name) {
   bottomWelcome.textContent = `Welcome back, ${name || "Guest"}`;
 }
 
-function applyTheme(dark) {
-  if (dark) document.body.classList.add("dark-theme");
-  else document.body.classList.remove("dark-theme");
-  if(themeToggle) themeToggle.checked = dark;
-  if(onboardThemeToggle) onboardThemeToggle.checked = dark;
+function updateOnline() {
+  bottomOnline.textContent = `Online: ${navigator.onLine ? 1 : 0}`;
 }
+window.addEventListener("online", updateOnline);
+window.addEventListener("offline", updateOnline);
+updateOnline();
 
-// Show onboarding if no username saved
-function checkOnboarding() {
-  const storedName = localStorage.getItem("username");
-  const storedTheme = localStorage.getItem("darkTheme") === "true";
-
-  if (!storedName) {
-    onboarding.style.display = "flex";
-  } else {
-    onboarding.style.display = "none";
-    saveSettings(storedName, storedTheme);
-  }
-}
-
-// Start button on onboarding
-startBtn.addEventListener("click", () => {
-  const name = userNameInput.value.trim() || "Guest";
-  const darkTheme = onboardThemeToggle.checked;
-  saveSettings(name, darkTheme);
-  onboarding.style.display = "none";
-});
-
-// Theme toggles syncing
-themeToggle.addEventListener("change", e => {
-  applyTheme(e.target.checked);
-  localStorage.setItem("darkTheme", e.target.checked);
-});
-
-onboardThemeToggle.addEventListener("change", e => {
-  applyTheme(e.target.checked);
-});
-
-// Tab and proxy UI logic
-
-function createTab(url = "https://google.com") {
-  const tabId = "tab-" + Date.now();
-
-  const tab = {
-    id: tabId,
-    url,
-    frame: null,
-  };
-  tabs.push(tab);
-
-  renderTabs();
-  openTab(tabId);
-}
-
-function renderTabs() {
-  tabsContainer.innerHTML = "";
-  tabs.forEach(tab => {
-    const tabEl = document.createElement("div");
-    tabEl.className = "tab";
-    if (tab.id === currentTabId) tabEl.classList.add("active");
-    tabEl.setAttribute("role", "tab");
-    tabEl.setAttribute("aria-selected", tab.id === currentTabId);
-
-    const titleSpan = document.createElement("span");
-    titleSpan.textContent = tab.url.replace(/^https?:\/\//, "").split("/")[0];
-
-    const closeBtn = document.createElement("button");
-    closeBtn.textContent = "×";
-    closeBtn.setAttribute("aria-label", "Close tab");
-    closeBtn.onclick = e => {
-      e.stopPropagation();
-      closeTab(tab.id);
-    };
-
-    tabEl.appendChild(titleSpan);
-    tabEl.appendChild(closeBtn);
-
-    tabEl.onclick = () => openTab(tab.id);
-    tabsContainer.appendChild(tabEl);
-  });
-}
-
-function openTab(tabId) {
-  if (currentTabId === tabId) return;
-
-  const oldTab = tabs.find(t => t.id === currentTabId);
-  if (oldTab && oldTab.frame) oldTab.frame.frame.remove();
-
-  currentTabId = tabId;
-  const tab = tabs.find(t => t.id === tabId);
-  if (!tab) return;
-
-  // Create and show iframe/frame for proxy here
-  const frame = scramjet.createFrame();
-  frame.frame.id = "sj-frame";
-  tab.frame = frame;
-  document.body.appendChild(frame.frame);
-  proxyBar.hidden = false;
-
-  // Hide all pages when proxy is open
-  pages.forEach(p => p.hidden = true);
-
-  frame.go(tab.url);
-  renderTabs();
-}
-
-function closeTab(tabId) {
-  const idx = tabs.findIndex(t => t.id === tabId);
-  if (idx === -1) return;
-
-  if (tabs[idx].frame) tabs[idx].frame.frame.remove();
-  tabs.splice(idx, 1);
-
-  if (currentTabId === tabId) {
-    if (tabs.length > 0) {
-      openTab(tabs[0].id);
-    } else {
-      proxyBar.hidden = true;
-      showPage("home");
-      currentTabId = null;
-    }
-  }
-  renderTabs();
-}
-
-// Go back to home
-proxyBackBtn.addEventListener("click", () => {
-  if (currentTabId && tabs.find(t => t.id === currentTabId)?.frame) {
-    tabs.find(t => t.id === currentTabId).frame.frame.remove();
-  }
-  tabs = [];
-  currentTabId = null;
-  proxyBar.hidden = true;
-  showPage("home");
-});
-
-// Form submission (search)
-form.addEventListener("submit", async e => {
-  e.preventDefault();
-  let url = address.value.trim();
-  if (!url) return;
-
-  // If not full URL, treat as search query
-  if (!/^https?:\/\//i.test(url)) {
-    url = searchEngine.value.replace("%s", encodeURIComponent(url));
-  }
-
-  if (!currentTabId) {
-    createTab(url);
-  } else {
-    const tab = tabs.find(t => t.id === currentTabId);
-    if (tab?.frame) tab.frame.go(url);
-    tab.url = url;
-    renderTabs();
-  }
-});
-
-// Show page function and nav button logic
-function showPage(name) {
-  navButtons.forEach(b => b.classList.toggle("active", b.dataset.page === name));
-  pages.forEach(p => {
-    if (p.id === `page-${name}`) {
-      p.hidden = false;
-      p.classList.add("active-page");
-    } else {
-      p.hidden = true;
-      p.classList.remove("active-page");
-    }
-  });
-}
-
-navButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    proxyBar.hidden = true;
-    tabs.forEach(t => {
-      if (t.frame) t.frame.frame.remove();
-    });
-    tabs = [];
-    currentTabId = null;
-    showPage(btn.dataset.page);
-  });
-});
-
-// Bottom status updates (time, battery)
 function updateTime() {
   const now = new Date();
   bottomTime.textContent = now.toLocaleTimeString();
@@ -244,65 +88,295 @@ setInterval(updateTime, 1000);
 updateTime();
 
 if (navigator.getBattery) {
-  navigator.getBattery().then(battery => {
+  navigator.getBattery().then((battery) => {
     function updateBattery() {
       bottomBattery.textContent = `🔋${Math.round(battery.level * 100)}%`;
     }
     updateBattery();
     battery.addEventListener("levelchange", updateBattery);
   });
+} else {
+  bottomBattery.textContent = "🔋N/A";
 }
 
-// Online status
-function updateOnline() {
-  bottomOnline.textContent = `Online: ${navigator.onLine ? 1 : 0}`;
+// Onboarding flow
+function checkOnboarding() {
+  const settings = loadSettings();
+  if (!settings.name) {
+    onboarding.style.display = "flex";
+  } else {
+    applyTheme(settings.darkTheme);
+    updateBottomBar(settings.name);
+    onboarding.style.display = "none";
+  }
 }
-window.addEventListener("online", updateOnline);
-window.addEventListener("offline", updateOnline);
-updateOnline();
 
-// Load GN Math games from GitHub repo JSON (we'll hardcode game list here)
-const gnMathGames = [
-  {
-    title: "GN Math Game 1",
-    url: "https://stacknoo.github.io/gn-math/game1/index.html",
-  },
-  {
-    title: "GN Math Game 2",
-    url: "https://stacknoo.github.io/gn-math/game2/index.html",
-  },
-  {
-    title: "GN Math Game 3",
-    url: "https://stacknoo.github.io/gn-math/game3/index.html",
-  },
-  // Add more if you want, you can scrape repo later to get exact game URLs
-];
+startBtn.addEventListener("click", () => {
+  const name = userNameInput.value.trim() || "Guest";
+  const dark = onboardThemeToggle.checked;
+  saveSettings(name, dark);
+  applyTheme(dark);
+  updateBottomBar(name);
+  onboarding.style.display = "none";
+});
 
-function loadGames() {
-  gameListEl.innerHTML = "";
-  gnMathGames.forEach(game => {
+// Theme toggle from settings
+themeToggle.addEventListener("change", () => {
+  const isDark = themeToggle.checked;
+  applyTheme(isDark);
+  const settings = loadSettings();
+  saveSettings(settings.name, isDark);
+  onboardThemeToggle.checked = isDark;
+});
+
+// Search URL helper
+function search(query, engineTemplate) {
+  query = query.trim();
+  if (!query) return null;
+
+  // If query looks like a URL, proxy directly
+  try {
+    const url = new URL(query);
+    return url.href;
+  } catch {
+    // Not a valid URL, treat as search query
+    return engineTemplate.replace("%s", encodeURIComponent(query));
+  }
+}
+
+// Create and manage proxy tab
+function createTab(url) {
+  if (!url) return;
+
+  // If URL already open, switch to it
+  const existing = tabs.find((t) => t.url === url);
+  if (existing) {
+    activateTab(existing.id);
+    return;
+  }
+
+  // Create new tab id
+  const id = "tab-" + Date.now();
+
+  // Create frame via scramjet
+  const frame = scramjet.createFrame();
+  frame.frame.id = id;
+  frame.go(url);
+
+  // Append iframe to DOM
+  document.body.appendChild(frame.frame);
+  frame.frame.style.position = "fixed";
+  frame.frame.style.top = "0";
+  frame.frame.style.left = "0";
+  frame.frame.style.width = "100vw";
+  frame.frame.style.height = "100vh";
+  frame.frame.style.zIndex = "9000";
+  frame.frame.style.border = "none";
+  frame.frame.style.background = "#0a100a";
+
+  // Hide other frames
+  tabs.forEach((t) => {
+    if (t.frame) t.frame.frame.style.display = "none";
+  });
+
+  tabs.push({ id, url, frame });
+  currentTabId = id;
+  updateTabsUI();
+
+  // Show proxy bar
+  proxyBar.hidden = false;
+  showPage(null); // hide main pages
+}
+
+// Activate tab by ID
+function activateTab(id) {
+  tabs.forEach((t) => {
+    if (t.id === id) {
+      t.frame.frame.style.display = "block";
+      currentTabId = id;
+    } else if (t.frame) {
+      t.frame.frame.style.display = "none";
+    }
+  });
+  updateTabsUI();
+}
+
+// Close tab by ID
+function closeTab(id) {
+  const index = tabs.findIndex((t) => t.id === id);
+  if (index < 0) return;
+
+  const tab = tabs[index];
+  if (tab.frame) {
+    tab.frame.frame.remove();
+  }
+  tabs.splice(index, 1);
+
+  // Activate last tab or hide proxy bar if no tabs
+  if (tabs.length > 0) {
+    activateTab(tabs[tabs.length - 1].id);
+  } else {
+    proxyBar.hidden = true;
+    showPage("home");
+  }
+  updateTabsUI();
+}
+
+// Update proxy tabs UI
+function updateTabsUI() {
+  tabsContainer.innerHTML = "";
+  tabs.forEach((tab) => {
     const el = document.createElement("div");
-    el.className = "game-item";
-    el.textContent = game.title;
-    el.tabIndex = 0;
-    el.setAttribute("role", "button");
-    el.setAttribute("aria-pressed", "false");
+    el.className = "tab" + (tab.id === currentTabId ? " active" : "");
+    el.setAttribute("role", "tab");
+    el.setAttribute("aria-selected", tab.id === currentTabId ? "true" : "false");
+    el.setAttribute("tabindex", "0");
+    el.textContent = tab.url.length > 40 ? tab.url.slice(0, 37) + "..." : tab.url;
+
+    // Close button
+    const closeBtn = document.createElement("button");
+    closeBtn.innerHTML = "✕";
+    closeBtn.title = "Close tab";
+    closeBtn.setAttribute("aria-label", "Close tab");
+    closeBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeTab(tab.id);
+    });
+    el.appendChild(closeBtn);
+
     el.addEventListener("click", () => {
-      createTab(game.url);
-      showPage("home");
+      activateTab(tab.id);
     });
     el.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        el.click();
+        activateTab(tab.id);
       }
     });
-    gameListEl.appendChild(el);
+
+    tabsContainer.appendChild(el);
   });
 }
 
-// Init
+// Hide pages, show single page by name
+function showPage(name) {
+  if (!name) {
+    // Hide all pages
+    pages.forEach((p) => {
+      p.classList.remove("active-page");
+      p.setAttribute("hidden", "true");
+    });
+    return;
+  }
+
+  pages.forEach((p) => {
+    if (p.id === "page-" + name) {
+      p.classList.add("active-page");
+      p.removeAttribute("hidden");
+    } else {
+      p.classList.remove("active-page");
+      p.setAttribute("hidden", "true");
+    }
+  });
+
+  // Update nav buttons active state
+  navButtons.forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.page === name);
+  });
+
+  // Hide proxy bar when on main pages
+  proxyBar.hidden = true;
+}
+
+// Form submit handler for search
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  let query = address.value.trim();
+  if (!query) return;
+
+  // Compose URL (search or direct)
+  let url = search(query, searchEngine.value);
+  if (!url) return;
+
+  // Open in proxy tab
+  createTab(url);
+});
+
+// Shortcut buttons open in proxy tab
+shortcutButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const url = btn.dataset.url;
+    if (url) createTab(url);
+  });
+});
+
+// New tab button opens blank proxy tab with Google homepage
+newTabBtn.addEventListener("click", () => {
+  createTab("https://www.google.com");
+});
+
+// Back to home hides all proxy tabs and shows home page
+proxyBackBtn.addEventListener("click", () => {
+  // Remove all proxy tabs and frames
+  tabs.forEach((t) => {
+    if (t.frame) t.frame.frame.remove();
+  });
+  tabs = [];
+  currentTabId = null;
+  proxyBar.hidden = true;
+  showPage("home");
+});
+
+// Navigation sidebar buttons
+navButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    if (proxyBar.hidden === false) {
+      // If proxy open, close it first
+      tabs.forEach((t) => {
+        if (t.frame) t.frame.frame.remove();
+      });
+      tabs = [];
+      currentTabId = null;
+      proxyBar.hidden = true;
+    }
+    showPage(btn.dataset.page);
+  });
+});
+
+// Load GN Math Games from GitHub repo directly and run inside proxy
+// Hardcoded URLs for simplicity - you can fetch this dynamically if preferred
+const gnMathGames = [
+  { title: "GN Math Addition", url: "https://stacknoo.github.io/gn-math/addition/index.html" },
+  { title: "GN Math Subtraction", url: "https://stacknoo.github.io/gn-math/subtraction/index.html" },
+  { title: "GN Math Multiplication", url: "https://stacknoo.github.io/gn-math/multiplication/index.html" },
+  { title: "GN Math Division", url: "https://stacknoo.github.io/gn-math/division/index.html" },
+];
+
+function loadGames() {
+  gameListEl.innerHTML = "";
+  gnMathGames.forEach((game) => {
+    const div = document.createElement("div");
+    div.className = "game-item";
+    div.textContent = game.title;
+    div.tabIndex = 0;
+    div.setAttribute("role", "button");
+    div.setAttribute("aria-pressed", "false");
+    div.addEventListener("click", () => {
+      createTab(game.url);
+      showPage(null); // Hide main pages, show proxy
+    });
+    div.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        div.click();
+      }
+    });
+    gameListEl.appendChild(div);
+  });
+}
+
+// Initialize UI
 checkOnboarding();
 loadGames();
 showPage("home");
-
