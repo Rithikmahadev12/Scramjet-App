@@ -31,7 +31,6 @@
 
 <!-- Main content -->
 <main id="main">
-  <!-- Home page -->
   <div id="page-home" class="page active-page">
     <div class="flex-center logo-wrapper header-center">
       <h1>Matriarchs</h1>
@@ -50,12 +49,10 @@
     </div>
   </div>
 
-  <!-- Games page -->
   <div id="page-game" class="page" hidden>
     <div class="page-placeholder left-margin">Games page not added yet.</div>
   </div>
 
-  <!-- Settings page -->
   <div id="page-settings" class="page" hidden>
     <div class="page-placeholder left-margin">
       <label>
@@ -80,12 +77,16 @@
   <div id="bottom-battery">🔋--%</div>
 </footer>
 
-<!-- Onboarding -->
+<!-- Onboarding modal -->
 <div id="onboarding" class="onboarding">
   <div class="onboarding-content">
-    <h2>Welcome to Matriarchs!</h2>
-    <input type="text" id="user-name" placeholder="Enter your name"/>
-    <label><input type="checkbox" id="onboard-theme-toggle"/> Dark Theme</label>
+    <img src="https://tse3.mm.bing.net/th/id/OIP.m0t8ZRR-wZcPphFRYe5w3wHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Matriarchs Logo" class="onboarding-icon" />
+    <h1>Welcome to Matriarchs</h1>
+    <p class="onboarding-subtitle">The settings you choose can always be changed later.</p>
+    <input type="text" id="user-name" placeholder="Enter your name" />
+    <label class="theme-label">
+      <input type="checkbox" id="onboard-theme-toggle"/> Dark Theme
+    </label>
     <button id="start-btn">Get Started</button>
   </div>
 </div>
