@@ -1,60 +1,45 @@
 "use strict";
 
-/* ELEMENTS */
+/* ======================
+   ELEMENTS
+====================== */
 
-const onboarding = document.getElementById("onboarding");
-const usernameInput = document.getElementById("username");
-const startBtn = document.getElementById("start-btn");
+const UI = {
+  onboarding: document.getElementById("onboarding"),
+  usernameInput: document.getElementById("username"),
+  startBtn: document.getElementById("start-btn"),
 
-const homeScreen = document.getElementById("home-screen");
-const browserScreen = document.getElementById("browser-screen");
+  homeScreen: document.getElementById("home-screen"),
+  browserScreen: document.getElementById("browser-screen"),
 
-const homeSearch = document.getElementById("home-search");
-const homeGo = document.getElementById("home-go");
+  homeSearch: document.getElementById("home-search"),
+  homeGo: document.getElementById("home-go"),
 
-const urlBar = document.getElementById("url-bar");
-const backBtn = document.getElementById("back-btn");
-const forwardBtn = document.getElementById("forward-btn");
-const reloadBtn = document.getElementById("reload-btn");
-const homeBtn = document.getElementById("home-btn");
-const newTabBtn = document.getElementById("new-tab-btn");
-const exitBtn = document.getElementById("exit-btn");
+  urlBar: document.getElementById("url-bar"),
+  backBtn: document.getElementById("back-btn"),
+  forwardBtn: document.getElementById("forward-btn"),
+  reloadBtn: document.getElementById("reload-btn"),
+  homeBtn: document.getElementById("home-btn"),
+  newTabBtn: document.getElementById("new-tab-btn"),
+  exitBtn: document.getElementById("exit-btn"),
 
-const tabBar = document.getElementById("tab-bar");
-const proxyContainer = document.getElementById("proxy-container");
-
-/* SCRAMJET */
-
-const { ScramjetController } = $scramjetLoadController();
-
-const scramjet = new ScramjetController({
-  files: {
-    wasm: "/scram/scramjet.wasm.wasm",
-    all: "/scram/scramjet.all.js",
-    sync: "/scram/scramjet.sync.js"
-  },
-});
-
-scramjet.init();
-const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
-
-/* USER STORAGE */
-
-if (!localStorage.getItem("user")) {
-  onboarding.classList.remove("hidden");
-}
-
-startBtn.onclick = () => {
-  const name = usernameInput.value.trim();
-  if (!name) return;
-  localStorage.setItem("user", name);
-  onboarding.classList.add("hidden");
+  tabBar: document.getElementById("tab-bar"),
+  proxyContainer: document.getElementById("proxy-container")
 };
 
-/* NAVIGATION LOGIC */
+/* ======================
+   STATE
+====================== */
 
-let tabs = [];
-let activeTab = null;
+const State = {
+  tabs: [],
+  activeTab: null,
+  bookmarks: JSON.parse(localStorage.getItem("bookmarks") || "[]")
+};
+
+/* ======================
+   UTILITIES
+====================== */
 
 function formatInput(input) {
   if (input.startsWith("http")) return input;
@@ -63,82 +48,158 @@ function formatInput(input) {
   return "https://search.brave.com/search?q=" + encodeURIComponent(input);
 }
 
-async function navigate(url) {
-  await registerSW();
-
-  const wispUrl =
-    (location.protocol === "https:" ? "wss://" : "ws://") +
-    location.host +
-    "/wisp/";
-
-  if ((await connection.getTransport()) !== "/libcurl/index.mjs") {
-    await connection.setTransport("/libcurl/index.mjs", [
-      { websocket: wispUrl },
-    ]);
-  }
-
-  activeTab.frame.go(url);
+function saveBookmarks() {
+  localStorage.setItem("bookmarks", JSON.stringify(State.bookmarks));
 }
 
-function createTab(startUrl = "https://search.brave.com/") {
-  const frame = scramjet.createFrame();
-  frame.frame.style.width = "100%";
-  frame.frame.style.height = "100%";
-  frame.frame.style.border = "none";
+/* ======================
+   BOOKMARKS
+====================== */
 
-  proxyContainer.appendChild(frame.frame);
+function createBookmarksPanel() {
+  const panel = document.createElement("div");
+  panel.id = "bookmarks-panel";
+  document.body.appendChild(panel);
+  renderBookmarks();
+}
+
+function renderBookmarks() {
+  const panel = document.getElementById("bookmarks-panel");
+  panel.innerHTML = "<h3>Bookmarks</h3>";
+
+  State.bookmarks.forEach(b => {
+    const item = document.createElement("div");
+    item.className = "bookmark-item";
+    item.textContent = b.title;
+    item.onclick = () => navigate(b.url);
+    panel.appendChild(item);
+  });
+}
+
+function addBookmark(title, url) {
+  State.bookmarks.push({ title, url });
+  saveBookmarks();
+  renderBookmarks();
+}
+
+/* ======================
+   TABS
+====================== */
+
+function createTab(url) {
+  const iframe = document.createElement("iframe");
+  iframe.style.width = "100%";
+  iframe.style.height = "100%";
+  iframe.style.border = "none";
+  UI.proxyContainer.appendChild(iframe);
 
   const id = Date.now();
 
-  const tabBtn = document.createElement("div");
-  tabBtn.className = "tab";
-  tabBtn.textContent = "New Tab";
-  tabBar.appendChild(tabBtn);
+  const tab = document.createElement("div");
+  tab.className = "tab";
 
-  tabs.push({ id, frame, button: tabBtn });
+  const title = document.createElement("span");
+  title.textContent = "New Tab";
 
-  tabBtn.onclick = () => switchTab(id);
+  const close = document.createElement("span");
+  close.textContent = "×";
+  close.style.cursor = "pointer";
+
+  close.onclick = e => {
+    e.stopPropagation();
+    closeTab(id);
+  };
+
+  tab.appendChild(title);
+  tab.appendChild(close);
+  UI.tabBar.appendChild(tab);
+
+  const tabObj = { id, iframe, tab, title };
+  State.tabs.push(tabObj);
+
+  tab.onclick = () => switchTab(id);
   switchTab(id);
 
-  frame.go(startUrl);
+  iframe.src = url;
+  iframe.onload = () => {
+    title.textContent = iframe.contentDocument?.title || "New Tab";
+  };
 }
 
 function switchTab(id) {
-  tabs.forEach(t => {
-    t.frame.frame.style.display = t.id === id ? "block" : "none";
-    t.button.classList.toggle("active", t.id === id);
+  State.tabs.forEach(t => {
+    t.iframe.style.display = t.id === id ? "block" : "none";
+    t.tab.classList.toggle("active", t.id === id);
   });
 
-  activeTab = tabs.find(t => t.id === id);
+  State.activeTab = State.tabs.find(t => t.id === id);
+  UI.urlBar.value = State.activeTab?.iframe.src || "";
 }
 
-/* EVENTS */
+function closeTab(id) {
+  const index = State.tabs.findIndex(t => t.id === id);
+  if (index === -1) return;
 
-homeGo.onclick = () => {
-  browserScreen.classList.add("active");
-  homeScreen.classList.remove("active");
+  State.tabs[index].iframe.remove();
+  State.tabs[index].tab.remove();
+  State.tabs.splice(index, 1);
 
-  const url = formatInput(homeSearch.value);
-  createTab(url);
+  if (State.tabs.length) {
+    switchTab(State.tabs[State.tabs.length - 1].id);
+  }
+}
+
+/* ======================
+   NAVIGATION
+====================== */
+
+function navigate(url) {
+  if (!State.activeTab) return;
+  State.activeTab.iframe.src = url;
+}
+
+/* ======================
+   EVENTS
+====================== */
+
+UI.startBtn.onclick = () => {
+  const name = UI.usernameInput.value.trim();
+  if (!name) return;
+  localStorage.setItem("user", name);
+  UI.onboarding.classList.add("hidden");
 };
 
-urlBar.addEventListener("keydown", e => {
-  if (e.key === "Enter") {
-    navigate(formatInput(urlBar.value));
-  }
+UI.homeGo.onclick = () => {
+  UI.browserScreen.classList.add("active");
+  UI.homeScreen.classList.remove("active");
+  createTab(formatInput(UI.homeSearch.value));
+};
+
+UI.urlBar.addEventListener("keydown", e => {
+  if (e.key === "Enter") navigate(formatInput(UI.urlBar.value));
 });
 
-backBtn.onclick = () => activeTab.frame.frame.contentWindow.history.back();
-forwardBtn.onclick = () => activeTab.frame.frame.contentWindow.history.forward();
-reloadBtn.onclick = () => activeTab.frame.frame.contentWindow.location.reload();
-
-homeBtn.onclick = () => {
-  browserScreen.classList.remove("active");
-  homeScreen.classList.add("active");
+UI.newTabBtn.onclick = () => createTab("https://search.brave.com/");
+UI.homeBtn.onclick = () => {
+  UI.browserScreen.classList.remove("active");
+  UI.homeScreen.classList.add("active");
 };
 
-newTabBtn.onclick = () => createTab();
-exitBtn.onclick = () => {
-  browserScreen.classList.remove("active");
-  homeScreen.classList.add("active");
+UI.exitBtn.onclick = () => {
+  UI.browserScreen.classList.remove("active");
+  UI.homeScreen.classList.add("active");
 };
+
+UI.backBtn.onclick = () => State.activeTab?.iframe.contentWindow.history.back();
+UI.forwardBtn.onclick = () => State.activeTab?.iframe.contentWindow.history.forward();
+UI.reloadBtn.onclick = () => State.activeTab?.iframe.contentWindow.location.reload();
+
+/* ======================
+   INIT
+====================== */
+
+if (!localStorage.getItem("user")) {
+  UI.onboarding.classList.remove("hidden");
+}
+
+createBookmarksPanel();
