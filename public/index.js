@@ -2,37 +2,17 @@
 
 /* SCREEN SWITCHING */
 
-document.querySelectorAll(".dock button").forEach(btn => {
+document.querySelectorAll(".nav-btn").forEach(btn => {
   btn.onclick = () => {
+    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     document.getElementById(btn.dataset.screen).classList.add("active");
   };
 });
 
-/* SEARCH → BROWSER */
-
-const homeSearch = document.getElementById("home-search");
-const urlBar = document.getElementById("url-bar");
-
-function formatInput(input) {
-  if (input.startsWith("http")) return input;
-  if (input.includes(".")) return "https://" + input;
-  return "https://search.brave.com/search?q=" + encodeURIComponent(input);
-}
-
-homeSearch.addEventListener("keydown", e => {
-  if (e.key === "Enter") {
-    navigate(formatInput(homeSearch.value));
-    switchToBrowser();
-  }
-});
-
-function switchToBrowser() {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.getElementById("browser-screen").classList.add("active");
-}
-
-/* SCRAMJET SETUP */
+/* SCRAMJET */
 
 const { ScramjetController } = $scramjetLoadController();
 const scramjet = new ScramjetController({
@@ -73,26 +53,42 @@ async function navigate(url) {
   activeFrame.go(url);
 }
 
-/* SIMPLE GAME LOADER */
+/* SEARCH */
 
-const games = [
-  { icon: "https://via.placeholder.com/200", url: "https://example.com" }
-];
+function formatInput(input) {
+  if (input.startsWith("http")) return input;
+  if (input.includes(".")) return "https://" + input;
+  return "https://search.brave.com/search?q=" + encodeURIComponent(input);
+}
 
-const grid = document.getElementById("games-grid");
-
-games.forEach(game => {
-  const card = document.createElement("div");
-  card.className = "game-card";
-
-  const img = document.createElement("img");
-  img.src = game.icon;
-
-  card.appendChild(img);
-  card.onclick = () => {
-    navigate(game.url);
-    switchToBrowser();
-  };
-
-  grid.appendChild(card);
+document.getElementById("home-search").addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    navigate(formatInput(e.target.value));
+    document.querySelector('[data-screen="browser"]').click();
+  }
 });
+
+/* GAMES */
+
+const gamesGrid = document.getElementById("games-grid");
+
+fetch("games.json") // YOU create this file locally
+  .then(res => res.json())
+  .then(games => {
+    games.forEach(game => {
+      const card = document.createElement("div");
+      card.className = "game-card";
+
+      const img = document.createElement("img");
+      img.src = game.icon;
+
+      card.appendChild(img);
+
+      card.onclick = () => {
+        navigate(game.url);
+        document.querySelector('[data-screen="browser"]').click();
+      };
+
+      gamesGrid.appendChild(card);
+    });
+  });
