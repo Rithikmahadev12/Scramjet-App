@@ -4,21 +4,23 @@
 const form = document.getElementById("sj-form");
 const address = document.getElementById("sj-address");
 const searchEngine = document.getElementById("sj-search-engine");
+
 const proxyBar = document.getElementById("proxy-bar");
 const proxyBack = document.getElementById("proxy-back");
 const tabsContainer = document.getElementById("tabs");
 const newTabBtn = document.getElementById("new-tab");
-const statusBar = document.getElementById("status-bar");
-const welcomeText = document.getElementById("welcome-text");
-const onlineCount = document.getElementById("online-count");
-const timeDisplay = document.getElementById("time-display");
-const batteryDisplay = document.getElementById("battery-display");
+
+const bottomWelcome = document.getElementById("bottom-welcome");
+const bottomOnline = document.getElementById("bottom-online");
+const bottomTime = document.getElementById("bottom-time");
+const bottomBattery = document.getElementById("bottom-battery");
 
 /* ONBOARDING */
 const onboardPage = document.getElementById("page-onboarding");
 const onboardName = document.getElementById("onboard-name");
 const onboardTheme = document.getElementById("onboard-theme");
 const onboardStart = document.getElementById("onboard-start");
+
 const profileName = document.getElementById("profile-name");
 const themeSelect = document.getElementById("theme-select");
 const resetOnboardBtn = document.getElementById("reset-onboarding");
@@ -35,7 +37,7 @@ const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
 let tabs = [];
 let activeTab = null;
 
-/* SHOW PAGE FUNCTION */
+/* SHOW PAGE */
 function showPage(name){
 	document.querySelectorAll(".page").forEach(p=>{
 		p.hidden = p.id!==`page-${name}`;
@@ -90,7 +92,6 @@ function renderTabs(){
 		const closeBtn=document.createElement("button");
 		closeBtn.textContent="×";
 		closeBtn.onclick=(e)=>{ e.stopPropagation(); closeTab(tab.id); };
-
 		el.appendChild(closeBtn);
 		tabsContainer.appendChild(el);
 	});
@@ -118,7 +119,7 @@ proxyBack.onclick=()=>{
 	showPage("home");
 };
 
-/* NAVIGATION BUTTONS */
+/* NAV BUTTONS */
 document.querySelectorAll(".nav-btn").forEach(btn=>{
 	btn.addEventListener("click", ()=>showPage(btn.dataset.page||"home"));
 });
@@ -132,7 +133,7 @@ onboardStart.onclick=()=>{
 	themeSelect.value=theme;
 	localStorage.setItem("userName",name);
 	localStorage.setItem("theme",theme);
-	welcomeText.textContent=`Welcome back, ${name}`;
+	bottomWelcome.textContent=`Welcome back, ${name}`;
 	showPage("home");
 };
 
@@ -153,17 +154,35 @@ if(savedName){
 	profileName.value=savedName;
 	themeSelect.value=savedTheme||"dark";
 	document.body.dataset.theme=savedTheme||"dark";
-	welcomeText.textContent=`Welcome back, ${savedName}`;
+	bottomWelcome.textContent=`Welcome back, ${savedName}`;
 	showPage("home");
 }else{
 	showPage("onboarding");
 }
 
-/* FAKE ONLINE COUNT + TIME + BATTERY */
-let onlineUsers= Math.floor(Math.random()*500)+50;
-onlineCount.textContent=`Online: ${onlineUsers}`;
-setInterval(()=>{
-	const d=new Date();
-	timeDisplay.textContent=d.toLocaleTimeString();
-},1000);
-navigator.getBattery?.().then(b=>b.addEventListener("levelchange",()=>batteryDisplay.textContent=`🔋${Math.floor(b.level*100)}%`));
+/* ONLINE COUNT */
+function updateOnline(){
+	const count = navigator.onLine ? Math.floor(Math.random()*500)+50 : 0;
+	bottomOnline.textContent=`Online: ${count}`;
+}
+window.addEventListener("online", updateOnline);
+window.addEventListener("offline", updateOnline);
+updateOnline();
+
+/* TIME */
+function updateTime(){
+	const now = new Date();
+	bottomTime.textContent = now.toLocaleTimeString();
+}
+setInterval(updateTime,1000);
+updateTime();
+
+/* BATTERY */
+if(navigator.getBattery){
+	navigator.getBattery().then(bat=>{
+		function updateBattery(){ bottomBattery.textContent=`🔋${Math.floor(bat.level*100)}%`; }
+		updateBattery();
+		bat.addEventListener("levelchange", updateBattery);
+		bat.addEventListener("chargingchange", updateBattery);
+	});
+}
