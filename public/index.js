@@ -12,33 +12,23 @@ resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
 let particles = [];
-
 for (let i = 0; i < 120; i++) {
-  particles.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    r: Math.random() * 2 + 0.5,
-    speed: Math.random() * 0.5 + 0.2
-  });
+  particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: Math.random() * 2 + 0.5, speed: Math.random() * 0.5 + 0.2 });
 }
 
 function drawParticles() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = "white";
-
   particles.forEach(p => {
     p.y -= p.speed;
     if (p.y < 0) p.y = canvas.height;
-
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
     ctx.fill();
   });
-
   requestAnimationFrame(drawParticles);
 }
 drawParticles();
-
 
 // ==========================
 // BOOT ANIMATION
@@ -60,9 +50,7 @@ function typeBoot() {
     }, 1000);
   }
 }
-
 typeBoot();
-
 
 // ==========================
 // INTRO LETTER ANIMATION
@@ -71,7 +59,6 @@ function animateIntroTitle() {
   const title = "Matriarchs OS";
   const el = document.getElementById("introTitle");
   el.innerHTML = "";
-
   title.split("").forEach((char, i) => {
     const span = document.createElement("span");
     span.textContent = char;
@@ -80,14 +67,12 @@ function animateIntroTitle() {
     span.style.transform = "translateY(40px)";
     span.style.transition = "0.5s ease";
     el.appendChild(span);
-
     setTimeout(() => {
       span.style.opacity = 1;
       span.style.transform = "translateY(0px)";
     }, i * 80);
   });
 }
-
 
 // ==========================
 // SPACE TO CONTINUE
@@ -101,20 +86,16 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-
 // ==========================
 // NAME SAVE
 // ==========================
 document.getElementById("saveNameBtn").addEventListener("click", () => {
   const name = document.getElementById("nameField").value.trim();
   if (!name) return;
-
   localStorage.setItem("username", name);
-
   document.getElementById("nameInputScreen").classList.add("hidden");
   document.getElementById("bgPickerScreen").classList.remove("hidden");
 });
-
 
 // ==========================
 // BACKGROUND PICKER
@@ -124,27 +105,20 @@ const backgrounds = [
   "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600",
   "https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?q=80&w=1600"
 ];
-
 const bgContainer = document.getElementById("bgOptions");
-
 backgrounds.forEach(url => {
   const img = document.createElement("img");
   img.src = url;
   img.onclick = () => setBG(url);
   bgContainer.appendChild(img);
 });
-
 function setBG(url) {
   document.getElementById("desktop").style.backgroundImage = `url(${url})`;
   document.getElementById("bgPickerScreen").classList.add("hidden");
   document.getElementById("desktop").classList.remove("hidden");
-
-  const name = localStorage.getItem("username");
-  document.getElementById("welcomeText").innerText = "Welcome, " + name;
-
+  document.getElementById("welcomeText").innerText = "Welcome, " + localStorage.getItem("username");
   startClock();
 }
-
 
 // ==========================
 // CLOCK
@@ -153,11 +127,9 @@ function startClock() {
   setInterval(() => {
     const d = new Date();
     document.getElementById("clock").innerText =
-      d.toLocaleTimeString() + " | " +
-      d.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
+      d.toLocaleTimeString() + " | " + d.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
   }, 1000);
 }
-
 
 // ==========================
 // LAUNCHPAD
@@ -165,30 +137,20 @@ function startClock() {
 document.getElementById("launchBtn").onclick = () => {
   document.getElementById("launchpad").classList.toggle("hidden");
 };
-
 document.querySelectorAll("#launchpad button").forEach(btn => {
   btn.onclick = () => openApp(btn.dataset.app);
 });
 
-
 // ==========================
-// WINDOW CONTROLS
+// WINDOWS
 // ==========================
 function openApp(id) {
   const win = document.getElementById(id + "App");
   win.classList.remove("hidden");
-
   if (id === "browser") openBrowser();
 }
-
-function closeWin(id) {
-  document.getElementById(id + "App").classList.add("hidden");
-}
-
-function minWin(id) {
-  document.getElementById(id + "App").classList.add("hidden");
-}
-
+function closeWin(id) { document.getElementById(id + "App").classList.add("hidden"); }
+function minWin(id) { document.getElementById(id + "App").classList.add("hidden"); }
 function maximizeWin(id) {
   const win = document.getElementById(id + "App");
   win.style.width = "100%";
@@ -197,28 +159,25 @@ function maximizeWin(id) {
   win.style.left = "0";
 }
 
-
 // ==========================
 // TAB CLOAK
 // ==========================
 function cloakTab(title, icon) {
   document.title = title;
-
   let link = document.querySelector("link[rel='icon']");
   if (!link) {
     link = document.createElement("link");
     link.rel = "icon";
     document.head.appendChild(link);
   }
-
   link.href = icon;
 }
 
-
 // ==========================
-// SCRAMJET BROWSER
+// SCRAMJET INIT WITH SAFE FALLBACK
 // ==========================
 let scramjetController = null;
+let activeFrame = null;
 
 async function initScramjet() {
   if (scramjetController) return scramjetController;
@@ -236,22 +195,38 @@ async function initScramjet() {
   await sj.init();
   await registerSW();
 
+  // ======================
+  // BareMux fallback
+  // ======================
+  const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
+  try {
+    await connection.getTransport({ timeout: 3000 });
+  } catch (err) {
+    console.warn("SharedWorker failed, using WebSocket fallback");
+    await connection.setTransport("/libcurl/index.mjs", [{ websocket: `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/wisp/` }]);
+  }
+
   scramjetController = sj;
   return sj;
 }
 
+// ==========================
+// OPEN BROWSER
+// ==========================
 async function openBrowser() {
   const container = document.getElementById("browserContent");
   container.innerHTML = "";
 
   const sj = await initScramjet();
-  const frame = sj.createFrame();
 
-  frame.frame.style.width = "100%";
-  frame.frame.style.height = "100%";
+  if (!activeFrame) {
+    activeFrame = sj.createFrame();
+    activeFrame.frame.style.width = "100%";
+    activeFrame.frame.style.height = "100%";
+    activeFrame.frame.style.border = "none";
+    container.appendChild(activeFrame.frame);
+  }
 
-  container.appendChild(frame.frame);
-
-  await frame.waitUntilReady();
-  frame.go("https://search.brave.com/");
+  await activeFrame.waitUntilReady();
+  activeFrame.go("https://search.brave.com/");
 }
