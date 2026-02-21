@@ -5,13 +5,13 @@ const form = document.getElementById("sj-form");
 const address = document.getElementById("sj-address");
 const searchEngine = document.getElementById("sj-search-engine");
 const proxyBar = document.getElementById("proxy-bar");
-const proxyLoading = document.getElementById("proxy-loading");
 const proxyBack = document.getElementById("proxy-back");
 const tabsContainer = document.getElementById("tabs");
 const newTabBtn = document.getElementById("new-tab");
 
 /* SCRAMJET */
 const { ScramjetController } = $scramjetLoadController();
+
 const scramjet = new ScramjetController({
 	files: {
 		wasm: "/scram/scramjet.wasm.wasm",
@@ -19,6 +19,7 @@ const scramjet = new ScramjetController({
 		sync: "/scram/scramjet.sync.js",
 	},
 });
+
 scramjet.init();
 
 const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
@@ -38,6 +39,7 @@ function showPage(name) {
 function createTab(url) {
 	const frame = scramjet.createFrame();
 	frame.frame.id = "sj-frame";
+	frame.frame.style.display = "none";
 
 	document.body.appendChild(frame.frame);
 
@@ -47,8 +49,6 @@ function createTab(url) {
 	setActiveTab(id);
 
 	frame.go(url);
-
-	return id;
 }
 
 /* SET ACTIVE TAB */
@@ -70,7 +70,7 @@ function closeTab(id) {
 	tabs.splice(index, 1);
 
 	if (tabs.length) {
-		setActiveTab(tabs[0].id);
+		setActiveTab(tabs[tabs.length - 1].id);
 	} else {
 		proxyBar.hidden = true;
 		showPage("home");
@@ -104,7 +104,12 @@ function renderTabs() {
 form.addEventListener("submit", async (e) => {
 	e.preventDefault();
 
-	await registerSW();
+	try {
+		await registerSW();
+	} catch (err) {
+		console.error("SW error:", err);
+		return;
+	}
 
 	const url = search(address.value, searchEngine.value);
 
@@ -120,20 +125,14 @@ form.addEventListener("submit", async (e) => {
 		]);
 	}
 
-	proxyLoading.hidden = false;
-
-	setTimeout(() => {
-		createTab(url);
-		proxyLoading.hidden = true;
-		proxyBar.hidden = false;
-	}, 600);
+	createTab(url);
+	proxyBar.hidden = false;
 });
 
 /* NEW TAB */
 newTabBtn.onclick = () => {
-	if (activeTab) {
-		createTab("https://www.google.com");
-	}
+	createTab("https://www.google.com");
+	proxyBar.hidden = false;
 };
 
 /* HOME BUTTON */
