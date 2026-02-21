@@ -32,6 +32,7 @@ body {
 	width: 100vw;
 	height: 100vh;
 	background-color: #111;
+	z-index: 10;
 }
 
 #sj-error {
@@ -157,3 +158,135 @@ footer a:hover {
 .credit input:checked ~ pre {
 	display: block;
 }
+
+/* Left vertical navbar (glass) */
+.nav {
+	z-index: 999999;
+	transition: all .3s ease;
+	pointer-events: auto;
+}
+
+/* LEFT SIDE MODE */
+.nav.nav-left {
+	position: fixed;
+	left: 16px;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.nav.nav-left .nav-inner {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 12px;
+	border-radius: 16px;
+	background: rgba(255,255,255,0.04);
+	border: 1px solid rgba(255,255,255,0.06);
+	backdrop-filter: blur(12px);
+}
+
+/* Collapsible behavior */
+.nav { overflow: visible; }
+/* when collapsed we clip the nav to a small sliver to avoid background overlap */
+.nav.collapsed { width: 28px; overflow: hidden; }
+.nav.collapsed .nav-inner { transform: translateX(-calc(100% - 12px)); }
+.nav .nav-inner { transition: transform .28s cubic-bezier(.2,.9,.2,1); width: 56px; box-sizing: border-box; }
+
+/* Toggle tab (visible when collapsed) */
+
+.nav-toggle {
+	position: absolute;
+	right: -22px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 36px;
+	height: 36px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 10px;
+	background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+	border: 1px solid rgba(255,255,255,0.06);
+	color: rgba(255,255,255,0.9);
+	cursor: pointer;
+	z-index: 1000001;
+	transition: transform .18s ease, background .18s ease, opacity .18s ease;
+}
+
+
+.nav-toggle svg { width: 16px; height: 16px; }
+.nav.collapsed:hover .nav-inner { transform: translateX(0); }
+/* hide the toggle chevron when nav is hovered/expanded so the full bar is visible */
+.nav.collapsed:hover .nav-toggle { transform: translateY(-50%) rotate(180deg) translateX(6px); opacity: 0; pointer-events: none; }
+
+/* When expanded, slightly hide the toggle chevron or rotate */
+.nav:not(.collapsed) .nav-toggle { transform: translateY(-50%) rotate(180deg); opacity: 0.9; }
+
+
+.nav-btn {
+	padding: 10px;
+	border-radius: 12px;
+	background: none;
+	border: none;
+	color: rgba(255,255,255,0.7);
+	cursor: pointer;
+	transition: color .2s, background .2s, transform .15s;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 44px;
+	min-height: 44px;
+}
+
+.nav-btn:hover {
+	color: #fff;
+	background: rgba(255,255,255,0.06);
+	transform: scale(1.08);
+}
+
+.nav-btn:active { transform: scale(.96); }
+
+.nav-btn.active {
+	color: #fff;
+	background: rgba(0,150,255,0.12);
+}
+
+.nav-btn svg { width: 20px; height: 20px; }
+
+/* Page containers */
+#main { margin-left: 96px; padding: 24px 16px; }
+.page { display: block; }
+.page[hidden] { display: none; }
+.page-placeholder { color: rgba(255,255,255,0.7); font-size: 18px; padding: 20px; }
+
+/* Icon defaults: use currentColor for stroke and no fill for consistent look */
+.nav-btn svg { display:block; }
+.nav-btn svg path,
+.nav-btn svg line,
+.nav-btn svg circle {
+	stroke: currentColor;
+	fill: none;
+	stroke-width: 2;
+}
+
+/* Global button animation: applies to all <button> elements (and preserves .nav-btn specifics) */
+button, .nav-btn {
+	transition: transform .15s ease, background .18s ease, color .18s ease;
+	will-change: transform;
+}
+
+button:hover, .nav-btn:hover {
+	transform: scale(1.06);
+}
+
+button:active, .nav-btn:active {
+	transform: scale(.96);
+}
+
+button:focus-visible, .nav-btn:focus-visible {
+	outline: 2px solid rgba(0,150,255,0.18);
+	outline-offset: 3px;
+	border-radius: 8px;
+}
+
