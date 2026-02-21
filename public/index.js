@@ -1,6 +1,29 @@
 "use strict";
 
-/* SCRAMJET INIT */
+/* ELEMENTS */
+
+const onboarding = document.getElementById("onboarding");
+const usernameInput = document.getElementById("username");
+const startBtn = document.getElementById("start-btn");
+
+const homeScreen = document.getElementById("home-screen");
+const browserScreen = document.getElementById("browser-screen");
+
+const homeSearch = document.getElementById("home-search");
+const homeGo = document.getElementById("home-go");
+
+const urlBar = document.getElementById("url-bar");
+const backBtn = document.getElementById("back-btn");
+const forwardBtn = document.getElementById("forward-btn");
+const reloadBtn = document.getElementById("reload-btn");
+const homeBtn = document.getElementById("home-btn");
+const newTabBtn = document.getElementById("new-tab-btn");
+const exitBtn = document.getElementById("exit-btn");
+
+const tabBar = document.getElementById("tab-bar");
+const proxyContainer = document.getElementById("proxy-container");
+
+/* SCRAMJET */
 
 const { ScramjetController } = $scramjetLoadController();
 
@@ -13,79 +36,34 @@ const scramjet = new ScramjetController({
 });
 
 scramjet.init();
-
 const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
 
-/* ELEMENTS */
+/* USER STORAGE */
 
-const proxyContainer = document.getElementById("proxy-container");
-const urlBar = document.getElementById("url-bar");
-const goBtn = document.getElementById("go-btn");
-const backBtn = document.getElementById("back-btn");
-const forwardBtn = document.getElementById("forward-btn");
-const reloadBtn = document.getElementById("reload-btn");
-const homeBtn = document.getElementById("home-btn");
-const newTabBtn = document.getElementById("new-tab-btn");
-const exitBtn = document.getElementById("exit-btn");
-const tabBar = document.getElementById("tab-bar");
+if (!localStorage.getItem("user")) {
+  onboarding.classList.remove("hidden");
+}
+
+startBtn.onclick = () => {
+  const name = usernameInput.value.trim();
+  if (!name) return;
+  localStorage.setItem("user", name);
+  onboarding.classList.add("hidden");
+};
+
+/* NAVIGATION LOGIC */
 
 let tabs = [];
 let activeTab = null;
 
-/* FORMAT INPUT */
-
 function formatInput(input) {
-  if (input.startsWith("http://") || input.startsWith("https://")) {
-    return input;
-  }
-
-  if (input.includes(".") && !input.includes(" ")) {
+  if (input.startsWith("http")) return input;
+  if (input.includes(".") && !input.includes(" "))
     return "https://" + input;
-  }
-
   return "https://search.brave.com/search?q=" + encodeURIComponent(input);
 }
 
-/* CREATE TAB */
-
-function createTab(url = "https://search.brave.com/") {
-
-  const frame = scramjet.createFrame();
-  frame.frame.style.width = "100%";
-  frame.frame.style.height = "100%";
-  frame.frame.style.border = "none";
-
-  const tabId = Date.now();
-
-  const tabButton = document.createElement("div");
-  tabButton.className = "tab";
-  tabButton.textContent = "New Tab";
-
-  tabButton.onclick = () => switchTab(tabId);
-
-  tabBar.appendChild(tabButton);
-  proxyContainer.appendChild(frame.frame);
-
-  tabs.push({ id: tabId, frame, button: tabButton });
-
-  switchTab(tabId);
-  frame.go(url);
-}
-
-/* SWITCH TAB */
-
-function switchTab(id) {
-  tabs.forEach(tab => {
-    tab.frame.frame.style.display = tab.id === id ? "block" : "none";
-    tab.button.classList.toggle("active", tab.id === id);
-  });
-
-  activeTab = tabs.find(t => t.id === id);
-}
-
-/* NAVIGATION */
-
-async function navigate() {
+async function navigate(url) {
   await registerSW();
 
   const wispUrl =
@@ -99,24 +77,68 @@ async function navigate() {
     ]);
   }
 
-  const url = formatInput(urlBar.value);
   activeTab.frame.go(url);
 }
 
-/* BUTTON EVENTS */
+function createTab(startUrl = "https://search.brave.com/") {
+  const frame = scramjet.createFrame();
+  frame.frame.style.width = "100%";
+  frame.frame.style.height = "100%";
+  frame.frame.style.border = "none";
 
-goBtn.onclick = navigate;
+  proxyContainer.appendChild(frame.frame);
+
+  const id = Date.now();
+
+  const tabBtn = document.createElement("div");
+  tabBtn.className = "tab";
+  tabBtn.textContent = "New Tab";
+  tabBar.appendChild(tabBtn);
+
+  tabs.push({ id, frame, button: tabBtn });
+
+  tabBtn.onclick = () => switchTab(id);
+  switchTab(id);
+
+  frame.go(startUrl);
+}
+
+function switchTab(id) {
+  tabs.forEach(t => {
+    t.frame.frame.style.display = t.id === id ? "block" : "none";
+    t.button.classList.toggle("active", t.id === id);
+  });
+
+  activeTab = tabs.find(t => t.id === id);
+}
+
+/* EVENTS */
+
+homeGo.onclick = () => {
+  browserScreen.classList.add("active");
+  homeScreen.classList.remove("active");
+
+  const url = formatInput(homeSearch.value);
+  createTab(url);
+};
+
 urlBar.addEventListener("keydown", e => {
-  if (e.key === "Enter") navigate();
+  if (e.key === "Enter") {
+    navigate(formatInput(urlBar.value));
+  }
 });
 
-backBtn.onclick = () => activeTab?.frame.frame.contentWindow.history.back();
-forwardBtn.onclick = () => activeTab?.frame.frame.contentWindow.history.forward();
-reloadBtn.onclick = () => activeTab?.frame.frame.contentWindow.location.reload();
-homeBtn.onclick = () => activeTab?.frame.go("https://search.brave.com/");
+backBtn.onclick = () => activeTab.frame.frame.contentWindow.history.back();
+forwardBtn.onclick = () => activeTab.frame.frame.contentWindow.history.forward();
+reloadBtn.onclick = () => activeTab.frame.frame.contentWindow.location.reload();
+
+homeBtn.onclick = () => {
+  browserScreen.classList.remove("active");
+  homeScreen.classList.add("active");
+};
+
 newTabBtn.onclick = () => createTab();
-exitBtn.onclick = () => proxyContainer.style.display = "none";
-
-/* START FIRST TAB */
-
-createTab();
+exitBtn.onclick = () => {
+  browserScreen.classList.remove("active");
+  homeScreen.classList.add("active");
+};
