@@ -8,6 +8,11 @@ const proxyBar = document.getElementById("proxy-bar");
 const proxyBack = document.getElementById("proxy-back");
 const tabsContainer = document.getElementById("tabs");
 const newTabBtn = document.getElementById("new-tab");
+const statusBar = document.getElementById("status-bar");
+const welcomeText = document.getElementById("welcome-text");
+const onlineCount = document.getElementById("online-count");
+const timeDisplay = document.getElementById("time-display");
+const batteryDisplay = document.getElementById("battery-display");
 
 /* ONBOARDING */
 const onboardPage = document.getElementById("page-onboarding");
@@ -21,14 +26,9 @@ const resetOnboardBtn = document.getElementById("reset-onboarding");
 /* SCRAMJET */
 const { ScramjetController } = $scramjetLoadController();
 const scramjet = new ScramjetController({
-	files: {
-		wasm: "/scram/scramjet.wasm.wasm",
-		all: "/scram/scramjet.all.js",
-		sync: "/scram/scramjet.sync.js",
-	},
+	files: { wasm:"/scram/scramjet.wasm.wasm", all:"/scram/scramjet.all.js", sync:"/scram/scramjet.sync.js" },
 });
 scramjet.init();
-
 const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
 
 /* TABS */
@@ -63,9 +63,7 @@ function createTab(url){
 
 /* SET ACTIVE TAB */
 function setActiveTab(id){
-	tabs.forEach(tab=>{
-		tab.frame.frame.style.display = tab.id===id?"block":"none";
-	});
+	tabs.forEach(tab=>tab.frame.frame.style.display = tab.id===id?"block":"none");
 	activeTab=id;
 	renderTabs();
 }
@@ -76,7 +74,7 @@ function closeTab(id){
 	if(index===-1) return;
 	tabs[index].frame.frame.remove();
 	tabs.splice(index,1);
-	if(tabs.length) setActiveTab(tabs[tabs.length-1].id);
+	if(tabs.length) setActiveTab(tabs[tabs.length-1]?.id);
 	else { proxyBar.hidden=true; showPage("home"); }
 }
 
@@ -101,13 +99,11 @@ function renderTabs(){
 /* FORM SUBMIT */
 form.addEventListener("submit", async e=>{
 	e.preventDefault();
-	try { await registerSW(); } catch(err){ console.error(err); return; }
+	try{ await registerSW(); } catch(err){ console.error(err); return; }
 	const url = search(address.value, searchEngine.value);
-
 	let wispUrl=(location.protocol==="https:"?"wss":"ws")+"://"+location.host+"/wisp/";
 	if((await connection.getTransport())!=="/libcurl/index.mjs")
 		await connection.setTransport("/libcurl/index.mjs", [{websocket:wispUrl}]);
-
 	createTab(url);
 });
 
@@ -124,21 +120,19 @@ proxyBack.onclick=()=>{
 
 /* NAVIGATION BUTTONS */
 document.querySelectorAll(".nav-btn").forEach(btn=>{
-	btn.addEventListener("click", ()=>{
-		const page = btn.dataset.page||"home";
-		showPage(page);
-	});
+	btn.addEventListener("click", ()=>showPage(btn.dataset.page||"home"));
 });
 
 /* ONBOARDING START */
 onboardStart.onclick=()=>{
 	const name = onboardName.value.trim()||"Guest";
 	const theme = onboardTheme.value;
-	document.body.dataset.theme = theme;
-	profileName.value = name;
-	themeSelect.value = theme;
+	document.body.dataset.theme=theme;
+	profileName.value=name;
+	themeSelect.value=theme;
 	localStorage.setItem("userName",name);
 	localStorage.setItem("theme",theme);
+	welcomeText.textContent=`Welcome back, ${name}`;
 	showPage("home");
 };
 
@@ -150,9 +144,7 @@ resetOnboardBtn.onclick=()=>{
 };
 
 /* THEME SELECT */
-themeSelect.onchange=(e)=>{
-	document.body.dataset.theme=e.target.value;
-};
+themeSelect.onchange=e=>document.body.dataset.theme=e.target.value;
 
 /* INITIALIZE */
 const savedName=localStorage.getItem("userName");
@@ -161,7 +153,17 @@ if(savedName){
 	profileName.value=savedName;
 	themeSelect.value=savedTheme||"dark";
 	document.body.dataset.theme=savedTheme||"dark";
+	welcomeText.textContent=`Welcome back, ${savedName}`;
 	showPage("home");
 }else{
 	showPage("onboarding");
 }
+
+/* FAKE ONLINE COUNT + TIME + BATTERY */
+let onlineUsers= Math.floor(Math.random()*500)+50;
+onlineCount.textContent=`Online: ${onlineUsers}`;
+setInterval(()=>{
+	const d=new Date();
+	timeDisplay.textContent=d.toLocaleTimeString();
+},1000);
+navigator.getBattery?.().then(b=>b.addEventListener("levelchange",()=>batteryDisplay.textContent=`🔋${Math.floor(b.level*100)}%`));
