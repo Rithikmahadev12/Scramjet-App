@@ -26,22 +26,31 @@
 </div>
 
 <!-- Taskbar -->
-<div class="taskbar" id="taskbar"></div>
+<div class="taskbar">
+  <button id="start-btn">☰ Start</button>
+  <div id="taskbar-windows"></div>
+</div>
+
+<!-- Launchpad -->
+<div id="launchpad" class="launchpad hidden">
+  <button class="launch-app" data-app="browser">Browser</button>
+  <button class="launch-app" data-app="games">Games</button>
+  <button class="launch-app" data-app="chat">Chat</button>
+  <button class="launch-app" data-app="settings">Settings</button>
+</div>
 
 <!-- Onboarding / Welcome screen -->
 <section id="onboarding" class="screen active">
   <div class="onboard-content">
     <h1>Welcome to Matriarchs OS</h1>
     <p>Your private universe awaits</p>
-    <button id="start-btn">Enter OS</button>
+    <button id="enter-os-btn">Enter OS</button>
   </div>
 </section>
 
-<!-- OS Desktop -->
+<!-- Desktop -->
 <div id="desktop" class="desktop">
-
-  <!-- Windows are dynamically created via JS -->
-
+  <!-- Windows will be dynamically created -->
 </div>
 
 </body>
