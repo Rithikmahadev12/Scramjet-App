@@ -1,103 +1,82 @@
-// PAGE SWITCHING
-document.querySelectorAll("[data-page]").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-    document.getElementById(btn.dataset.page).classList.add("active");
-  });
+"use strict";
+
+/* SCREEN SWITCHING */
+document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.onclick = () => {
+        document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+        document.getElementById(btn.dataset.screen).classList.add("active");
+    };
 });
 
-// SEARCH LOGIC
-function processInput(input) {
-  if (!input.startsWith("http")) {
-    if (input.includes(".")) {
-      return "https://" + input;
-    } else {
-      return "https://www.google.com/search?q=" + encodeURIComponent(input);
+/* SCRAMJET INIT */
+let scramjet, connection, activeFrame = null;
+async function initScramjet() {
+    const { ScramjetController } = $scramjetLoadController();
+    scramjet = new ScramjetController({
+        files: { wasm: "/scram/scramjet.wasm.wasm", all: "/scram/scramjet.all.js", sync: "/scram/scramjet.sync.js" }
+    });
+    await scramjet.init();
+    connection = new BareMux.BareMuxConnection("/baremux/worker.js");
+}
+
+/* NAVIGATE */
+async function navigate(url) {
+    if (!scramjet) await initScramjet();
+    await registerSW();
+    const wispUrl = (location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/wisp/";
+    if ((await connection.getTransport()) !== "/libcurl/index.mjs") {
+        await connection.setTransport("/libcurl/index.mjs", [{ websocket: wispUrl }]);
     }
-  }
-  return input;
+    if (!activeFrame) {
+        activeFrame = scramjet.createFrame();
+        activeFrame.frame.style.width = "100%";
+        activeFrame.frame.style.height = "100%";
+        activeFrame.frame.style.border = "none";
+        document.getElementById("proxy-container").appendChild(activeFrame.frame);
+    }
+    activeFrame.go(url);
 }
 
-function loadURL(url) {
-  document.getElementById("webFrame").src = url;
-  document.getElementById("browserInput").value = url;
-  document.querySelector('[data-page="browser"]').click();
+/* SEARCH */
+function formatInput(input) {
+    if (input.startsWith("http")) return input;
+    if (input.includes(".")) return "https://" + input;
+    return "https://search.brave.com/search?q=" + encodeURIComponent(input);
 }
 
-document.getElementById("homeSearchBtn").onclick = () => {
-  const input = document.getElementById("homeSearch").value.trim();
-  if (input) loadURL(processInput(input));
-};
-
-document.getElementById("browserGo").onclick = () => {
-  const input = document.getElementById("browserInput").value.trim();
-  if (input) loadURL(processInput(input));
-};
-
-// BOOKMARK SYSTEM
-let bookmarks = JSON.parse(localStorage.getItem("novaBookmarks")) || [];
-
-function saveBookmarks() {
-  localStorage.setItem("novaBookmarks", JSON.stringify(bookmarks));
-  renderBookmarks();
-}
-
-function renderBookmarks() {
-  const list = document.getElementById("bookmarkList");
-  list.innerHTML = "";
-  bookmarks.forEach(url => {
-    const div = document.createElement("div");
-    div.className = "bookmark-item";
-    div.textContent = url;
-    div.onclick = () => loadURL(url);
-    list.appendChild(div);
-  });
-}
-
-document.getElementById("bookmarkAdd").onclick = () => {
-  const url = document.getElementById("browserInput").value;
-  if (url && !bookmarks.includes(url)) {
-    bookmarks.push(url);
-    saveBookmarks();
-  }
-};
-
-renderBookmarks();
-
-// GN MATH GAMES AUTO LOAD
-const games = [
-  { name: "Slope Game", url: "https://slopegame.io" },
-  { name: "2048", url: "https://play2048.co" },
-  { name: "Run 3", url: "https://run3.io" }
-];
-
-const grid = document.getElementById("gamesGrid");
-
-games.forEach(game => {
-  const card = document.createElement("div");
-  card.className = "game-card";
-  card.textContent = game.name;
-  card.onclick = () => loadURL(game.url);
-  grid.appendChild(card);
+/* HOME SEARCH */
+document.getElementById("home-search").addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+        navigate(formatInput(e.target.value));
+        document.querySelector('[data-screen="browser"]').click();
+    }
 });
 
-// SIMPLE AI
-document.getElementById("aiSend").onclick = () => {
-  const input = document.getElementById("aiInput");
-  const chat = document.getElementById("chat");
+/* BROWSER SEARCH */
+document.getElementById("url-bar").addEventListener("keydown", e => {
+    if (e.key === "Enter") navigate(formatInput(e.target.value));
+});
 
-  if (!input.value.trim()) return;
+/* ONBOARDING */
+document.getElementById("start-btn").addEventListener("click", () => {
+    document.getElementById("onboarding").classList.remove("active");
+    document.querySelector('[data-screen="home"]').click();
+});
 
-  const userMsg = document.createElement("div");
-  userMsg.className = "message user";
-  userMsg.textContent = "You: " + input.value;
-  chat.appendChild(userMsg);
-
-  const botMsg = document.createElement("div");
-  botMsg.className = "message bot";
-  botMsg.textContent = "Nova AI: I'm still learning! You said: " + input.value;
-  chat.appendChild(botMsg);
-
-  input.value = "";
-  chat.scrollTop = chat.scrollHeight;
-};
+/* GAMES */
+const gamesGrid = document.getElementById("games-grid");
+fetch("games.json")
+.then(res => res.json())
+.then(games => {
+    games.forEach(game => {
+        const card = document.createElement("div");
+        card.className = "game-card";
+        const img = document.createElement("img");
+        img.src = game.icon;
+        card.appendChild(img);
+        card.onclick = () => { navigate(game.url); document.querySelector('[data-screen="browser"]').click(); };
+        gamesGrid.appendChild(card);
+    });
+});
