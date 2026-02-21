@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Matriarchs</title>
 <link rel="shortcut icon" href="favicon.webp" />
 <link rel="stylesheet" href="index.css" />
@@ -15,58 +15,82 @@
 <body>
 
 <!-- Left vertical navigation -->
-<div class="nav nav-left" aria-label="Main navigation">
+<nav class="nav nav-left" aria-label="Main navigation">
   <div class="nav-inner">
-    <button class="nav-btn active" data-page="home" title="Home">
+    <button class="nav-btn active" data-page="home" title="Home" aria-label="Home">
       <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg>
     </button>
-    <button class="nav-btn" data-page="game" title="Games">
+    <button class="nav-btn" data-page="game" title="Games" aria-label="Games">
       <svg viewBox="0 0 24 24"><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line></svg>
     </button>
-    <button class="nav-btn" data-page="settings" title="Settings">
+    <button class="nav-btn" data-page="settings" title="Settings" aria-label="Settings">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82"></path></svg>
     </button>
   </div>
-</div>
+</nav>
 
 <!-- Main content -->
 <main id="main">
-  <div id="page-home" class="page active-page">
-    <div class="flex-center logo-wrapper header-center">
-      <h1>Matriarchs</h1>
-    </div>
-    <div class="flex-center desc left-margin">
-      <p>Search the web freely through the proxy.</p>
-    </div>
-    <form id="sj-form" class="flex-center">
-      <input id="sj-search-engine" value="https://www.google.com/search?q=%s" type="hidden"/>
-      <input id="sj-address" type="text" placeholder="Search the web freely"/>
-      <button type="submit">Go</button>
-    </form>
-    <div class="desc left-margin">
-      <p id="sj-error"></p>
-      <pre id="sj-error-code"></pre>
-    </div>
-  </div>
 
-  <div id="page-game" class="page" hidden>
-    <div class="page-placeholder left-margin">Games page not added yet.</div>
-  </div>
-
-  <div id="page-settings" class="page" hidden>
-    <div class="page-placeholder left-margin">
-      <label>
-        <input type="checkbox" id="theme-toggle"/> Dark Theme
-      </label>
+  <!-- Home Page -->
+  <section id="page-home" class="page active-page" aria-label="Home">
+    <div class="home-bg"></div>
+    <div class="home-overlay"></div>
+    <div class="home-content">
+      <h1 class="logo-glow">Matriarchs</h1>
+      <p class="subtitle">taste the spaghetti code</p>
+      <form id="sj-form" class="search-form" role="search" aria-label="Search the web">
+        <input id="sj-search-engine" type="hidden" value="https://www.google.com/search?q=%s" />
+        <input id="sj-address" type="search" placeholder="Search for anything!" aria-label="Search input" autocomplete="off" />
+        <button type="submit" aria-label="Search">🔍</button>
+      </form>
+      <div class="shortcut-buttons" aria-label="Quick links">
+        <a href="https://www.nvidia.com/en-us/geforce-now/" target="_blank" rel="noopener" class="shortcut-btn" aria-label="GeForce NOW">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/2/21/Nvidia_logo.svg" alt="NVIDIA logo" />
+          <span>GeForce NOW</span>
+        </a>
+        <a href="https://www.youtube.com" target="_blank" rel="noopener" class="shortcut-btn" aria-label="YouTube">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/4/42/YouTube_icon_%282013-2017%29.png" alt="YouTube logo" />
+          <span>YouTube</span>
+        </a>
+        <a href="https://github.com" target="_blank" rel="noopener" class="shortcut-btn" aria-label="GitHub">
+          <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub logo" />
+          <span>GitHub</span>
+        </a>
+        <a href="https://nowgg.fun" target="_blank" rel="noopener" class="shortcut-btn" aria-label="Nowgg">
+          <img src="https://nowgg.fun/favicon.ico" alt="Nowgg logo" />
+          <span>nowgg.fun</span>
+        </a>
+        <a href="https://google.com" target="_blank" rel="noopener" class="shortcut-btn" aria-label="Google">
+          <img src="https://www.google.com/favicon.ico" alt="Google logo" />
+          <span>Google</span>
+        </a>
+      </div>
     </div>
-  </div>
+  </section>
+
+  <!-- Games Page -->
+  <section id="page-game" class="page" aria-label="Games" hidden>
+    <h2>Games</h2>
+    <div id="game-list" class="game-list"></div>
+  </section>
+
+  <!-- Settings Page -->
+  <section id="page-settings" class="page" aria-label="Settings" hidden>
+    <h2>Settings</h2>
+    <label class="theme-label">
+      <input type="checkbox" id="theme-toggle" />
+      Dark Theme
+    </label>
+  </section>
+
 </main>
 
 <!-- Proxy Bar / Tabs -->
 <div id="proxy-bar" class="glass-bar" hidden>
-  <button id="proxy-back">🏠 Home</button>
-  <div id="tabs" class="tabs-container"></div>
-  <button id="new-tab">➕ New Tab</button>
+  <button id="proxy-back" aria-label="Back to home">🏠 Home</button>
+  <div id="tabs" class="tabs-container" role="tablist"></div>
+  <button id="new-tab" aria-label="New tab">➕ New Tab</button>
 </div>
 
 <!-- Bottom status bar -->
@@ -78,14 +102,15 @@
 </footer>
 
 <!-- Onboarding modal -->
-<div id="onboarding" class="onboarding">
+<div id="onboarding" class="onboarding" role="dialog" aria-modal="true" aria-labelledby="onboarding-title" aria-describedby="onboarding-desc">
   <div class="onboarding-content">
     <img src="https://tse3.mm.bing.net/th/id/OIP.m0t8ZRR-wZcPphFRYe5w3wHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Matriarchs Logo" class="onboarding-icon" />
-    <h1>Welcome to Matriarchs</h1>
-    <p class="onboarding-subtitle">The settings you choose can always be changed later.</p>
-    <input type="text" id="user-name" placeholder="Enter your name" />
+    <h1 id="onboarding-title">Welcome to Matriarchs</h1>
+    <p id="onboarding-desc" class="onboarding-subtitle">The settings you choose can always be changed later.</p>
+    <input type="text" id="user-name" placeholder="Enter your name" autocomplete="name" />
     <label class="theme-label">
-      <input type="checkbox" id="onboard-theme-toggle"/> Dark Theme
+      <input type="checkbox" id="onboard-theme-toggle" />
+      Dark Theme
     </label>
     <button id="start-btn">Get Started</button>
   </div>
