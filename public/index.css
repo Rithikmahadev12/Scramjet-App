@@ -1,74 +1,38 @@
 /* GLOBAL */
-* { margin:0; padding:0; box-sizing:border-box; font-family:"Inter",sans-serif; cursor: url('https://cdn.iconscout.com/icon/free/png-256/cursor-152-458097.png'), auto; transition: all .3s ease; }
-body {
-  background: url("https://images.unsplash.com/photo-1514897575457-c4db467cf78e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0") center/cover no-repeat fixed;
-  color:white; height:100vh; overflow:hidden;
-}
+* { margin:0; padding:0; box-sizing:border-box; font-family:"Inter",sans-serif; cursor: url('https://cdn.iconscout.com/icon/free/png-256/cursor-152-458097.png'), auto; }
+body { background: url("https://images.unsplash.com/photo-1514897575457-c4db467cf78e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0") center/cover no-repeat fixed; color:white; height:100vh; overflow:hidden; }
+
+/* PARTICLES */
+#particle-canvas { position:absolute; top:0; left:0; width:100%; height:100%; z-index:-1; }
 
 /* STATUS BAR */
-.status-bar {
-  position:fixed; top:0; left:0; right:0; height:35px;
-  display:flex; justify-content:space-between; align-items:center; padding:0 15px;
-  font-weight:600; background: rgba(0,0,0,0.5); z-index:100; border-bottom:1px solid rgba(255,255,255,0.2);
-}
+.status-bar { position:fixed; top:0; left:0; right:0; height:35px; display:flex; justify-content:space-between; align-items:center; padding:0 15px; font-weight:600; background: rgba(0,0,0,0.5); z-index:100; border-bottom:1px solid rgba(255,255,255,0.2); }
 #theme-toggle { cursor:pointer; }
 
+/* TASKBAR */
+.taskbar { position:fixed; bottom:0; left:0; right:0; height:50px; background: rgba(0,0,0,0.7); display:flex; align-items:center; padding:0 10px; gap:5px; z-index:100; border-top:1px solid rgba(255,255,255,0.2); }
+
 /* ONBOARDING */
-#particle-canvas { position:absolute; top:0; left:0; width:100%; height:100%; z-index:-1; }
-.onboard-content {
-  display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh;
-  text-align:center;
-}
+#onboarding { position:fixed; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.8); flex-direction:column; z-index:200; }
 .onboard-content h1 { font-size:60px; background:linear-gradient(45deg,#ff6a00,#e52e71); -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:glow 2s infinite alternate; }
 .onboard-content p { margin:20px 0; font-size:20px; opacity:0.9; }
 .onboard-content button { padding:15px 50px; border:none; border-radius:40px; background:linear-gradient(45deg,#ff6a00,#e52e71); color:white; font-size:18px; cursor:pointer; transition:.3s; }
 .onboard-content button:hover { transform:scale(1.1); }
 
-/* APP LAYOUT */
-.app { display:flex; height:100%; margin-top:35px; }
+/* DESKTOP */
+.desktop { width:100%; height:100%; position:relative; }
 
-/* SIDEBAR */
-.sidebar {
-  width:120px; background: rgba(0,0,0,0.7); display:flex; flex-direction:column; align-items:center; gap:20px; padding-top:30px;
-  border-radius:20px 0 0 20px; backdrop-filter:blur(15px); border-right:1px solid rgba(255,255,255,0.15);
+/* WINDOWS */
+.window {
+  position:absolute; background: rgba(0,0,0,0.8); border-radius:15px; backdrop-filter: blur(15px);
+  border: 1px solid rgba(255,255,255,0.2); display:flex; flex-direction:column; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.logo { font-size:36px; background:linear-gradient(45deg,#ff6a00,#e52e71); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:800; }
-.nav-btn { background:none; border:none; padding:12px; opacity:.7; transition:.3s; color:white; cursor:pointer; border-radius:20px; width:90%; }
-.nav-btn.active, .nav-btn:hover { opacity:1; transform:scale(1.1); background: rgba(255,255,255,0.1); }
-
-/* MAIN */
-.main { flex:1; display:flex; flex-direction:column; padding:25px; overflow:hidden; }
-.screen { display:none; flex-direction:column; height:100%; transition: all .5s ease; }
-.screen.active { display:flex; animation:fadeIn 1s ease forwards; }
-
-/* HERO */
-.hero { text-align:center; margin-top:50px; }
-.hero h1 { font-size:60px; background:linear-gradient(90deg,#ff6a00,#e52e71); -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:slideUp 1.5s ease forwards; }
-.hero input { width:80%; margin:20px auto; padding:15px; border-radius:35px; background: rgba(255,255,255,0.15); border:none; color:white; }
-
-/* GAMES */
-.games-header { display:flex; justify-content:space-between; margin-bottom:25px; }
-.games-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:20px; overflow-y:auto; }
-.game-card { border-radius:20px; overflow:hidden; background: rgba(255,255,255,0.1); padding:10px; cursor:pointer; transition:.3s; text-align:center; backdrop-filter:blur(10px); }
-.game-card:hover { transform: translateY(-5px); box-shadow: 0 15px 25px rgba(255,255,255,0.3); }
-.game-card img { width:100%; height:100px; object-fit:cover; }
-.game-card p { margin-top:8px; font-size:14px; }
-
-/* BROWSER */
-.browser-bar { display:flex; gap:10px; margin-bottom:15px; }
-.browser-bar input { flex:1; padding:12px; border-radius:25px; border:none; background: rgba(255,255,255,0.15); color:white; }
-#proxy-container { flex:1; border-radius:20px; overflow:hidden; background:rgba(0,0,0,0.7); }
-
-/* CHAT */
-.chat-window { flex:1; background:rgba(0,0,0,0.6); border-radius:15px; padding:10px; overflow-y:auto; margin-bottom:10px; }
-#chat-input { width:calc(100% - 100px); padding:10px; border-radius:20px; border:none; background: rgba(255,255,255,0.1); color:white; }
-#chat-send { padding:10px 20px; border-radius:20px; border:none; background:#ff6a00; color:white; cursor:pointer; margin-left:5px; }
-
-/* SETTINGS */
-.theme-settings { display:flex; flex-direction:column; gap:15px; margin-top:20px; }
-.theme-settings input[type=color] { cursor:pointer; }
+.window .title-bar { display:flex; justify-content:space-between; align-items:center; padding:5px 10px; background: rgba(255,255,255,0.1); cursor:move; border-radius: 15px 15px 0 0; }
+.window .title-bar .title { font-weight:600; }
+.window .title-bar .controls { display:flex; gap:5px; }
+.window .title-bar button { width:20px; height:20px; border:none; border-radius:50%; cursor:pointer; }
+.window .content { flex:1; padding:10px; overflow:auto; }
 
 /* ANIMATIONS */
-@keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
-@keyframes slideUp { from {opacity:0; transform:translateY(50px);} to {opacity:1; transform:translateY(0);} }
 @keyframes glow { from {text-shadow:0 0 5px #ff6a00;} to {text-shadow:0 0 20px #e52e71;} }
