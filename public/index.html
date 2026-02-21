@@ -1,73 +1,94 @@
 <!doctype html>
 <html>
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Matriarchs</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matriarchs</title>
 
-	<link rel="shortcut icon" href="favicon.webp" type="image/webp" />
+  <link rel="shortcut icon" href="favicon.webp" type="image/webp" />
 
-	<script src="/scram/scramjet.all.js"></script>
-	<script src="/baremux/index.js"></script>
+  <script src="/scram/scramjet.all.js"></script>
+  <script src="/baremux/index.js"></script>
 
-	<link rel="stylesheet" href="index.css" />
-	<script src="register-sw.js" defer></script>
-	<script src="search.js" defer></script>
-	<script src="index.js" defer></script>
+  <link rel="stylesheet" href="index.css" />
+  <script src="register-sw.js" defer></script>
+  <script src="search.js" defer></script>
+  <script src="index.js" defer></script>
 </head>
 
 <body data-theme="dark">
 
-<!-- Left Navigation -->
+<!-- LEFT NAV -->
 <div class="nav nav-left">
-	<div class="nav-inner">
-		<button type="button" class="nav-btn active" data-page="home">🏠</button>
-		<button type="button" class="nav-btn" data-page="game">🎮</button>
-		<button type="button" class="nav-btn" data-page="settings">⚙️</button>
-	</div>
+  <div class="nav-inner">
+    <button class="nav-btn active" data-page="home">🏠</button>
+    <button class="nav-btn" data-page="game">🎮</button>
+    <button class="nav-btn" data-page="settings">⚙️</button>
+  </div>
 </div>
 
 <main id="main">
 
-	<!-- HOME -->
-	<div id="page-home" class="page">
-		<div class="flex-center logo-wrapper header-center">
-			<h1>matriarchs</h1>
-		</div>
+  <!-- ONBOARDING -->
+  <div id="page-onboarding" class="page active-page">
+    <div class="flex-center header-center">
+      <h1>Welcome 👋</h1>
+      <input id="onboard-name" type="text" placeholder="Your name" />
+      <select id="onboard-theme">
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+      </select>
+      <button id="onboard-start">Continue</button>
+    </div>
+  </div>
 
-		<form id="sj-form" class="flex-center">
-			<input id="sj-search-engine" value="https://www.google.com/search?q=%s" type="hidden"/>
-			<input id="sj-address" type="text" placeholder="Search the web freely" />
-		</form>
+  <!-- HOME -->
+  <div id="page-home" class="page" hidden>
+    <div class="flex-center logo-wrapper header-center">
+      <h1>matriarchs</h1>
+      <p class="desc">Search the web freely through the proxy.</p>
+    </div>
 
-		<p id="sj-error"></p>
-		<pre id="sj-error-code"></pre>
-	</div>
+    <form id="sj-form" class="flex-center">
+      <input id="sj-search-engine" value="https://www.google.com/search?q=%s" type="hidden"/>
+      <input id="sj-address" type="text" placeholder="Search the web freely" />
+    </form>
 
-	<!-- GAMES -->
-	<div id="page-game" class="page" hidden>
-		<div class="page-placeholder">Games coming soon 🎮</div>
-	</div>
+    <p id="sj-error"></p>
+    <pre id="sj-error-code"></pre>
+  </div>
 
-	<!-- SETTINGS -->
-	<div id="page-settings" class="page" hidden>
-		<h2>Settings</h2>
-		<label>Theme</label>
-		<select id="theme-select">
-			<option value="dark">Dark</option>
-			<option value="light">Light</option>
-		</select>
-		<br><br>
-		<button id="reset-onboarding">Reset Profile</button>
-	</div>
+  <!-- GAMES -->
+  <div id="page-game" class="page" hidden>
+    <div class="page-placeholder">
+      Games page not added yet, but clickable! 🎮
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="page-settings" class="page" hidden>
+    <div class="settings-container">
+      <h2>Settings</h2>
+      <label>Theme:</label>
+      <select id="theme-select">
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+      </select>
+      <br><br>
+      <label>Name:</label>
+      <input id="profile-name" type="text" placeholder="Your name"/>
+      <br><br>
+      <button id="reset-onboarding">Reset Profile</button>
+    </div>
+  </div>
 
 </main>
 
-<!-- Proxy Top Bar With Tabs -->
+<!-- PROXY TOP BAR -->
 <div id="proxy-bar" hidden>
-	<div id="tabs"></div>
-	<button id="new-tab">＋</button>
-	<button id="proxy-back">Home</button>
+  <div id="tabs"></div>
+  <button id="new-tab">＋</button>
+  <button id="proxy-back">🏠 Home</button>
 </div>
 
 </body>
