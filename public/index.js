@@ -59,6 +59,25 @@ form.addEventListener("submit", async (event) => {
 	}
 	const frame = scramjet.createFrame();
 	frame.frame.id = "sj-frame";
-	document.body.appendChild(frame.frame);
+	const homeEl = document.getElementById("page-home") || document.body;
+	homeEl.appendChild(frame.frame);
 	frame.go(url);
 });
+
+// Navigation handling for left navbar
+function showPage(name) {
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.page===name));
+  document.querySelectorAll('[id^="page-"]').forEach(p=>{
+    if (p.id === `page-${name}`) { p.hidden = false; } else { p.hidden = true; }
+  });
+}
+
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const page = btn.dataset.page || 'home';
+    showPage(page);
+  });
+});
+
+// Ensure initial page is home
+showPage('home');
