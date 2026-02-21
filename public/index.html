@@ -15,27 +15,44 @@
 
 <body>
 
-<!-- TOP NAVIGATION BAR -->
-<div id="browser-bar">
-
-  <button id="back-btn">⬅</button>
-  <button id="forward-btn">➡</button>
-  <button id="reload-btn">⟳</button>
-  <button id="home-btn">🏠</button>
-
-  <input id="url-bar" type="text" placeholder="Enter URL or search..." />
-
-  <button id="go-btn">Go</button>
-  <button id="new-tab-btn">＋</button>
-  <button id="exit-btn">✖</button>
-
+<!-- ONBOARDING -->
+<div id="onboarding" class="overlay hidden">
+  <div class="card">
+    <h1>Welcome to Matriarchs</h1>
+    <p>Your private browsing space.</p>
+    <input id="username" type="text" placeholder="Enter your name" />
+    <button id="start-btn">Enter</button>
+  </div>
 </div>
 
-<!-- TAB BAR -->
-<div id="tab-bar"></div>
+<!-- HOME SCREEN -->
+<div id="home-screen" class="screen active">
+  <div class="home-center">
+    <h1 class="logo">Matriarchs</h1>
+    <input id="home-search" type="text" placeholder="Search or enter URL" />
+    <button id="home-go">Browse</button>
+  </div>
+</div>
 
-<!-- PROXY VIEW -->
-<div id="proxy-container"></div>
+<!-- BROWSER SCREEN -->
+<div id="browser-screen" class="screen">
+
+  <div id="browser-bar">
+    <button id="back-btn">←</button>
+    <button id="forward-btn">→</button>
+    <button id="reload-btn">⟳</button>
+    <button id="home-btn">🏠</button>
+
+    <input id="url-bar" type="text" />
+
+    <button id="new-tab-btn">＋</button>
+    <button id="exit-btn">✕</button>
+  </div>
+
+  <div id="tab-bar"></div>
+  <div id="proxy-container"></div>
+
+</div>
 
 </body>
 </html>
