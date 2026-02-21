@@ -1,11 +1,17 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Matriarchs</title>
+
+<!-- Font -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- CSS -->
 <link rel="stylesheet" href="index.css">
+
+<!-- Scramjet -->
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
 <script src="/register-sw.js"></script>
@@ -13,25 +19,25 @@
 </head>
 <body>
 
-<!-- STATUS BAR -->
+<!-- Status Bar -->
 <div class="status-bar">
   <div id="time"></div>
   <div id="battery"></div>
 </div>
 
-<!-- ONBOARDING -->
+<!-- Onboarding -->
 <section id="onboarding" class="screen active">
-  <div class="onboard-background"></div>
+  <canvas id="particle-canvas"></canvas>
   <div class="onboard-content">
     <h1>Welcome to Matriarchs</h1>
-    <p>Your private universe awaits.</p>
+    <p>Your private universe awaits</p>
     <button id="start-btn">Enter</button>
   </div>
 </section>
 
 <div class="app">
 
-  <!-- SIDEBAR -->
+  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="logo">M</div>
     <button class="nav-btn active" data-screen="home">Home</button>
@@ -39,10 +45,10 @@
     <button class="nav-btn" data-screen="browser">Browser</button>
   </aside>
 
-  <!-- MAIN -->
+  <!-- Main -->
   <main class="main">
 
-    <!-- HOME -->
+    <!-- Home -->
     <section id="home" class="screen">
       <div class="hero">
         <h1>Matriarchs</h1>
@@ -51,7 +57,7 @@
       </div>
     </section>
 
-    <!-- GAMES -->
+    <!-- Games -->
     <section id="games" class="screen">
       <div class="games-header">
         <h2>Explore Games</h2>
@@ -60,7 +66,7 @@
       <div id="games-grid" class="games-grid"></div>
     </section>
 
-    <!-- BROWSER -->
+    <!-- Browser -->
     <section id="browser" class="screen">
       <div class="browser-bar">
         <button id="back">←</button>
@@ -73,5 +79,6 @@
 
   </main>
 </div>
+
 </body>
 </html>
