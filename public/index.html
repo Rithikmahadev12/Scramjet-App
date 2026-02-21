@@ -1,109 +1,76 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Matriarchs</title>
-  <link rel="stylesheet" href="index.css" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+<title>Matriarchs</title>
+
+<link rel="shortcut icon" href="https://tse3.mm.bing.net/th/id/OIP.m0t8ZRR-wZcPphFRYe5w3wHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" />
+
+<link rel="stylesheet" href="index.css" />
+<script src="/scram/scramjet.all.js"></script>
+<script src="/baremux/index.js"></script>
+<script src="index.js" defer></script>
 </head>
+
 <body>
+<!-- Onboarding -->
+<div id="onboarding" class="onboarding hidden">
+  <div class="onboarding-content">
+    <img src="https://tse3.mm.bing.net/th/id/OIP.m0t8ZRR-wZcPphFRYe5w3wHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Logo" />
+    <h1>Welcome to Matriarchs</h1>
+    <input type="text" id="user-name" placeholder="Enter your name" />
+    <button id="start-btn">Start</button>
+  </div>
+</div>
 
-  <!-- Background -->
-  <div class="home-bg"></div>
-  <div class="home-overlay"></div>
+<!-- Sidebar Navigation -->
+<div class="nav nav-left" aria-label="Main navigation">
+  <div class="nav-inner">
+    <button class="nav-btn active" data-page="home" title="Home">🏠</button>
+    <button class="nav-btn" data-page="game" title="Games">🎮</button>
+    <button class="nav-btn" data-page="settings" title="Settings">⚙️</button>
+  </div>
+</div>
 
-  <!-- Onboarding modal -->
-  <div id="onboarding" class="onboarding" style="display:none">
-    <div class="onboarding-content" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
-      <img 
-        src="https://tse3.mm.bing.net/th/id/OIP.m0t8ZRR-wZcPphFRYe5w3wHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" 
-        alt="Matriarchs Logo" 
-        class="onboarding-icon" 
-        loading="lazy"
-      />
-      <h1 id="onboarding-title">Welcome to Matriarchs</h1>
-      <p class="onboarding-subtitle">The settings you choose can always be changed later.</p>
-      <input type="text" id="user-name" placeholder="Enter your name" aria-label="Enter your name" />
-      <label class="theme-label">
-        <input type="checkbox" id="onboard-theme-toggle" />
-        Use Dark Theme
-      </label>
-      <button id="start-btn">Get Started</button>
+<!-- Main Content -->
+<main id="main">
+  <div id="page-home" class="page">
+    <div class="header-center flex-center">
+      <h1>Matriarchs</h1>
+    </div>
+    <form id="sj-form" class="flex-center">
+      <input id="sj-search-engine" value="https://www.google.com/search?q=%s" type="hidden" />
+      <input id="sj-address" type="text" placeholder="Search the web freely" />
+      <button type="submit">Go</button>
+    </form>
+    <div class="desc left-margin">
+      <p id="sj-error"></p>
+      <pre id="sj-error-code"></pre>
     </div>
   </div>
 
-  <!-- Navigation sidebar -->
-  <nav class="nav nav-left" aria-label="Primary navigation">
-    <div class="nav-inner">
-      <button class="nav-btn active" data-page="home" aria-label="Home" title="Home">🏠</button>
-      <button class="nav-btn" data-page="games" aria-label="Games" title="Games">🎮</button>
-      <button class="nav-btn" data-page="settings" aria-label="Settings" title="Settings">⚙️</button>
-    </div>
-  </nav>
-
-  <!-- Proxy tab bar -->
-  <div id="proxy-bar" hidden aria-label="Proxy navigation">
-    <div class="tabs-container" id="tabs" role="tablist"></div>
-    <button id="new-tab" aria-label="New tab" title="New tab">+</button>
-    <button id="proxy-back" aria-label="Back to Home" title="Back to Home">🏠</button>
+  <div id="page-game" class="page" hidden>
+    <div class="page-placeholder left-margin">Games page not ready yet.</div>
   </div>
 
-  <!-- Pages -->
-  <main>
-    <!-- Home page -->
-    <section class="page active-page" id="page-home" role="tabpanel" tabindex="0">
-      <div class="home-content" role="main" aria-label="Home page">
-        <h1 class="logo-glow">Matriarchs</h1>
-        <p class="subtitle">Search the web freely through the proxy.</p>
+  <div id="page-settings" class="page" hidden>
+    <div class="page-placeholder left-margin">
+      <label><input type="checkbox" id="theme-toggle"/> Dark/Light Mode</label>
+    </div>
+  </div>
+</main>
 
-        <form id="sj-form" class="search-form" role="search" aria-label="Search the web">
-          <input id="sj-address" type="search" placeholder="Search for anything!" aria-label="Search input" autocomplete="off" />
-          <select id="sj-search-engine" aria-label="Search engine">
-            <option value="https://www.google.com/search?q=%s">Google</option>
-            <option value="https://duckduckgo.com/?q=%s">DuckDuckGo</option>
-            <option value="https://bing.com/search?q=%s">Bing</option>
-          </select>
-          <button type="submit" aria-label="Search">🔍</button>
-        </form>
-
-        <div class="shortcut-buttons" aria-label="Quick links">
-          <button class="shortcut-btn" data-url="https://play.geforcenow.com" aria-label="GeForce NOW">GeForce NOW</button>
-          <button class="shortcut-btn" data-url="https://www.youtube.com" aria-label="YouTube">YouTube</button>
-          <button class="shortcut-btn" data-url="https://github.com" aria-label="GitHub">GitHub</button>
-          <button class="shortcut-btn" data-url="https://nowgg.fun" aria-label="nowgg.fun">nowgg.fun</button>
-          <button class="shortcut-btn" data-url="https://google.com" aria-label="Google">Google</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Games page -->
-    <section class="page" id="page-games" role="tabpanel" tabindex="0" aria-label="Games page">
-      <h2>GN Math Games</h2>
-      <div id="game-list" class="game-list" role="list"></div>
-    </section>
-
-    <!-- Settings page -->
-    <section class="page" id="page-settings" role="tabpanel" tabindex="0" aria-label="Settings page">
-      <h2>Settings</h2>
-      <label class="theme-label" for="theme-toggle">
-        <input type="checkbox" id="theme-toggle" />
-        Dark Theme
-      </label>
-    </section>
-  </main>
-
-  <!-- Bottom status bar -->
-  <footer class="glass-bar" role="contentinfo" aria-live="polite" aria-atomic="true">
-    <span id="bottom-welcome">Welcome back, Guest</span>
-    <span id="bottom-online">Online: 0</span>
-    <span id="bottom-time">--:--:--</span>
-    <span id="bottom-battery">🔋--%</span>
-  </footer>
-
-  <!-- Scramjet and BareMux -->
-  <script src="https://cdn.jsdelivr.net/npm/@scramjet/core"></script>
-  <script src="https://cdn.jsdelivr.net/npm/baremux/dist/baremux.js"></script>
-
-  <script src="index.js" defer></script>
+<!-- Bottom Info Bar -->
+<footer>
+  <div class="info-left">
+    <span id="welcome-msg">Welcome back, User</span>
+    <span id="online-count">Online: 0</span>
+  </div>
+  <div class="info-right">
+    <span id="time">--:--:--</span>
+    <span id="battery">🔋100%</span>
+  </div>
+</footer>
 </body>
 </html>
