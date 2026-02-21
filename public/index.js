@@ -70,13 +70,13 @@ document.getElementById("start-btn").addEventListener("click",()=>{
     document.querySelector('[data-screen="home"]').click();
 });
 
-/* SAMPLE PARTICLES */
+/* PARTICLES */
 const canvas=document.getElementById("particle-canvas");
 const ctx=canvas.getContext("2d");
 canvas.width=window.innerWidth;
 canvas.height=window.innerHeight;
 const particles=[];
-for(let i=0;i<100;i++){
+for(let i=0;i<150;i++){
     particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+1,vx:(Math.random()-0.5)*0.5,vy:(Math.random()-0.5)*0.5});
 }
 function animateParticles(){
