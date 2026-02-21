@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap");
 
+/* THEME VARIABLES */
 :root {
 	--bg: #111;
 	--text: #fff;
@@ -26,8 +27,7 @@ body {
 	flex-direction: column;
 }
 
-/* NAV */
-
+/* NAVIGATION */
 .nav.nav-left {
 	position: fixed;
 	left: 16px;
@@ -63,7 +63,6 @@ body {
 }
 
 /* PAGES */
-
 #main {
 	margin-left: 96px;
 	padding: 24px;
@@ -86,8 +85,7 @@ body {
 	display: none;
 }
 
-/* SEARCH */
-
+/* SEARCH INPUT */
 #sj-address {
 	background: var(--glass);
 	border: 1px solid var(--border);
@@ -100,7 +98,6 @@ body {
 }
 
 /* PROXY FRAME */
-
 #sj-frame {
 	position: fixed;
 	inset: 0;
@@ -110,8 +107,7 @@ body {
 	z-index: 1000;
 }
 
-/* TOP BAR */
-
+/* PROXY TOP BAR */
 #proxy-bar {
 	position: fixed;
 	top: 0;
@@ -155,31 +151,4 @@ body {
 	border: none;
 	color: var(--text);
 	cursor: pointer;
-}
-
-/* LOADER */
-
-#proxy-loading {
-	position: fixed;
-	inset: 0;
-	background: var(--bg);
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	z-index: 1200;
-}
-
-.loader {
-	width: 40px;
-	height: 40px;
-	border: 4px solid rgba(255,255,255,0.2);
-	border-top: 4px solid rgba(0,150,255,0.9);
-	border-radius: 50%;
-	animation: spin 1s linear infinite;
-	margin-bottom: 10px;
-}
-
-@keyframes spin {
-	to { transform: rotate(360deg); }
 }
