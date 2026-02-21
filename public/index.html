@@ -5,46 +5,68 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Matriarchs OS</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="index.css">
+
+<!-- Scramjet -->
+<script src="/scram/scramjet.all.js"></script>
+<script src="/baremux/index.js"></script>
+<script src="/register-sw.js"></script>
 
 <script src="index.js" defer></script>
 </head>
 <body>
 
-<!-- Onboarding -->
+<!-- ================= ONBOARDING ================= -->
+
 <div id="onboarding">
-  <div id="step-1" class="onboard-step active">
+
+  <div id="step-1" class="step active">
     <h1 id="animated-title"></h1>
     <p class="space-next">Press SPACE to continue</p>
   </div>
 
-  <div id="step-2" class="onboard-step">
-    <h2>What's your name?</h2>
-    <input id="username-input" placeholder="Enter your name">
-    <button id="save-name">Continue</button>
-  </div>
-
-  <div id="step-3" class="onboard-step">
-    <h2>Pick Your Background</h2>
-    <div class="bg-options">
-      <img src="https://images.unsplash.com/photo-1514897575457-c4db467cf78e?q=80&w=1170&auto=format&fit=crop" data-bg="moon">
-      <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1170&auto=format&fit=crop" data-bg="mountain">
-      <img src="https://images.unsplash.com/photo-1493244040629-496f6d136cc3?q=80&w=1170&auto=format&fit=crop" data-bg="dark">
+  <div id="step-2" class="step">
+    <div class="card">
+      <h2>What should we call you?</h2>
+      <input id="nameInput" placeholder="Enter your name">
+      <button id="saveName">Continue</button>
     </div>
   </div>
+
+  <div id="step-3" class="step">
+    <h2>Pick Your Background</h2>
+    <div class="bg-grid">
+      <img src="https://images.unsplash.com/photo-1514897575457-c4db467cf78e?q=80&w=1170&auto=format&fit=crop">
+      <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1170&auto=format&fit=crop">
+      <img src="https://images.unsplash.com/photo-1493244040629-496f6d136cc3?q=80&w=1170&auto=format&fit=crop">
+    </div>
+  </div>
+
 </div>
 
-<!-- Desktop -->
+<!-- ================= DESKTOP ================= -->
+
 <div id="desktop"></div>
 
-<!-- Taskbar -->
+<!-- ================= TASKBAR ================= -->
+
 <div class="taskbar">
-  <button id="start-btn">☰</button>
-  <div id="taskbar-apps"></div>
+  <button id="launchBtn">☰</button>
+
+  <div id="pinnedApps">
+    <button data-app="browser">🌐</button>
+    <button data-app="games">🎮</button>
+    <button data-app="settings">⚙</button>
+  </div>
+
+  <div id="taskApps"></div>
+
+  <div id="clock"></div>
 </div>
 
-<!-- Launchpad -->
+<!-- ================= LAUNCHPAD ================= -->
+
 <div id="launchpad" class="hidden">
   <button data-app="browser">Browser</button>
   <button data-app="games">Games</button>
