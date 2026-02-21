@@ -1,173 +1,125 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Matriarchs OS</title>
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+		/>
+		<title>Scramjet</title>
 
-<link rel="stylesheet" href="index.css">
-<style>
-/* --- Reset & Body --- */
-body, html { margin:0; padding:0; width:100%; height:100%; overflow:hidden; font-family: 'Segoe UI', sans-serif; }
-#desktop { width:100%; height:100%; background: radial-gradient(circle at top left, #0b0c1f, #1b1c38); position: relative; display:none; }
+		<link rel="shortcut icon" content="favicon.webp" />
+	
+		<script src="/scram/scramjet.all.js"></script>
+		<script src="/baremux/index.js"></script>
+		
+		<link rel="stylesheet" href="index.css" />
+		<script src="register-sw.js" defer></script>
+		<script src="search.js" defer></script>
+		<script src="index.js" defer></script>
+	</head>
 
-/* --- Lock Screen --- */
-#lockscreen {
-  position:absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle, #0b0c1f 0%, #000 100%);
-  display:flex; justify-content:center; align-items:center; flex-direction:column; color:white;
-  font-size:1.2rem;
-}
-#lockscreen input { padding:10px 12px; font-size:1rem; border-radius:6px; border:none; outline:none; margin-top:10px; }
-#lockscreen button { margin-top:10px; padding:8px 12px; border:none; border-radius:5px; cursor:pointer; }
+	<body>
+		<!-- Left vertical navigation -->
+		<div class="nav nav-left" aria-label="Main navigation">
+			<div class="nav-inner">
+				<button class="nav-btn active" data-page="home" title="Home">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<path d="M3 9.5L12 3l9 6.5"></path>
+						<path d="M5 10v10h14V10"></path>
+						<path d="M9 20v-6h6v6"></path>
+					</svg>
+				</button>
+				<button class="nav-btn" data-page="game" title="Games">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<line x1="6" y1="12" x2="10" y2="12"></line>
+						<line x1="8" y1="10" x2="8" y2="14"></line>
+						<line x1="15" y1="13" x2="15.01" y2="13"></line>
+						<line x1="18" y1="11" x2="18.01" y2="11"></line>
+						<path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"></path>
+					</svg>
+				</button>
+				<button class="nav-btn" data-page="settings" title="Settings">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<circle cx="12" cy="12" r="3"></circle>
+						<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06
+								 a2 2 0 1 1-2.83 2.83l-.06-.06
+								 a1.65 1.65 0 0 0-1.82-.33
+								 1.65 1.65 0 0 0-1 1.51V21
+								 a2 2 0 1 1-4 0v-.09
+								 a1.65 1.65 0 0 0-1-1.51
+								 1.65 1.65 0 0 0-1.82.33l-.06.06
+								 a2 2 0 1 1-2.83-2.83l.06-.06
+								 a1.65 1.65 0 0 0 .33-1.82
+								 1.65 1.65 0 0 0-1.51-1H3
+								 a2 2 0 1 1 0-4h.09
+								 a1.65 1.65 0 0 0 1.51-1
+								 1.65 1.65 0 0 0-.33-1.82l-.06-.06
+								 a2 2 0 1 1 2.83-2.83l.06.06
+								 a1.65 1.65 0 0 0 1.82.33h0
+								 A1.65 1.65 0 0 0 10 3.09V3
+								 a2 2 0 1 1 4 0v.09
+								 a1.65 1.65 0 0 0 1 1.51
+								 1.65 1.65 0 0 0 1.82-.33l.06-.06
+								 a2 2 0 1 1 2.83 2.83l-.06.06
+								 a1.65 1.65 0 0 0-.33 1.82v0
+								 A1.65 1.65 0 0 0 20.91 10H21
+								 a2 2 0 1 1 0 4h-.09
+								 a1.65 1.65 0 0 0-1.51 1z"></path>
+					</svg>
+				</button>
+			</div>
+		</div>
 
-/* --- Taskbar --- */
-#taskbar {
-  position:absolute; bottom:0; left:0; width:100%; height:40px; background: rgba(0,0,0,0.6); display:flex; justify-content:space-between; align-items:center; padding:0 10px; color:white; font-size:0.9rem;
-}
-#start-menu { cursor:pointer; }
+		<main id="main">
+			<div id="page-home" class="page">
+				<div title="Scramjet Logo" class="flex-center logo-wrapper header-center">
+					<h1>matriarchs</h1>
+				</div>
+				<div class="flex-center desc left-margin">
+					<p>
 
-/* --- Windows --- */
-.window {
-  position:absolute; background:#111; border:1px solid #444; border-radius:8px;
-  width:600px; height:400px; display:flex; flex-direction:column; overflow:hidden; color:white;
-  box-shadow:0 0 12px rgba(0,0,0,0.5); user-select:none;
-}
-.window-header { background:#222; padding:6px 10px; cursor:move; display:flex; justify-content:space-between; align-items:center; }
-.window-header span { font-weight:bold; }
-.window-header button { background:none; border:none; color:white; cursor:pointer; }
-.window-content { flex:1; background:#000; }
+					</p>
+				</div>
 
-/* --- Boot Animation --- */
-#boot {
-  position:absolute; top:0; left:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; font-size:3rem; color:white; letter-spacing:0.3em; font-family:'Segoe UI', sans-serif;
-}
-.letter { display:inline-block; animation: bounce 1s infinite alternate; }
-.letter:nth-child(1) { animation-delay:0s; }
-.letter:nth-child(2) { animation-delay:0.1s; }
-.letter:nth-child(3) { animation-delay:0.2s; }
-.letter:nth-child(4) { animation-delay:0.3s; }
-.letter:nth-child(5) { animation-delay:0.4s; }
-.letter:nth-child(6) { animation-delay:0.5s; }
-.letter:nth-child(7) { animation-delay:0.6s; }
-.letter:nth-child(8) { animation-delay:0.7s; }
-.letter:nth-child(9) { animation-delay:0.8s; }
-@keyframes bounce { transform: translateY(-10px); }
-</style>
-</head>
-<body>
-
-<div id="boot">
-  <span class="letter">M</span>
-  <span class="letter">A</span>
-  <span class="letter">T</span>
-  <span class="letter">R</span>
-  <span class="letter">I</span>
-  <span class="letter">A</span>
-  <span class="letter">C</span>
-  <span class="letter">H</span>
-  <span class="letter">S</span>
-</div>
-
-<div id="desktop">
-  <!-- Lock Screen -->
-  <div id="lockscreen">
-    <div>Enter Password to Unlock:</div>
-    <input type="password" id="lockpass" placeholder="Password">
-    <button id="unlock">Unlock</button>
-    <div id="lockmsg" style="margin-top:10px;color:red;"></div>
-  </div>
-
-  <!-- Taskbar -->
-  <div id="taskbar">
-    <div id="start-menu">🪟 Matriarchs</div>
-    <div id="time-date"></div>
-  </div>
-</div>
-
-<script>
-// --- Boot Animation ---
-const boot = document.getElementById('boot');
-const desktop = document.getElementById('desktop');
-setTimeout(() => {
-    boot.style.display = 'none';
-    desktop.style.display = 'block';
-}, 2500);
-
-// --- Lock Screen ---
-const LOCK_PASSWORD = "matriarchs";
-const lockscreen = document.getElementById("lockscreen");
-const unlockBtn = document.getElementById("unlock");
-const lockpass = document.getElementById("lockpass");
-const lockmsg = document.getElementById("lockmsg");
-
-unlockBtn.addEventListener("click", () => {
-    if(lockpass.value === LOCK_PASSWORD){
-        lockscreen.style.display="none";
-    } else {
-        lockmsg.textContent="Wrong password!";
-    }
-});
-lockpass.addEventListener("keydown", (e) => { if(e.key==="Enter") unlockBtn.click(); });
-
-// --- Taskbar Clock ---
-function updateClock(){
-    const now = new Date();
-    document.getElementById("time-date").textContent = now.toLocaleTimeString() + " | " + now.toLocaleDateString();
-}
-setInterval(updateClock, 1000);
-updateClock();
-
-// --- Draggable Windows ---
-function makeDraggable(win){
-    let isDragging=false, offsetX=0, offsetY=0;
-    const header = win.querySelector('.window-header');
-
-    header.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        offsetX = e.clientX - win.offsetLeft;
-        offsetY = e.clientY - win.offsetTop;
-    });
-    document.addEventListener('mouseup', () => isDragging=false);
-    document.addEventListener('mousemove', (e) => {
-        if(isDragging){
-            win.style.left = (e.clientX - offsetX) + "px";
-            win.style.top = (e.clientY - offsetY) + "px";
-        }
-    });
-}
-
-// --- Open App Window ---
-function openApp(title,url){
-    const win = document.createElement('div');
-    win.className='window';
-    win.style.left='100px'; win.style.top='50px';
-
-    win.innerHTML = `
-        <div class="window-header">
-            <span>${title}</span>
-            <button>✕</button>
-        </div>
-        <div class="window-content">
-            <iframe src="${url}" style="width:100%;height:100%;border:none;"></iframe>
-        </div>
-    `;
-
-    document.getElementById('desktop').appendChild(win);
-    makeDraggable(win);
-
-    win.querySelector('button').addEventListener('click', ()=>win.remove());
-}
-
-// --- Taskbar / Start Menu ---
-document.getElementById("start-menu").addEventListener("click", () => {
-    openApp("Brave Search", `/proxy/${encodeURIComponent("https://search.brave.com")}`);
-});
-document.addEventListener("keydown", (e) => {
-    if(e.key.toLowerCase() === "b") {
-        openApp("GN Math Game", "/gn-math/index.html");
-    }
-});
-</script>
-
-</body>
+				<form id="sj-form" class="flex-center">
+					<input
+						id="sj-search-engine"
+						value="https://www.google.com/search?q=%s"
+						type="hidden"
+					/>
+					<input id="sj-address" type="text" placeholder="Search the web freely" />
+				</form>
+				<div class="desc left-margin">
+					<p id="sj-error"></p>
+					<pre id="sj-error-code"></pre>
+				</div>
+			</div>
+			<div id="page-game" class="page" hidden>
+				<div class="page-placeholder left-margin">Games page not added yet.</div>
+			</div>
+			<div id="page-settings" class="page" hidden>
+				<div class="page-placeholder left-margin">Settings page not added yet.</div>
+			</div>
+		</main>
+		<footer>
+			<div>
+				<a
+					title="The Mercury Workshop GitHub organization"
+					href="https://github.com/MercuryWorkshop"
+					>Mercury Workshop</a
+				>
+				<a
+					title="The example demo app for Scramjet"
+					href="https://github.com/MercuryWorkshop/Scramjet-Demo"
+					>GitHub</a
+				>
+				<a title="License information" href="credits.html">Credits</a>
+			</div>
+			<div>
+				<span>Scramjet &copy; MW 2025</span>
+			</div>
+		</footer>
+		
+	</body>
 </html>
