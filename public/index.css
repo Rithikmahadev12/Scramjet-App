@@ -3,8 +3,8 @@
 body {
   font-family: "Roboto", Arial, sans-serif;
   margin: 0;
-  background: #111;
-  color: #fff;
+  background: #121a13;
+  color: #c8f4c8;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -12,22 +12,23 @@ body {
 }
 
 body.dark-theme {
-  background: #121212;
-  color: #eee;
+  background: #0a100a;
+  color: #b0dcb0;
 }
 
-/* Home background & overlay */
+/* Background */
 .home-bg {
   position: fixed;
   inset: 0;
   background: url("https://img.freepik.com/free-photo/digital-art-moon-wallpaper_23-2150918871.jpg?w=1920&t=st=1676858029~exp=1676858629~hmac=99d49b63bff9e7ee254b795c19714675f282a312343426798c7e0fa3d4aa58aa") no-repeat center center/cover;
+  filter: brightness(0.35);
   z-index: -2;
 }
 
 .home-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 20, 0, 0.7);
   z-index: -1;
 }
 
@@ -43,18 +44,18 @@ body.dark-theme {
 .logo-glow {
   font-size: 4rem;
   font-weight: 900;
-  color: #f48fb1;
+  color: #4caf50;
   text-shadow:
-    0 0 8px #f48fb1,
-    0 0 24px #f48fb1,
-    0 0 48px #f48fb1;
+    0 0 8px #4caf50,
+    0 0 24px #4caf50,
+    0 0 48px #4caf50;
   margin: 0;
 }
 
 .subtitle {
   margin-top: 8px;
   font-weight: 400;
-  color: #f8bbd0cc;
+  color: #94d594cc;
   font-size: 1.3rem;
   text-transform: lowercase;
 }
@@ -65,12 +66,12 @@ body.dark-theme {
   display: flex;
   width: 100%;
   max-width: 560px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 30px;
   padding: 8px 20px;
   box-sizing: border-box;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 #sj-address {
@@ -78,18 +79,28 @@ body.dark-theme {
   font-size: 1.2rem;
   background: transparent;
   border: none;
-  color: white;
+  color: #c8f4c8;
   outline: none;
   padding: 10px 12px;
   border-radius: 30px 0 0 30px;
 }
 
 #sj-address::placeholder {
-  color: #f8bbd0aa;
+  color: #94d594aa;
+}
+
+.search-form select {
+  background: transparent;
+  border: none;
+  color: #c8f4c8;
+  font-size: 1.1rem;
+  outline: none;
+  padding: 10px 12px;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .search-form button {
-  background: #f48fb1;
+  background: #4caf50;
   border: none;
   border-radius: 0 30px 30px 0;
   color: black;
@@ -100,7 +111,7 @@ body.dark-theme {
 }
 
 .search-form button:hover {
-  background: #e91e63;
+  background: #388e3c;
 }
 
 /* Shortcut buttons */
@@ -114,35 +125,29 @@ body.dark-theme {
 }
 
 .shortcut-btn {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 16px;
   padding: 14px 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: white;
+  color: #c8f4c8;
   width: 110px;
   cursor: pointer;
   user-select: none;
+  font-weight: 600;
   text-decoration: none;
-  box-shadow: 0 0 10px #f48fb1aa;
+  box-shadow: 0 0 10px #4caf5088;
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .shortcut-btn:hover {
-  background: #f48fb1;
+  background: #4caf50;
   color: black;
-  box-shadow: 0 0 25px #f48fb1dd;
+  box-shadow: 0 0 25px #4caf50dd;
 }
 
-.shortcut-btn img {
-  width: 36px;
-  height: 36px;
-  margin-bottom: 8px;
-  object-fit: contain;
-}
-
-/* Vertical nav glass */
+/* Nav sidebar */
 .nav.nav-left {
   position: fixed;
   top: 50%;
@@ -152,7 +157,7 @@ body.dark-theme {
 }
 
 .nav-inner {
-  background: rgba(255,255,255,0.05);
+  background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(12px);
   border-radius: 20px;
   padding: 12px;
@@ -166,27 +171,17 @@ body.dark-theme {
   border: none;
   padding: 12px;
   border-radius: 12px;
-  color: rgba(255,255,255,0.7);
+  color: rgba(200, 244, 200, 0.7);
   cursor: pointer;
   transition: background 0.25s ease, color 0.25s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 1.6rem;
 }
 
 .nav-btn.active,
 .nav-btn:hover {
-  background: #f48fb1;
+  background: #4caf50;
   color: black;
-  box-shadow: 0 0 15px #f48fb1cc;
-}
-
-.nav-btn svg {
-  width: 22px;
-  height: 22px;
-  stroke-width: 2;
-  stroke: currentColor;
-  fill: none;
+  box-shadow: 0 0 15px #4caf50cc;
 }
 
 /* Pages */
@@ -194,8 +189,8 @@ body.dark-theme {
   display: none;
   opacity: 0;
   transition: opacity 0.3s ease;
-  padding: 40px 16px 80px;
-  flex-grow: 1;
+  padding: 40px 16px 80px 72px;
+  min-height: 80vh;
   overflow-y: auto;
 }
 
@@ -214,21 +209,21 @@ body.dark-theme {
 }
 
 .game-item {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 20px;
   padding: 20px;
   cursor: pointer;
-  color: white;
+  color: #c8f4c8;
   font-weight: 600;
   text-align: center;
-  box-shadow: 0 0 8px #f48fb1aa;
+  box-shadow: 0 0 8px #4caf5088;
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .game-item:hover {
-  background: #f48fb1;
+  background: #4caf50;
   color: black;
-  box-shadow: 0 0 20px #f48fb1dd;
+  box-shadow: 0 0 20px #4caf50dd;
 }
 
 /* Proxy bar */
@@ -242,10 +237,10 @@ body.dark-theme {
   align-items: center;
   padding: 8px 16px;
   border-radius: 16px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(0, 20, 0, 0.6);
   backdrop-filter: blur(16px);
   z-index: 10000;
-  box-shadow: 0 0 20px #f48fb1bb;
+  box-shadow: 0 0 20px #4caf50bb;
 }
 
 .tabs-container {
@@ -254,29 +249,29 @@ body.dark-theme {
 }
 
 .tab {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   padding: 6px 16px;
   border-radius: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #eee;
+  color: #c8f4c8;
   font-weight: 600;
   user-select: none;
   transition: background 0.3s ease;
 }
 
 .tab.active {
-  background: #f48fb1;
+  background: #4caf50;
   color: black;
-  box-shadow: 0 0 15px #f48fb1cc;
+  box-shadow: 0 0 15px #4caf50cc;
 }
 
 .tab button {
   background: transparent;
   border: none;
-  color: #ccc;
+  color: #a5d6a7;
   font-size: 20px;
   cursor: pointer;
   line-height: 1;
@@ -293,7 +288,7 @@ button {
   border: none;
   border-radius: 10px;
   padding: 10px 20px;
-  background: #f48fb1;
+  background: #4caf50;
   color: black;
   font-weight: 700;
   transition: transform 0.15s ease, background 0.3s ease;
@@ -302,7 +297,7 @@ button {
 
 button:hover {
   transform: scale(1.05);
-  background: #e91e63;
+  background: #388e3c;
 }
 
 /* Footer */
@@ -310,15 +305,16 @@ footer.glass-bar {
   display: flex;
   gap: 24px;
   padding: 12px 24px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(0, 20, 0, 0.7);
   backdrop-filter: blur(16px);
   position: fixed;
   bottom: 0;
   width: 100%;
   font-weight: 600;
   font-size: 0.95rem;
-  box-shadow: 0 0 20px #f48fb1cc;
-  color: #f48fb1;
+  box-shadow: 0 0 20px #4caf50cc;
+  color: #4caf50;
+  user-select: none;
 }
 
 /* Onboarding */
@@ -327,7 +323,7 @@ footer.glass-bar {
   top: 0; left: 0;
   width: 100vw;
   height: 100vh;
-  background: #000;
+  background: #071007;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -341,7 +337,7 @@ footer.glass-bar {
 
 .onboarding-content {
   max-width: 360px;
-  background: #111;
+  background: #0d1f0d;
   border-radius: 20px;
   padding: 40px 30px 50px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.8);
@@ -358,14 +354,14 @@ footer.glass-bar {
   font-size: 2.4rem;
   font-weight: 700;
   margin-bottom: 8px;
-  color: #f48fb1;
+  color: #4caf50;
   text-shadow:
-    0 0 6px #f48fb1,
-    0 0 20px #f48fb1;
+    0 0 6px #4caf50,
+    0 0 20px #4caf50;
 }
 
 .onboarding-subtitle {
-  color: #666;
+  color: #7ab97a;
   font-weight: 400;
   margin-bottom: 32px;
   font-size: 1rem;
@@ -378,5 +374,24 @@ footer.glass-bar {
   border-radius: 10px;
   border: none;
   outline: none;
-  background: #222;
- 
+  background: #122f12;
+  color: white;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+}
+
+.theme-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  font-weight: 600;
+  margin-bottom: 30px;
+  cursor: pointer;
+}
+
+.theme-label input {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
