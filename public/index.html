@@ -2,66 +2,59 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Matriarchs</title>
 
-<link rel="shortcut icon" href="https://tse3.mm.bing.net/th/id/OIP.m0t8ZRR-wZcPphFRYe5w3wHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" />
-
 <link rel="stylesheet" href="index.css" />
+
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
+<script src="/register-sw.js"></script>
 <script src="index.js" defer></script>
 </head>
 
 <body>
-<!-- Onboarding -->
+
 <div id="onboarding" class="onboarding hidden">
   <div class="onboarding-content">
-    <img src="https://tse3.mm.bing.net/th/id/OIP.m0t8ZRR-wZcPphFRYe5w3wHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Logo" />
     <h1>Welcome to Matriarchs</h1>
     <input type="text" id="user-name" placeholder="Enter your name" />
     <button id="start-btn">Start</button>
   </div>
 </div>
 
-<!-- Sidebar Navigation -->
-<div class="nav nav-left" aria-label="Main navigation">
+<div class="nav nav-left">
   <div class="nav-inner">
-    <button class="nav-btn active" data-page="home" title="Home">🏠</button>
-    <button class="nav-btn" data-page="game" title="Games">🎮</button>
-    <button class="nav-btn" data-page="settings" title="Settings">⚙️</button>
+    <button class="nav-btn active" data-page="home">🏠</button>
+    <button class="nav-btn" data-page="game">🎮</button>
+    <button class="nav-btn" data-page="settings">⚙️</button>
   </div>
 </div>
 
-<!-- Main Content -->
 <main id="main">
   <div id="page-home" class="page">
     <div class="header-center flex-center">
       <h1>Matriarchs</h1>
     </div>
+
     <form id="sj-form" class="flex-center">
-      <input id="sj-search-engine" value="https://www.google.com/search?q=%s" type="hidden" />
-      <input id="sj-address" type="text" placeholder="Search the web freely" />
+      <input id="sj-search-engine"
+        value="https://www.google.com/search?q=%s"
+        type="hidden" />
+      <input id="sj-address" type="text"
+        placeholder="Search the web freely" />
       <button type="submit">Go</button>
     </form>
+
+    <div id="frame-container"></div>
+
     <div class="desc left-margin">
       <p id="sj-error"></p>
       <pre id="sj-error-code"></pre>
     </div>
   </div>
-
-  <div id="page-game" class="page" hidden>
-    <div class="page-placeholder left-margin">Games page not ready yet.</div>
-  </div>
-
-  <div id="page-settings" class="page" hidden>
-    <div class="page-placeholder left-margin">
-      <label><input type="checkbox" id="theme-toggle"/> Dark/Light Mode</label>
-    </div>
-  </div>
 </main>
 
-<!-- Bottom Info Bar -->
 <footer>
   <div class="info-left">
     <span id="welcome-msg">Welcome back, User</span>
@@ -72,5 +65,6 @@
     <span id="battery">🔋100%</span>
   </div>
 </footer>
+
 </body>
 </html>
