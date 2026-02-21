@@ -17,57 +17,61 @@
 </head>
 <body>
 
-<!-- ================= ONBOARDING ================= -->
+<!-- PARTICLES -->
+<canvas id="particles"></canvas>
 
+<!-- BOOT SCREEN -->
+<div id="boot">
+  <h1>Matriarchs OS</h1>
+</div>
+
+<!-- ONBOARDING -->
 <div id="onboarding">
 
-  <div id="step-1" class="step active">
-    <h1 id="animated-title"></h1>
-    <p class="space-next">Press SPACE to continue</p>
+  <div id="step1" class="step active">
+    <h1 id="animatedTitle"></h1>
+    <p>Press SPACE to continue</p>
   </div>
 
-  <div id="step-2" class="step">
-    <div class="card">
+  <div id="step2" class="step">
+    <div class="glass-card">
       <h2>What should we call you?</h2>
       <input id="nameInput" placeholder="Enter your name">
       <button id="saveName">Continue</button>
     </div>
   </div>
 
-  <div id="step-3" class="step">
-    <h2>Pick Your Background</h2>
+  <div id="step3" class="step">
+    <h2>Choose Your World</h2>
     <div class="bg-grid">
-      <img src="https://images.unsplash.com/photo-1514897575457-c4db467cf78e?q=80&w=1170&auto=format&fit=crop">
-      <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1170&auto=format&fit=crop">
-      <img src="https://images.unsplash.com/photo-1493244040629-496f6d136cc3?q=80&w=1170&auto=format&fit=crop">
+      <div class="bg-option" data-bg="moon1"></div>
+      <div class="bg-option" data-bg="moon2"></div>
+      <div class="bg-option" data-bg="nebula"></div>
+      <div class="bg-option" data-bg="dark"></div>
     </div>
   </div>
 
 </div>
 
-<!-- ================= DESKTOP ================= -->
-
+<!-- DESKTOP -->
 <div id="desktop"></div>
 
-<!-- ================= TASKBAR ================= -->
-
-<div class="taskbar">
+<!-- TASKBAR -->
+<div class="taskbar glass">
   <button id="launchBtn">☰</button>
 
-  <div id="pinnedApps">
+  <div id="dock">
     <button data-app="browser">🌐</button>
     <button data-app="games">🎮</button>
     <button data-app="settings">⚙</button>
   </div>
 
   <div id="taskApps"></div>
-
   <div id="clock"></div>
 </div>
 
-<!-- ================= LAUNCHPAD ================= -->
-
-<div id="launchpad" class="hidden">
+<!-- LAUNCHPAD -->
+<div id="launchpad" class="glass hidden">
   <button data-app="browser">Browser</button>
   <button data-app="games">Games</button>
   <button data-app="settings">Settings</button>
