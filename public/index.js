@@ -1,8 +1,6 @@
 "use strict";
 
-/* =========================
-   SCRAMJET INIT
-========================= */
+/* SCRAMJET INIT */
 
 const { ScramjetController } = $scramjetLoadController();
 
@@ -18,36 +16,25 @@ scramjet.init();
 
 const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
 
-/* =========================
-   ELEMENTS
-========================= */
+/* ELEMENTS */
 
 const form = document.getElementById("sj-form");
 const address = document.getElementById("sj-address");
-const searchEngine = document.getElementById("sj-search-engine");
-const frameContainer = document.getElementById("frame-container");
-const error = document.getElementById("sj-error");
-const errorCode = document.getElementById("sj-error-code");
+const proxyContainer = document.getElementById("proxy-container");
 
-/* =========================
-   FORM SUBMIT
-========================= */
+/* REGISTER SW + SEARCH */
 
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-  error.textContent = "";
-  errorCode.textContent = "";
+  await registerSW();
 
-  try {
-    await registerSW(); // from register-sw.js
-  } catch (err) {
-    error.textContent = "Service Worker failed.";
-    errorCode.textContent = err.toString();
-    return;
-  }
+  const query = address.value.trim();
+  if (!query) return;
 
-  const url = search(address.value, searchEngine.value);
+  const url = query.startsWith("http")
+    ? query
+    : "https://www.google.com/search?q=" + encodeURIComponent(query);
 
   const wispUrl =
     (location.protocol === "https:" ? "wss://" : "ws://") +
@@ -60,26 +47,23 @@ form.addEventListener("submit", async (event) => {
     ]);
   }
 
-  frameContainer.innerHTML = "";
+  proxyContainer.innerHTML = "";
+  proxyContainer.style.display = "block";
 
   const frame = scramjet.createFrame();
   frame.frame.style.width = "100%";
-  frame.frame.style.height = "600px";
+  frame.frame.style.height = "100%";
   frame.frame.style.border = "none";
 
-  frameContainer.appendChild(frame.frame);
+  proxyContainer.appendChild(frame.frame);
 
   frame.go(url);
 });
 
-/* =========================
-   SEARCH HELPER
-========================= */
+/* CLOCK */
 
-function search(query, engine) {
-  if (!query) return "";
-  if (query.startsWith("http://") || query.startsWith("https://")) {
-    return query;
-  }
-  return engine.replace("%s", encodeURIComponent(query));
-}
+const timeEl = document.getElementById("time");
+
+setInterval(() => {
+  timeEl.textContent = new Date().toLocaleTimeString();
+}, 1000);
