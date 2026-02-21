@@ -1,115 +1,149 @@
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
   font-family: "Inter", sans-serif;
 }
 
 body {
   height: 100vh;
   overflow: hidden;
-  background: radial-gradient(circle at center, #111 0%, #000 100%);
+  background:
+    radial-gradient(circle at 20% 20%, #1f1f3a, transparent 40%),
+    radial-gradient(circle at 80% 80%, #0f3057, transparent 40%),
+    #0a0a12;
   color: white;
 }
 
-.screen {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .3s ease;
-}
-
-.screen.active {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.center-box {
-  position: absolute;
-  top: 45%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-}
-
-.brand {
-  font-size: 64px;
-  font-weight: 700;
-  letter-spacing: 2px;
-}
-
-.subtitle {
-  opacity: .5;
-  margin-bottom: 25px;
-}
-
-#home-search {
-  width: 500px;
-  padding: 18px;
-  border-radius: 40px;
-  border: none;
-  background: rgba(255,255,255,.08);
-  color: white;
-  outline: none;
-  backdrop-filter: blur(10px);
-}
-
-.stats {
-  margin-top: 15px;
-  opacity: .5;
-  font-size: 14px;
-}
-
-.dock {
-  position: absolute;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255,255,255,.05);
-  backdrop-filter: blur(15px);
-  padding: 12px 25px;
-  border-radius: 30px;
+.app {
   display: flex;
-  gap: 25px;
+  height: 100%;
 }
 
-.dock button {
-  background: none;
-  border: none;
-  font-size: 20px;
-  color: white;
-  cursor: pointer;
-  opacity: .7;
-}
+/* SIDEBAR */
 
-.dock button:hover {
-  opacity: 1;
-  transform: scale(1.2);
-}
-
-.games-wrapper {
-  padding: 60px;
-}
-
-#games-grid {
-  margin-top: 30px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+.sidebar {
+  width: 90px;
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 30px;
   gap: 20px;
 }
 
-.game-card {
-  background: rgba(255,255,255,.05);
-  border-radius: 20px;
-  aspect-ratio: 1/1;
+.logo {
+  font-size: 32px;
+  font-weight: 800;
+  background: linear-gradient(45deg,#00eaff,#8a2be2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  color: white;
   cursor: pointer;
+  padding: 10px;
+  opacity: .6;
+  transition: .2s;
+}
+
+.nav-btn:hover,
+.nav-btn.active {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* MAIN */
+
+.main {
+  flex: 1;
+  position: relative;
+  padding: 60px;
   overflow: hidden;
-  transition: transform .2s ease;
+}
+
+.screen {
+  display: none;
+  height: 100%;
+}
+
+.screen.active {
+  display: block;
+}
+
+/* HERO */
+
+.hero {
+  max-width: 600px;
+}
+
+.hero h1 {
+  font-size: 72px;
+  font-weight: 800;
+  background: linear-gradient(90deg,#00eaff,#8a2be2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+  opacity: .6;
+  margin: 15px 0 30px;
+}
+
+.hero input {
+  width: 100%;
+  padding: 18px;
+  border-radius: 50px;
+  border: none;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(10px);
+  color: white;
+  outline: none;
+}
+
+/* GAMES */
+
+.games-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.games-header input {
+  padding: 12px;
+  border-radius: 20px;
+  border: none;
+  background: rgba(255,255,255,0.05);
+  color: white;
+}
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(150px,1fr));
+  gap: 25px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.game-card {
+  aspect-ratio: 1/1;
+  border-radius: 20px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: .3s;
+  position: relative;
 }
 
 .game-card:hover {
-  transform: scale(1.1);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,.5);
 }
 
 .game-card img {
@@ -118,27 +152,23 @@ body {
   object-fit: cover;
 }
 
+/* BROWSER */
+
 .browser-bar {
-  padding: 15px;
-  background: rgba(255,255,255,.05);
-  backdrop-filter: blur(15px);
   display: flex;
   gap: 10px;
+  margin-bottom: 10px;
 }
 
 .browser-bar input {
   flex: 1;
-  padding: 10px;
+  padding: 12px;
   border-radius: 20px;
   border: none;
-  background: rgba(255,255,255,.1);
+  background: rgba(255,255,255,0.05);
   color: white;
 }
 
 #proxy-container {
-  position: absolute;
-  top: 60px;
-  bottom: 80px;
-  left: 0;
-  right: 0;
+  height: calc(100% - 50px);
 }
