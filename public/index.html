@@ -1,19 +1,18 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Matriarchs</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Matriarchs</title>
+<link rel="shortcut icon" href="favicon.webp" type="image/webp" />
 
-  <link rel="shortcut icon" href="favicon.webp" type="image/webp" />
+<script src="/scram/scramjet.all.js"></script>
+<script src="/baremux/index.js"></script>
 
-  <script src="/scram/scramjet.all.js"></script>
-  <script src="/baremux/index.js"></script>
-
-  <link rel="stylesheet" href="index.css" />
-  <script src="register-sw.js" defer></script>
-  <script src="search.js" defer></script>
-  <script src="index.js" defer></script>
+<link rel="stylesheet" href="index.css" />
+<script src="register-sw.js" defer></script>
+<script src="search.js" defer></script>
+<script src="index.js" defer></script>
 </head>
 
 <body data-theme="dark">
@@ -25,6 +24,14 @@
     <button class="nav-btn" data-page="game">🎮</button>
     <button class="nav-btn" data-page="settings">⚙️</button>
   </div>
+</div>
+
+<!-- STATUS BAR -->
+<div id="status-bar">
+  <div id="welcome-text">Welcome</div>
+  <div id="online-count">Online: 0</div>
+  <div id="time-display"></div>
+  <div id="battery-display">🔋100%</div>
 </div>
 
 <main id="main">
@@ -47,15 +54,13 @@
     <div class="flex-center logo-wrapper header-center">
       <h1>Matriarchs</h1>
       <p class="desc">Search the web freely through the proxy.</p>
+      <form id="sj-form" class="flex-center">
+        <input id="sj-search-engine" value="https://www.google.com/search?q=%s" type="hidden"/>
+        <input id="sj-address" type="text" placeholder="Search the web freely" />
+      </form>
+      <p id="sj-error"></p>
+      <pre id="sj-error-code"></pre>
     </div>
-
-    <form id="sj-form" class="flex-center">
-      <input id="sj-search-engine" value="https://www.google.com/search?q=%s" type="hidden"/>
-      <input id="sj-address" type="text" placeholder="Search the web freely" />
-    </form>
-
-    <p id="sj-error"></p>
-    <pre id="sj-error-code"></pre>
   </div>
 
   <!-- GAMES -->
@@ -74,10 +79,8 @@
         <option value="dark">Dark</option>
         <option value="light">Light</option>
       </select>
-      <br>
       <label>Name:</label>
       <input id="profile-name" type="text" placeholder="Your Name"/>
-      <br>
       <button id="reset-onboarding">Reset Onboarding</button>
     </div>
   </div>
