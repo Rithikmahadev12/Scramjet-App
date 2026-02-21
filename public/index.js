@@ -77,19 +77,37 @@ function makeDraggable(el){
     document.addEventListener("mouseup",()=>{dragging=false;});
 }
 
-/* ================= SCRAMJET BROWSER ================= */
+/* ================= SCRAMJET BROWSER (FIXED INIT) ================= */
 let scramjet, connection, activeFrame=null;
 async function initScramjetBrowser(container){
     if(!scramjet){
-        const { ScramjetController }=$scramjetLoadController();
-        scramjet=new ScramjetController({ files:{ wasm:"/scram/scramjet.wasm.wasm", all:"/scram/scramjet.all.js", sync:"/scram/scramjet.sync.js"} });
-        await scramjet.init();
-        connection=new BareMux.BareMuxConnection("/baremux/worker.js");
+        const { ScramjetController } = $scramjetLoadController();
+        scramjet = new ScramjetController({ 
+            files:{ wasm:"/scram/scramjet.wasm.wasm", all:"/scram/scramjet.all.js", sync:"/scram/scramjet.sync.js"} 
+        });
+        await scramjet.init();  // Wait for full WASM init
+        connection = new BareMux.BareMuxConnection("/baremux/worker.js");
     }
+
     await registerSW();
-    const wispUrl=(location.protocol==="https:"?"wss://":"ws://")+location.host+"/wisp/";
-    if((await connection.getTransport())!=="/libcurl/index.mjs"){await connection.setTransport("/libcurl/index.mjs",[{"websocket":wispUrl}]);}
-    if(!activeFrame){activeFrame=scramjet.createFrame(); activeFrame.frame.style.width="100%"; activeFrame.frame.style.height="100%"; activeFrame.frame.style.border="none"; container.appendChild(activeFrame.frame);}
+
+    const wispUrl = (location.protocol==="https:"?"wss://":"ws://")+location.host+"/wisp/";
+
+    if((await connection.getTransport())!=="/libcurl/index.mjs"){
+        await connection.setTransport("/libcurl/index.mjs",[{"websocket":wispUrl}]);
+    }
+
+    if(!activeFrame){
+        activeFrame = scramjet.createFrame();
+        activeFrame.frame.style.width="100%";
+        activeFrame.frame.style.height="100%";
+        activeFrame.frame.style.border="none";
+        container.appendChild(activeFrame.frame);
+    }
+
+    // ✅ Wait for WASM to load fully
+    if(activeFrame.waitUntilReady) await activeFrame.waitUntilReady();
+
     activeFrame.go("https://search.brave.com/");
 }
 
