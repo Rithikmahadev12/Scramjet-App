@@ -5,9 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Matriarchs</title>
 
+<!-- Font -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- CSS -->
 <link rel="stylesheet" href="index.css">
 
+<!-- Scramjet -->
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
 <script src="/register-sw.js"></script>
@@ -15,10 +19,11 @@
 </head>
 <body>
 
-<!-- Status bar -->
+<!-- Status Bar -->
 <div class="status-bar">
   <div id="time"></div>
   <div id="battery"></div>
+  <div id="theme-toggle">🌙</div>
 </div>
 
 <!-- Onboarding -->
@@ -39,6 +44,7 @@
     <button class="nav-btn active" data-screen="home">Home</button>
     <button class="nav-btn" data-screen="games">Games</button>
     <button class="nav-btn" data-screen="browser">Browser</button>
+    <button class="nav-btn" data-screen="settings">Settings</button>
   </aside>
 
   <!-- Main -->
@@ -73,7 +79,24 @@
       <div id="proxy-container"></div>
     </section>
 
+    <!-- Settings -->
+    <section id="settings" class="screen">
+      <h2>Settings</h2>
+      <div class="theme-settings">
+        <label>
+          <input type="radio" name="theme" value="dark" checked> Dark
+        </label>
+        <label>
+          <input type="radio" name="theme" value="light"> Light
+        </label>
+        <label>
+          <input type="color" id="accent-color" value="#00eaff"> Accent Color
+        </label>
+      </div>
+    </section>
+
   </main>
 </div>
+
 </body>
 </html>
