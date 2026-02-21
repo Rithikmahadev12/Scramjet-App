@@ -4,69 +4,162 @@
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: "Inter", sans-serif;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
   height: 100vh;
   overflow: hidden;
-  background: #111;
   color: white;
 }
 
-/* Browser Bar */
-#browser-bar {
+/* SCREENS */
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+
+.screen.active {
+  display: block;
+}
+
+/* OVERLAY (ONBOARDING) */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  backdrop-filter: blur(20px);
+  background: rgba(0,0,0,0.6);
   display: flex;
-  gap: 6px;
-  padding: 8px;
-  background: #1a1a1a;
+  justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 
-#browser-bar button {
-  background: #333;
-  color: white;
+.hidden {
+  display: none;
+}
+
+.card {
+  background: rgba(255,255,255,0.08);
+  padding: 40px;
+  border-radius: 16px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  width: 320px;
+}
+
+.card input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 15px;
+  border-radius: 8px;
   border: none;
-  padding: 6px 10px;
+}
+
+.card button {
+  margin-top: 15px;
+  padding: 10px;
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  background: #00ffaa;
+  font-weight: bold;
   cursor: pointer;
-  border-radius: 6px;
 }
 
-#browser-bar button:hover {
-  background: #444;
+/* HOME */
+
+.home-center {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
 }
 
-#url-bar {
-  flex: 1;
-  padding: 6px 10px;
-  border-radius: 6px;
+.logo {
+  font-size: 64px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+#home-search {
+  width: 400px;
+  padding: 14px;
+  border-radius: 50px;
   border: none;
   outline: none;
 }
 
-/* Tabs */
+#home-go {
+  margin-top: 15px;
+  padding: 10px 20px;
+  border-radius: 50px;
+  border: none;
+  background: #00ffaa;
+  cursor: pointer;
+}
+
+/* BROWSER */
+
+#browser-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(15px);
+}
+
+#browser-bar button {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+#browser-bar button:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+#url-bar {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+}
+
+/* TABS */
+
 #tab-bar {
   display: flex;
-  background: #222;
-  padding: 5px;
-  gap: 5px;
-  overflow-x: auto;
+  gap: 8px;
+  padding: 8px;
+  background: rgba(0,0,0,0.4);
 }
 
 .tab {
-  background: #333;
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.1);
   cursor: pointer;
 }
 
 .tab.active {
-  background: #00aa66;
+  background: #00ffaa;
+  color: black;
 }
 
-/* Proxy Fullscreen */
+/* PROXY VIEW */
+
 #proxy-container {
   position: absolute;
-  top: 80px;
+  top: 100px;
   bottom: 0;
   left: 0;
   right: 0;
-  background: black;
 }
