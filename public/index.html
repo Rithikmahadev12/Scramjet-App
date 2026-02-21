@@ -1,74 +1,69 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nova Portal</title>
-  <link rel="stylesheet" href="index.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matriarchs</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="index.css">
+<script src="/scram/scramjet.all.js"></script>
+<script src="/baremux/index.js"></script>
+<script src="/register-sw.js"></script>
+<script src="index.js" defer></script>
 </head>
 <body>
+<div class="app">
 
-<div class="bg"></div>
-
-<header class="navbar">
-  <div class="logo">Nova</div>
-  <nav>
-    <button data-page="home">Home</button>
-    <button data-page="browser">Browser</button>
-    <button data-page="games">Games</button>
-    <button data-page="ai">AI</button>
-    <button data-page="bookmarks">Bookmarks</button>
-  </nav>
-</header>
-
-<main>
-
-<!-- HOME -->
-<section id="home" class="page active">
-  <h1 class="hero">Search the Web</h1>
-  <div class="search-box">
-    <input id="homeSearch" placeholder="Search or enter URL..." />
-    <button id="homeSearchBtn">Go</button>
-  </div>
-</section>
-
-<!-- BROWSER -->
-<section id="browser" class="page">
-  <div class="browser-bar">
-    <input id="browserInput" placeholder="Enter URL..." />
-    <button id="browserGo">Go</button>
-    <button id="bookmarkAdd">★</button>
-  </div>
-  <iframe id="webFrame"></iframe>
-</section>
-
-<!-- GAMES -->
-<section id="games" class="page">
-  <h2>GN Math Games</h2>
-  <div id="gamesGrid" class="games-grid"></div>
-</section>
-
-<!-- AI -->
-<section id="ai" class="page">
-  <h2>Nova AI</h2>
-  <div class="ai-container">
-    <div id="chat" class="chat"></div>
-    <div class="ai-input">
-      <input id="aiInput" placeholder="Ask Nova AI anything..." />
-      <button id="aiSend">Send</button>
+  <!-- ONBOARDING -->
+  <section id="onboarding" class="screen active">
+    <div class="onboarding-container">
+      <h1>Welcome to Matriarchs</h1>
+      <p>Your private universe awaits.</p>
+      <button id="start-btn">Get Started</button>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- BOOKMARKS -->
-<section id="bookmarks" class="page">
-  <h2>Your Bookmarks</h2>
-  <div id="bookmarkList" class="bookmark-list"></div>
-</section>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">M</div>
+    <button class="nav-btn active" data-screen="home">Home</button>
+    <button class="nav-btn" data-screen="games">Games</button>
+    <button class="nav-btn" data-screen="browser">Browser</button>
+  </aside>
 
-</main>
+  <!-- MAIN -->
+  <main class="main">
 
-<script src="index.js"></script>
+    <!-- HOME -->
+    <section id="home" class="screen">
+      <div class="hero">
+        <h1>Matriarchs</h1>
+        <p>A private universe.</p>
+        <input id="home-search" placeholder="Search or enter URL...">
+      </div>
+    </section>
+
+    <!-- GAMES -->
+    <section id="games" class="screen">
+      <div class="games-header">
+        <h2>Explore Games</h2>
+        <input id="game-search" placeholder="Search games...">
+      </div>
+      <div id="games-grid" class="games-grid"></div>
+    </section>
+
+    <!-- BROWSER -->
+    <section id="browser" class="screen">
+      <div class="browser-bar">
+        <button id="back">←</button>
+        <button id="forward">→</button>
+        <button id="reload">⟳</button>
+        <input id="url-bar" placeholder="Enter URL or search...">
+      </div>
+      <div id="proxy-container"></div>
+    </section>
+
+  </main>
+</div>
 </body>
 </html>
