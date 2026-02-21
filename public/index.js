@@ -12,7 +12,7 @@ resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
 let particles = [];
-for (let i = 0; i < 120; i++) {
+for (let i = 0; i < 150; i++) {
   particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: Math.random() * 2 + 0.5, speed: Math.random() * 0.5 + 0.2 });
 }
 
@@ -112,6 +112,7 @@ backgrounds.forEach(url => {
   img.onclick = () => setBG(url);
   bgContainer.appendChild(img);
 });
+
 function setBG(url) {
   document.getElementById("desktop").style.backgroundImage = `url(${url})`;
   document.getElementById("bgPickerScreen").classList.add("hidden");
@@ -174,7 +175,7 @@ function cloakTab(title, icon) {
 }
 
 // ==========================
-// SCRAMJET INIT WITH SAFE FALLBACK
+// SCRAMJET BROWSER WITH WEBSOCKET ONLY
 // ==========================
 let scramjetController = null;
 let activeFrame = null;
@@ -195,24 +196,14 @@ async function initScramjet() {
   await sj.init();
   await registerSW();
 
-  // ======================
-  // BareMux fallback
-  // ======================
   const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
-  try {
-    await connection.getTransport({ timeout: 3000 });
-  } catch (err) {
-    console.warn("SharedWorker failed, using WebSocket fallback");
-    await connection.setTransport("/libcurl/index.mjs", [{ websocket: `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/wisp/` }]);
-  }
+  // FORCE WebSocket fallback
+  await connection.setTransport("/libcurl/index.mjs", [{ websocket: `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/wisp/` }]);
 
   scramjetController = sj;
   return sj;
 }
 
-// ==========================
-// OPEN BROWSER
-// ==========================
 async function openBrowser() {
   const container = document.getElementById("browserContent");
   container.innerHTML = "";
