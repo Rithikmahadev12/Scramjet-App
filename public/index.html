@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,7 +14,6 @@
 <script src="search.js" defer></script>
 <script src="index.js" defer></script>
 </head>
-
 <body data-theme="dark">
 
 <!-- LEFT NAV -->
@@ -26,30 +25,23 @@
   </div>
 </div>
 
-<!-- STATUS BAR -->
-<div id="status-bar">
-  <div id="welcome-text">Welcome</div>
-  <div id="online-count">Online: 0</div>
-  <div id="time-display"></div>
-  <div id="battery-display">🔋100%</div>
-</div>
-
+<!-- MAIN CONTENT -->
 <main id="main">
 
   <!-- ONBOARDING -->
   <div id="page-onboarding" class="page active-page">
     <div class="flex-center header-center">
       <h1>Welcome to Matriarchs</h1>
-      <input id="onboard-name" type="text" placeholder="Your Name"/>
+      <input id="onboard-name" type="text" placeholder="Enter your name"/>
       <select id="onboard-theme">
         <option value="dark">Dark</option>
         <option value="light">Light</option>
       </select>
-      <button id="onboard-start">Let's Begin</button>
+      <button id="onboard-start">Start</button>
     </div>
   </div>
 
-  <!-- HOME -->
+  <!-- HOME PAGE -->
   <div id="page-home" class="page" hidden>
     <div class="flex-center logo-wrapper header-center">
       <h1>Matriarchs</h1>
@@ -63,35 +55,41 @@
     </div>
   </div>
 
-  <!-- GAMES -->
+  <!-- GAMES PAGE -->
   <div id="page-game" class="page" hidden>
-    <div class="page-placeholder">
-      Games page coming soon 🎮
-    </div>
+    <div class="page-placeholder">Games page coming soon 🎮</div>
   </div>
 
-  <!-- SETTINGS -->
+  <!-- SETTINGS PAGE -->
   <div id="page-settings" class="page" hidden>
     <div class="settings-container">
       <h2>Settings</h2>
+      <label>Name:</label>
+      <input id="profile-name" type="text" placeholder="Your Name"/>
       <label>Theme:</label>
       <select id="theme-select">
         <option value="dark">Dark</option>
         <option value="light">Light</option>
       </select>
-      <label>Name:</label>
-      <input id="profile-name" type="text" placeholder="Your Name"/>
       <button id="reset-onboarding">Reset Onboarding</button>
     </div>
   </div>
 
 </main>
 
-<!-- PROXY TOP BAR -->
+<!-- PROXY BAR -->
 <div id="proxy-bar" hidden>
   <div id="tabs"></div>
-  <button id="new-tab" title="Open New Tab">＋</button>
+  <button id="new-tab" title="New Tab">＋</button>
   <button id="proxy-back" title="Go Home">🏠 Home</button>
+</div>
+
+<!-- BOTTOM STATUS -->
+<div id="bottom-status">
+  <div id="bottom-welcome">Welcome back, Guest</div>
+  <div id="bottom-online">Online: 0</div>
+  <div id="bottom-time">00:00:00</div>
+  <div id="bottom-battery">🔋100%</div>
 </div>
 
 </body>
