@@ -4,22 +4,36 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Matriarchs</title>
+
+<!-- FONT -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- CSS -->
 <link rel="stylesheet" href="index.css">
+
+<!-- SCRAMJET & BAREMUX -->
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
 <script src="/register-sw.js"></script>
+
+<!-- MAIN JS -->
 <script src="index.js" defer></script>
 </head>
 <body>
+
+<div class="status-bar">
+  <div id="time"></div>
+  <div id="battery"></div>
+</div>
+
 <div class="app">
 
   <!-- ONBOARDING -->
   <section id="onboarding" class="screen active">
-    <div class="onboarding-container">
+    <div class="onboard-content">
       <h1>Welcome to Matriarchs</h1>
       <p>Your private universe awaits.</p>
-      <button id="start-btn">Get Started</button>
+      <button id="start-btn">Enter</button>
     </div>
   </section>
 
@@ -38,7 +52,7 @@
     <section id="home" class="screen">
       <div class="hero">
         <h1>Matriarchs</h1>
-        <p>A private universe.</p>
+        <p>An online universe of games & browsing</p>
         <input id="home-search" placeholder="Search or enter URL...">
       </div>
     </section>
@@ -64,6 +78,8 @@
     </section>
 
   </main>
+
 </div>
+
 </body>
 </html>
