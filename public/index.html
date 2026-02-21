@@ -2,79 +2,104 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Matriarchs OS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="index.css">
 
-<!-- Scramjet -->
+<!-- Load Scramjet frontend scripts exactly as in your working project -->
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
 <script src="/register-sw.js"></script>
 
-<script src="index.js" defer></script>
+<script defer src="index.js"></script>
 </head>
 <body>
 
-<!-- PARTICLES -->
+<!-- PARTICLES BACKGROUND -->
 <canvas id="particles"></canvas>
 
-<!-- BOOT SCREEN -->
-<div id="boot">
-  <h1>Matriarchs OS</h1>
+<!-- BOOT SPLASH -->
+<div id="bootScreen">
+  <h1 id="bootText"></h1>
 </div>
 
-<!-- ONBOARDING -->
-<div id="onboarding">
+<!-- ONBOARDING STEPS -->
+<div id="onboarding" class="hidden">
+  <h1 id="introTitle"></h1>
+  <p class="press-space">Press SPACE to continue</p>
+</div>
 
-  <div id="step1" class="step active">
-    <h1 id="animatedTitle"></h1>
-    <p>Press SPACE to continue</p>
+<div id="nameInputScreen" class="hidden">
+  <input id="nameField" placeholder="Enter your name">
+  <button id="saveNameBtn">Continue</button>
+</div>
+
+<div id="bgPickerScreen" class="hidden">
+  <h2>Choose Background</h2>
+  <div id="bgOptions"></div>
+</div>
+
+<!-- DESKTOP UI -->
+<div id="desktop" class="hidden">
+
+  <div id="welcomeText"></div>
+
+  <!-- TASKBAR -->
+  <div id="taskbar">
+    <button id="launchBtn">☰</button>
+    <div id="openApps"></div>
+    <div id="clock"></div>
   </div>
 
-  <div id="step2" class="step">
-    <div class="glass-card">
-      <h2>What should we call you?</h2>
-      <input id="nameInput" placeholder="Enter your name">
-      <button id="saveName">Continue</button>
+  <!-- LAUNCHPAD -->
+  <div id="launchpad" class="hidden">
+    <button data-app="browser">🌐 Browser</button>
+    <button data-app="games">🎮 Games</button>
+    <button data-app="settings">⚙️ Settings</button>
+  </div>
+
+  <!-- APP WINDOWS -->
+  <div id="browserApp" class="window hidden">
+    <div class="title-bar">
+      <span>Browser</span>
+      <div class="buttons">
+        <button class="minimize"></button>
+        <button class="maximize"></button>
+        <button class="close"></button>
+      </div>
+    </div>
+    <div class="content" id="browserContent"></div>
+  </div>
+
+  <div id="gamesApp" class="window hidden">
+    <div class="title-bar">
+      <span>Games</span>
+      <div class="buttons">
+        <button class="minimize"></button>
+        <button class="maximize"></button>
+        <button class="close"></button>
+      </div>
+    </div>
+    <div class="content">Games Coming Soon</div>
+  </div>
+
+  <div id="settingsApp" class="window hidden">
+    <div class="title-bar">
+      <span>Settings</span>
+      <div class="buttons">
+        <button class="minimize"></button>
+        <button class="maximize"></button>
+        <button class="close"></button>
+      </div>
+    </div>
+    <div class="content">
+      <h3>Tab Cloak</h3>
+      <button onclick="cloakTab('Google','https://www.google.com/favicon.ico')">Google</button>
+      <button onclick="cloakTab('Youtube','https://www.youtube.com/favicon.ico')">YouTube</button>
+      <button onclick="cloakTab('School','')">Blank</button>
     </div>
   </div>
-
-  <div id="step3" class="step">
-    <h2>Choose Your World</h2>
-    <div class="bg-grid">
-      <div class="bg-option" data-bg="moon1"></div>
-      <div class="bg-option" data-bg="moon2"></div>
-      <div class="bg-option" data-bg="nebula"></div>
-      <div class="bg-option" data-bg="dark"></div>
-    </div>
-  </div>
-
-</div>
-
-<!-- DESKTOP -->
-<div id="desktop"></div>
-
-<!-- TASKBAR -->
-<div class="taskbar glass">
-  <button id="launchBtn">☰</button>
-
-  <div id="dock">
-    <button data-app="browser">🌐</button>
-    <button data-app="games">🎮</button>
-    <button data-app="settings">⚙</button>
-  </div>
-
-  <div id="taskApps"></div>
-  <div id="clock"></div>
-</div>
-
-<!-- LAUNCHPAD -->
-<div id="launchpad" class="glass hidden">
-  <button data-app="browser">Browser</button>
-  <button data-app="games">Games</button>
-  <button data-app="settings">Settings</button>
 </div>
 
 </body>
