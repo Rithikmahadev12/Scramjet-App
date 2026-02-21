@@ -1,5 +1,16 @@
 "use strict";
 
+/* STATUS BAR */
+function updateTime() { document.getElementById("time").innerText = new Date().toLocaleTimeString(); }
+setInterval(updateTime, 1000);
+updateTime();
+
+/* BATTERY */
+navigator.getBattery().then(b => {
+  function showBattery() { document.getElementById("battery").innerText = Math.floor(b.level*100)+"%"; }
+  b.onlevelchange = showBattery; showBattery();
+});
+
 /* SCREEN SWITCHING */
 document.querySelectorAll(".nav-btn").forEach(btn => {
     btn.onclick = () => {
@@ -10,7 +21,7 @@ document.querySelectorAll(".nav-btn").forEach(btn => {
     };
 });
 
-/* SCRAMJET INIT */
+/* SCRAMJET */
 let scramjet, connection, activeFrame = null;
 async function initScramjet() {
     const { ScramjetController } = $scramjetLoadController();
@@ -21,7 +32,6 @@ async function initScramjet() {
     connection = new BareMux.BareMuxConnection("/baremux/worker.js");
 }
 
-/* NAVIGATE */
 async function navigate(url) {
     if (!scramjet) await initScramjet();
     await registerSW();
@@ -39,22 +49,19 @@ async function navigate(url) {
     activeFrame.go(url);
 }
 
-/* SEARCH */
+/* SEARCH INPUTS */
 function formatInput(input) {
     if (input.startsWith("http")) return input;
     if (input.includes(".")) return "https://" + input;
     return "https://search.brave.com/search?q=" + encodeURIComponent(input);
 }
 
-/* HOME SEARCH */
 document.getElementById("home-search").addEventListener("keydown", e => {
     if (e.key === "Enter") {
         navigate(formatInput(e.target.value));
         document.querySelector('[data-screen="browser"]').click();
     }
 });
-
-/* BROWSER SEARCH */
 document.getElementById("url-bar").addEventListener("keydown", e => {
     if (e.key === "Enter") navigate(formatInput(e.target.value));
 });
@@ -65,18 +72,22 @@ document.getElementById("start-btn").addEventListener("click", () => {
     document.querySelector('[data-screen="home"]').click();
 });
 
-/* GAMES */
+/* GAMES LIST */
+const games = [
+  { name: "Happy Wheels", url: "https://genizymath.github.io/games/happy-wheels/" },
+  { name: "Monkey Mart", url: "https://genizymath.github.io/games/monkey-mart/" },
+  { name: "The World's Hardest Game", url: "https://genizymath.github.io/games/the-worlds-hardest-game/" },
+  { name: "Run 1", url: "https://genizymath.github.io/games/run-1/" }
+];
+
 const gamesGrid = document.getElementById("games-grid");
-fetch("games.json")
-.then(res => res.json())
-.then(games => {
-    games.forEach(game => {
-        const card = document.createElement("div");
-        card.className = "game-card";
-        const img = document.createElement("img");
-        img.src = game.icon;
-        card.appendChild(img);
-        card.onclick = () => { navigate(game.url); document.querySelector('[data-screen="browser"]').click(); };
-        gamesGrid.appendChild(card);
-    });
+games.forEach(game => {
+  const card = document.createElement("div");
+  card.className = "game-card";
+  card.innerHTML = `<p>${game.name}</p>`;
+  card.onclick = () => {
+    navigate(game.url);
+    document.querySelector('[data-screen="browser"]').click();
+  };
+  gamesGrid.appendChild(card);
 });
