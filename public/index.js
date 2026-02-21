@@ -21,7 +21,6 @@ document.getElementById("enter-os-btn").addEventListener("click",()=>{document.g
 const launchpad=document.getElementById("launchpad");
 const startBtn=document.getElementById("start-btn");
 startBtn.addEventListener("click",()=>{launchpad.classList.toggle("hidden");});
-
 launchpad.querySelectorAll(".launch-app").forEach(btn=>{
     btn.addEventListener("click",()=>{
         const appId=btn.dataset.app;
@@ -34,7 +33,6 @@ launchpad.querySelectorAll(".launch-app").forEach(btn=>{
 const desktop=document.getElementById("desktop");
 const taskbarWindows=document.getElementById("taskbar-windows");
 const windows={};
-
 function openWindow(appId){
     if(windows[appId]){windows[appId].style.zIndex=Date.now(); return;}
     const win=document.createElement("div");
@@ -44,70 +42,34 @@ function openWindow(appId){
     desktop.appendChild(win); windows[appId]=win;
     makeDraggable(win);
     updateTaskbar();
+    win.querySelector(".close").onclick=()=>{desktop.removeChild(win); delete windows[appId]; updateTaskbar();};
 
-    win.querySelector(".close").onclick=()=>{
-        desktop.removeChild(win); delete windows[appId]; updateTaskbar();
-    };
-
-    // Load app content
     const content=document.getElementById(`${appId}-content`);
     if(appId==="browser"){initScramjetBrowser(content);}
     if(appId==="games"){content.innerHTML=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#111;color:#fff;font-size:24px;">Games Coming Soon</div>`;}
     if(appId==="chat"){initChat(content);}
     if(appId==="settings"){content.innerHTML=`<p>Settings coming soon</p>`;}
 }
+function updateTaskbar(){taskbarWindows.innerHTML="";Object.keys(windows).forEach(appId=>{const btn=document.createElement("button");btn.innerText=appId.charAt(0).toUpperCase()+appId.slice(1);btn.onclick=()=>{windows[appId].style.zIndex=Date.now();};taskbarWindows.appendChild(btn);});}
+function makeDraggable(el){const bar=el.querySelector(".title-bar");let offsetX, offsetY, dragging=false;bar.addEventListener("mousedown",e=>{dragging=true; offsetX=e.clientX-el.offsetLeft; offsetY=e.clientY-el.offsetTop; el.style.zIndex=Date.now();});document.addEventListener("mousemove",e=>{if(dragging){el.style.left=(e.clientX-offsetX)+"px"; el.style.top=(e.clientY-offsetY)+"px";}});document.addEventListener("mouseup",()=>{dragging=false;});}
 
-/* TASKBAR */
-function updateTaskbar(){
-    taskbarWindows.innerHTML="";
-    Object.keys(windows).forEach(appId=>{
-        const btn=document.createElement("button");
-        btn.innerText=appId.charAt(0).toUpperCase()+appId.slice(1);
-        btn.onclick=()=>{windows[appId].style.zIndex=Date.now();}
-        taskbarWindows.appendChild(btn);
-    });
+/* ================= SCRAMJET BROWSER ================= */
+let scramjet, connection, activeFrame=null, scramjetReady=false;
+async function initScramjet(){
+    if(scramjetReady) return;
+    const { ScramjetController } = $scramjetLoadController();
+    scramjet = new ScramjetController({ files:{ wasm:"/scram/scramjet.wasm.wasm", all:"/scram/scramjet.all.js", sync:"/scram/scramjet.sync.js"} });
+    await scramjet.init();
+    connection = new BareMux.BareMuxConnection("/baremux/worker.js");
+    scramjetReady=true;
 }
-
-/* DRAGGABLE WINDOWS */
-function makeDraggable(el){
-    const bar=el.querySelector(".title-bar");
-    let offsetX, offsetY, dragging=false;
-    bar.addEventListener("mousedown",e=>{dragging=true; offsetX=e.clientX-el.offsetLeft; offsetY=e.clientY-el.offsetTop; el.style.zIndex=Date.now();});
-    document.addEventListener("mousemove",e=>{if(dragging){el.style.left=(e.clientX-offsetX)+"px"; el.style.top=(e.clientY-offsetY)+"px";}});
-    document.addEventListener("mouseup",()=>{dragging=false;});
-}
-
-/* ================= SCRAMJET BROWSER (FIXED INIT) ================= */
-let scramjet, connection, activeFrame=null;
 async function initScramjetBrowser(container){
-    if(!scramjet){
-        const { ScramjetController } = $scramjetLoadController();
-        scramjet = new ScramjetController({ 
-            files:{ wasm:"/scram/scramjet.wasm.wasm", all:"/scram/scramjet.all.js", sync:"/scram/scramjet.sync.js"} 
-        });
-        await scramjet.init();  // Wait for full WASM init
-        connection = new BareMux.BareMuxConnection("/baremux/worker.js");
-    }
-
+    if(!scramjetReady) await initScramjet();
     await registerSW();
-
-    const wispUrl = (location.protocol==="https:"?"wss://":"ws://")+location.host+"/wisp/";
-
-    if((await connection.getTransport())!=="/libcurl/index.mjs"){
-        await connection.setTransport("/libcurl/index.mjs",[{"websocket":wispUrl}]);
-    }
-
-    if(!activeFrame){
-        activeFrame = scramjet.createFrame();
-        activeFrame.frame.style.width="100%";
-        activeFrame.frame.style.height="100%";
-        activeFrame.frame.style.border="none";
-        container.appendChild(activeFrame.frame);
-    }
-
-    // ✅ Wait for WASM to load fully
+    const wispUrl=(location.protocol==="https:"?"wss://":"ws://")+location.host+"/wisp/";
+    if((await connection.getTransport())!=="/libcurl/index.mjs"){await connection.setTransport("/libcurl/index.mjs",[{"websocket":wispUrl}]);}
+    if(!activeFrame){activeFrame=scramjet.createFrame(); activeFrame.frame.style.width="100%"; activeFrame.frame.style.height="100%"; activeFrame.frame.style.border="none"; container.appendChild(activeFrame.frame);}
     if(activeFrame.waitUntilReady) await activeFrame.waitUntilReady();
-
     activeFrame.go("https://search.brave.com/");
 }
 
@@ -117,13 +79,8 @@ function initChat(container){
     const chatWindow=document.getElementById("chat-window");
     const chatInput=document.getElementById("chat-input");
     const chatSend=document.getElementById("chat-send");
-
-    const ws=new WebSocket("wss://yourserver.com"); // replace with your WS server
-    ws.onmessage=msg=>{
-        const data=JSON.parse(msg.data);
-        chatWindow.innerHTML+=`<div><strong>${data.user}</strong>: ${data.message}</div>`;
-        chatWindow.scrollTop=chatWindow.scrollHeight;
-    };
+    const ws=new WebSocket("wss://yourserver.com"); // replace with WS server
+    ws.onmessage=msg=>{const data=JSON.parse(msg.data); chatWindow.innerHTML+=`<div><strong>${data.user}</strong>: ${data.message}</div>`; chatWindow.scrollTop=chatWindow.scrollHeight;};
     chatSend.addEventListener("click",()=>{if(chatInput.value.trim()==="")return; ws.send(JSON.stringify({user:"Guest",message:chatInput.value})); chatInput.value="";});
     chatInput.addEventListener("keydown",e=>{if(e.key==="Enter") chatSend.click();});
 }
