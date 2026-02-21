@@ -1,116 +1,99 @@
-body,html{
-  margin:0;
-  padding:0;
-  width:100%;
-  height:100%;
-  font-family:Inter,sans-serif;
-  background:black;
-  overflow:hidden;
+/* ===== GLOBAL ===== */
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: Inter, sans-serif;
+  background: black;
+  overflow: hidden;
+}
+.hidden { display: none; }
+
+/* ===== PARTICLES ===== */
+#particles {
+  position: fixed;
+  inset: 0;
 }
 
-/* PARTICLES */
-#particles{
-  position:fixed;
-  inset:0;
+/* ===== BOOT ===== */
+#bootScreen {
+  position: fixed;
+  inset: 0;
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 60px;
 }
 
-/* BOOT */
-#bootScreen{
-  position:fixed;
-  inset:0;
-  background:black;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:white;
-  font-size:60px;
+/* ===== ONBOARDING ===== */
+#introTitle { font-size: 80px; font-weight: 900; }
+.press-space { opacity: .7; animation: blink 2s infinite; }
+
+/* ===== TASKBAR ===== */
+#taskbar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(15px);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  gap: 10px;
+}
+#clock { margin-left: auto; }
+
+/* ===== LAUNCHPAD ===== */
+#launchpad {
+  position: absolute;
+  bottom: 60px;
+  left: 10px;
+  background: rgba(30,30,40,0.8);
+  backdrop-filter: blur(15px);
+  padding: 10px;
+  border-radius: 10px;
 }
 
-/* ONBOARDING */
-.hidden{display:none;}
+/* ===== WINDOWS ===== */
+.window {
+  position: absolute;
+  width: 600px;
+  height: 400px;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(20px);
+  border-radius: 12px;
+}
+.title-bar {
+  background: rgba(20,20,30,0.8);
+  padding: 8px 12px;
+  cursor: move;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.buttons button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-left: 6px;
+  background: #888;
+}
+.content { height: calc(100% - 32px); }
 
-#introTitle{
-  font-size:80px;
-  font-weight:900;
-  animation:fadeIn 2s ease-out;
+/* ===== BACKGROUND PICKER ===== */
+.bgOptions { display: flex; gap: 10px; }
+.bgOptions img {
+  width: 180px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.3s;
 }
-.press-space{
-  margin-top:20px;
-  opacity:.7;
-  animation:blink 2s infinite;
-}
+.bgOptions img:hover { transform: scale(1.1); }
 
-/* TASKBAR */
-#taskbar{
-  position:absolute;
-  bottom:0;
-  left:0;
-  right:0;
-  height:50px;
-  background:rgba(0,0,0,0.6);
-  backdrop-filter:blur(15px);
-  display:flex;
-  align-items:center;
-  padding:0 10px;
-  gap:10px;
-}
-#clock{margin-left:auto;}
-#launchpad{
-  position:absolute;
-  bottom:60px;
-  left:10px;
-  background:rgba(30,30,40,0.8);
-  backdrop-filter:blur(15px);
-  padding:10px;
-  border-radius:10px;
-}
-
-/* WINDOWS */
-.window{
-  position:absolute;
-  width:600px;
-  height:400px;
-  background:rgba(0,0,0,0.7);
-  backdrop-filter:blur(20px);
-  border-radius:12px;
-}
-.title-bar{
-  background:rgba(20,20,30,0.8);
-  padding:8px 12px;
-  cursor:move;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-.buttons button{
-  width:10px;
-  height:10px;
-  border-radius:50%;
-  margin-left:6px;
-  background:#888;
-}
-.content{height:calc(100% - 32px);}
-
-/* BACKGROUND OPTIONS */
-.bgOptions{
-  display:flex;
-  gap:10px;
-}
-.bgOptions img{
-  width:180px;
-  border-radius:12px;
-  cursor:pointer;
-  transition:0.3s;
-}
-.bgOptions img:hover{
-  transform:scale(1.1);
-}
-
-/* ANIMATIONS */
-@keyframes blink{
-  50%{opacity:0.2;}
-}
-@keyframes fadeIn{
-  from{opacity:0;}
-  to{opacity:1;}
-}
+/* ===== ANIMATIONS ===== */
+@keyframes blink { 50% { opacity: 0.2; } }
