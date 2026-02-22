@@ -70,30 +70,10 @@ document.getElementById("saveNameBtn").onclick=()=>{
   if(!name) return;
   localStorage.setItem("username",name);
   document.getElementById("nameInputScreen").classList.add("hidden");
-  document.getElementById("bgPickerScreen").classList.remove("hidden");
+  document.getElementById("desktop").classList.remove("hidden");
+  document.getElementById("welcomeText").innerText="Welcome, "+name;
+  startClock();
 }
-
-// ===== BG PICKER =====
-document.addEventListener("DOMContentLoaded",()=>{
-  const bgContainer=document.getElementById("bgOptions");
-  const backgrounds=[
-    "https://images.unsplash.com/photo-1514897575457-c4db467cf78e?q=80&w=1600",
-    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600",
-    "https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?q=80&w=1600"
-  ];
-  backgrounds.forEach(url=>{
-    const img=document.createElement("img");
-    img.src=url;
-    img.addEventListener("click",()=>{
-      document.getElementById("desktop").style.backgroundImage=`url(${url})`;
-      document.getElementById("bgPickerScreen").classList.add("hidden");
-      document.getElementById("desktop").classList.remove("hidden");
-      document.getElementById("welcomeText").innerText="Welcome, "+localStorage.getItem("username");
-      startClock();
-    });
-    bgContainer.appendChild(img);
-  });
-});
 
 // ===== CLOCK =====
 function startClock(){
@@ -106,20 +86,28 @@ function startClock(){
 }
 
 // ===== LAUNCHPAD =====
-document.getElementById("launchBtn").onclick=()=>{ document.getElementById("launchpad").classList.toggle("hidden"); };
-document.querySelectorAll("#launchpad button").forEach(btn=>{ btn.onclick=()=>openApp(btn.dataset.app); });
+const launchBtn=document.getElementById("launchBtn");
+const launchpad=document.getElementById("launchpad");
+
+launchBtn.onclick=()=>{
+  if(launchpad.classList.contains("show")){
+    launchpad.classList.remove("show");
+  }else{
+    launchpad.classList.add("show");
+  }
+};
+
+document.querySelectorAll("#launchpad button").forEach(btn=>{
+  btn.onclick=()=>openApp(btn.dataset.app);
+});
 
 // ===== WINDOWS =====
-function openApp(id){ const win=document.getElementById(id+"App"); win.classList.remove("hidden"); if(id==="browser") openBrowser(); }
-function closeWin(id){ document.getElementById(id+"App").classList.add("hidden"); }
-function minWin(id){ document.getElementById(id+"App").classList.add("hidden"); }
-function maximizeWin(id){
-  const win=document.getElementById(id+"App");
-  win.style.width="100%";
-  win.style.height="90%";
-  win.style.top="0";
-  win.style.left="0";
+function openApp(id){ 
+  const win=document.getElementById(id+"App"); 
+  win.classList.remove("hidden"); 
+  if(id==="browser") openBrowser(); 
 }
+function closeWin(id){ document.getElementById(id+"App").classList.add("hidden"); }
 
 // ===== SCRAMJET BROWSER =====
 let scramjetController=null, activeFrame=null;
