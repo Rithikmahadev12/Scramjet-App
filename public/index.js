@@ -1,24 +1,22 @@
 "use strict";
 
 // ===== PARTICLES =====
-const canvas = document.getElementById("particles");
-const ctx = canvas.getContext("2d");
-function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-resizeCanvas();
-window.addEventListener("resize", resizeCanvas);
+const canvas=document.getElementById("particles");
+const ctx=canvas.getContext("2d");
+function resizeCanvas(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+resizeCanvas(); window.addEventListener("resize",resizeCanvas);
 
-let particles = [];
-for (let i=0;i<150;i++) particles.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, r:Math.random()*2+0.5, speed:Math.random()*0.5+0.2});
+let particles=[];
+for(let i=0;i<150;i++) particles.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, r:Math.random()*2+0.5, speed:Math.random()*0.5+0.2});
 
 function drawParticles(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   particles.forEach(p=>{
-    p.y -= p.speed;
-    if(p.y<0) p.y=canvas.height;
+    p.y-=p.speed;
+    if(p.y<0)p.y=canvas.height;
     ctx.beginPath();
     ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    ctx.fillStyle="white";
-    ctx.fill();
+    ctx.fillStyle="white"; ctx.fill();
   });
   requestAnimationFrame(drawParticles);
 }
@@ -29,15 +27,14 @@ let bootText="Matriarchs OS", bootIndex=0;
 const bootEl=document.getElementById("bootText");
 function typeBoot(){
   if(bootIndex<bootText.length){
-    bootEl.textContent+=bootText[bootIndex];
-    bootIndex++;
+    bootEl.textContent+=bootText[bootIndex++];
     setTimeout(typeBoot,100);
   }else{
     setTimeout(()=>{
       document.getElementById("bootScreen").classList.add("hidden");
       document.getElementById("onboarding").classList.remove("hidden");
       animateIntroTitle();
-    },1000);
+    },500);
   }
 }
 typeBoot();
@@ -60,12 +57,10 @@ function animateIntroTitle(){
 }
 
 // SPACE TO CONTINUE
-document.addEventListener("keydown", e=>{
-  if(e.code==="Space"){
-    if(!document.getElementById("onboarding").classList.contains("hidden")){
-      document.getElementById("onboarding").classList.add("hidden");
-      document.getElementById("nameInputScreen").classList.remove("hidden");
-    }
+document.addEventListener("keydown",e=>{
+  if(e.code==="Space" && !document.getElementById("onboarding").classList.contains("hidden")){
+    document.getElementById("onboarding").classList.add("hidden");
+    document.getElementById("nameInputScreen").classList.remove("hidden");
   }
 });
 
@@ -79,27 +74,26 @@ document.getElementById("saveNameBtn").onclick=()=>{
 }
 
 // ===== BG PICKER =====
-const backgrounds=[
-  "https://images.unsplash.com/photo-1514897575457-c4db467cf78e?q=80&w=1600",
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600",
-  "https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?q=80&w=1600"
-];
-
-const bgContainer=document.getElementById("bgOptions");
-backgrounds.forEach(url=>{
-  const img=document.createElement("img");
-  img.src=url;
-  img.onclick=()=>setBG(url);
-  bgContainer.appendChild(img);
+document.addEventListener("DOMContentLoaded",()=>{
+  const bgContainer=document.getElementById("bgOptions");
+  const backgrounds=[
+    "https://images.unsplash.com/photo-1514897575457-c4db467cf78e?q=80&w=1600",
+    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600",
+    "https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?q=80&w=1600"
+  ];
+  backgrounds.forEach(url=>{
+    const img=document.createElement("img");
+    img.src=url;
+    img.addEventListener("click",()=>{
+      document.getElementById("desktop").style.backgroundImage=`url(${url})`;
+      document.getElementById("bgPickerScreen").classList.add("hidden");
+      document.getElementById("desktop").classList.remove("hidden");
+      document.getElementById("welcomeText").innerText="Welcome, "+localStorage.getItem("username");
+      startClock();
+    });
+    bgContainer.appendChild(img);
+  });
 });
-
-function setBG(url){
-  document.getElementById("desktop").style.backgroundImage=`url(${url})`;
-  document.getElementById("bgPickerScreen").classList.add("hidden");
-  document.getElementById("desktop").classList.remove("hidden");
-  document.getElementById("welcomeText").innerText="Welcome, "+localStorage.getItem("username");
-  startClock();
-}
 
 // ===== CLOCK =====
 function startClock(){
@@ -112,12 +106,8 @@ function startClock(){
 }
 
 // ===== LAUNCHPAD =====
-document.getElementById("launchBtn").onclick=()=>{
-  document.getElementById("launchpad").classList.toggle("hidden");
-};
-document.querySelectorAll("#launchpad button").forEach(btn=>{
-  btn.onclick=()=>openApp(btn.dataset.app);
-});
+document.getElementById("launchBtn").onclick=()=>{ document.getElementById("launchpad").classList.toggle("hidden"); };
+document.querySelectorAll("#launchpad button").forEach(btn=>{ btn.onclick=()=>openApp(btn.dataset.app); });
 
 // ===== WINDOWS =====
 function openApp(id){ const win=document.getElementById(id+"App"); win.classList.remove("hidden"); if(id==="browser") openBrowser(); }
