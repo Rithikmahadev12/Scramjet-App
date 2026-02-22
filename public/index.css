@@ -6,7 +6,7 @@ body, html {
   height: 100%;
   font-family: Inter, sans-serif;
   overflow: hidden;
-  background: black;
+  background: url('https://images.unsplash.com/photo-1514897575457-c4db467cf78e?q=80&w=1600') no-repeat center center/cover;
 }
 
 .hidden { display: none; }
@@ -47,7 +47,7 @@ body, html {
 }
 
 /* ===== NAME INPUT ===== */
-#nameInputScreen, #bgPickerScreen {
+#nameInputScreen {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.7);
@@ -56,21 +56,10 @@ body, html {
   justify-content: center;
   align-items: center;
   z-index: 20;
-  pointer-events: all;
 }
 
 #nameField { padding: 12px 18px; border-radius: 10px; border: none; margin-bottom: 10px; width: 250px; }
 #saveNameBtn { padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; }
-
-/* ===== BG PICKER ===== */
-.bgOptions { display: flex; gap: 10px; margin-top: 20px; pointer-events: all; }
-.bgOptions img {
-  width: 180px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-.bgOptions img:hover { transform: scale(1.1); }
 
 /* ===== DESKTOP ===== */
 #desktop {
@@ -119,6 +108,14 @@ body, html {
   padding: 10px;
   border-radius: 10px;
   z-index: 5;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.3s ease;
+}
+
+#launchpad.show {
+  opacity: 1;
+  transform: scale(1);
 }
 
 #launchpad button {
