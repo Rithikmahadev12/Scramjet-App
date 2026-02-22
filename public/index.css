@@ -55,14 +55,15 @@ body, html {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 10;
+  z-index: 20;
+  pointer-events: all;
 }
 
 #nameField { padding: 12px 18px; border-radius: 10px; border: none; margin-bottom: 10px; width: 250px; }
 #saveNameBtn { padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; }
 
 /* ===== BG PICKER ===== */
-.bgOptions { display: flex; gap: 10px; margin-top: 20px; }
+.bgOptions { display: flex; gap: 10px; margin-top: 20px; pointer-events: all; }
 .bgOptions img {
   width: 180px;
   border-radius: 12px;
