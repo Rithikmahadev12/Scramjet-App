@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Matriarchs OS</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="index.css">
+
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
 <script src="/register-sw.js"></script>
@@ -15,7 +17,7 @@
 
 <canvas id="particles"></canvas>
 
-<!-- BOOT SCREEN -->
+<!-- BOOT -->
 <div id="bootScreen">
   <span id="bootText"></span>
 </div>
@@ -35,18 +37,18 @@
 <!-- DESKTOP -->
 <div id="desktop" class="hidden">
   <div id="welcomeText"></div>
+
   <div id="taskbar">
     <button id="launchBtn">Launchpad</button>
     <div id="clock"></div>
   </div>
 
-  <!-- LAUNCHPAD -->
   <div id="launchpad" class="hidden">
     <button data-app="browser">Browser</button>
     <button data-app="games">Games</button>
   </div>
 
-  <!-- APPS -->
+  <!-- Browser -->
   <div id="browserApp" class="window hidden">
     <div class="title-bar">
       <span>Browser</span>
@@ -57,6 +59,7 @@
     <div class="content" id="browserContent"></div>
   </div>
 
+  <!-- Games -->
   <div id="gamesApp" class="window hidden">
     <div class="title-bar">
       <span>Games</span>
