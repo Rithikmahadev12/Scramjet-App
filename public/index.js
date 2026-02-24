@@ -118,11 +118,31 @@ async function initScramjet(){
 async function initScramjetBrowser(container){
     if(!scramjetReady) await initScramjet();
     await registerSW();
-    const wispUrl=(location.protocol==="https:"?"wss://":"ws://")+location.host+"/wisp/";
-    if((await connection.getTransport())!=="/libcurl/index.mjs"){await connection.setTransport("/libcurl/index.mjs",[{"websocket":wispUrl}]);}
-    if(!activeFrame){activeFrame=scramjet.createFrame(); activeFrame.frame.style.width="100%"; activeFrame.frame.style.height="100%"; activeFrame.frame.style.border="none"; container.appendChild(activeFrame.frame);}
+
+    // Ensure libcurl WASM is loaded first
+    if(connection && connection.libcurl){
+        if(!connection.libcurl.loaded){
+            await connection.libcurl.load_wasm();
+        }
+    }
+
+    if(!activeFrame){
+        activeFrame = scramjet.createFrame();
+        activeFrame.frame.style.width = "100%";
+        activeFrame.frame.style.height = "100%";
+        activeFrame.frame.style.border = "none";
+        container.appendChild(activeFrame.frame);
+    }
+
     if(activeFrame.waitUntilReady) await activeFrame.waitUntilReady();
-    activeFrame.go("https://search.brave.com/");
+
+    // Navigate only after WASM is loaded
+    try {
+        activeFrame.go("https://search.brave.com/");
+    } catch(err){
+        activeFrame.frame.innerHTML = `<div style="color:white;display:flex;align-items:center;justify-content:center;height:100%;font-size:18px;">Failed to load page. Please check your connection.</div>`;
+        console.error("Scramjet browser error:", err);
+    }
 }
 
 /* ================= CHAT (LOCAL STORAGE) ================= */
@@ -138,30 +158,23 @@ function initChat(container){
     const chatSend = container.querySelector("#chat-send");
     const username = "Guest";
 
-    // Helper: get messages
     function getMessages() {
         return JSON.parse(localStorage.getItem("matriarchs-chat") || "[]");
     }
-
-    // Helper: save message
     function saveMessage(msg) {
         const msgs = getMessages();
         msgs.push(msg);
         localStorage.setItem("matriarchs-chat", JSON.stringify(msgs));
     }
-
-    // Render messages
     function renderMessages() {
         const msgs = getMessages();
         chatWindow.innerHTML = msgs.map(m => `<div><strong>${m.user}</strong>: ${m.message}</div>`).join('');
         chatWindow.scrollTop = chatWindow.scrollHeight;
     }
 
-    // Poll every 2 seconds
     setInterval(renderMessages, 2000);
-    renderMessages(); // initial load
+    renderMessages();
 
-    // Send message
     chatSend.addEventListener("click", () => {
         const msg = chatInput.value.trim();
         if(!msg) return;
@@ -172,6 +185,6 @@ function initChat(container){
 
     chatInput.addEventListener("keydown", e => { if(e.key==="Enter") chatSend.click(); });
 
-    // Update chat across multiple windows
+    // Sync across multiple tabs/windows
     window.addEventListener("storage", renderMessages);
 }
