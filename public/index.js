@@ -102,7 +102,7 @@ function makeDraggable(el){
     document.addEventListener("mouseup",()=>{dragging=false;});
 }
 
-/* ================= SCRAMJET BROWSER ================= */
+/* ================= SCRAMJET BROWSER (ORIGINAL WORKING) ================= */
 let scramjet, connection, activeFrame=null, scramjetReady=false;
 async function initScramjet(){
     if(scramjetReady) return;
@@ -119,21 +119,16 @@ async function initScramjet(){
     scramjetReady=true;
 }
 async function initScramjetBrowser(container){
-    try{
-        if(!scramjetReady) await initScramjet();
-        if(!activeFrame){
-            activeFrame=scramjet.createFrame();
-            activeFrame.frame.style.width="100%";
-            activeFrame.frame.style.height="100%";
-            activeFrame.frame.style.border="none";
-            container.appendChild(activeFrame.frame);
-        }
-        if(activeFrame.waitUntilReady) await activeFrame.waitUntilReady();
-        await activeFrame.go("https://search.brave.com/");
-    }catch(err){
-        console.warn("Scramjet browser failed:", err.message);
-        if(container) container.innerHTML=`<div style="color:white;display:flex;align-items:center;justify-content:center;height:100%;font-size:16px;">Failed to load page. Browser might not be supported.</div>`;
+    if(!scramjetReady) await initScramjet();
+    if(!activeFrame){
+        activeFrame=scramjet.createFrame();
+        activeFrame.frame.style.width="100%";
+        activeFrame.frame.style.height="100%";
+        activeFrame.frame.style.border="none";
+        container.appendChild(activeFrame.frame);
     }
+    if(activeFrame.waitUntilReady) await activeFrame.waitUntilReady();
+    activeFrame.go("https://search.brave.com/");
 }
 
 /* ================= CHAT (LOCAL STORAGE) ================= */
