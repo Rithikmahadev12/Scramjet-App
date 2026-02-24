@@ -27,7 +27,7 @@ function drawParticles() {
     p.y -= p.speed;
     if (p.y < 0) p.y = canvas.height;
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
     ctx.fillStyle = "white";
     ctx.fill();
   });
@@ -50,6 +50,7 @@ startClock();
 const launchBtn = document.getElementById("launchBtn");
 const launchpad = document.getElementById("launchpad");
 launchBtn.onclick = () => launchpad.classList.toggle("hidden");
+
 document.querySelectorAll("#launchpad button").forEach(btn => btn.onclick = () => openApp(btn.dataset.app));
 
 /* ===== WINDOWS ===== */
@@ -58,9 +59,11 @@ function openApp(id) {
   win.classList.remove("hidden");
   if (id === "browser") openBrowser();
 }
-function closeWin(id) { document.getElementById(id + "App").classList.add("hidden"); }
+function closeWin(id) {
+  document.getElementById(id + "App").classList.add("hidden");
+}
 
-/* ===== SCRAMJET PROXY BROWSER ===== */
+/* ===== SCRAMJET + FALLBACK ===== */
 let scramjetController = null;
 let activeFrame = null;
 
@@ -81,7 +84,7 @@ async function initScramjet() {
 
   const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
   await connection.setTransport("/libcurl/index.mjs", [{
-    websocket: `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/wisp/`
+    websocket: `${location.protocol === "https:"?"wss":"ws"}://${location.host}/wisp/`
   }]);
 
   scramjetController = sj;
@@ -90,31 +93,25 @@ async function initScramjet() {
 
 async function openBrowser() {
   const container = document.getElementById("browserContent");
-  container.innerHTML = "<div style='color:white;text-align:center;'>Loading Scramjet proxy...</div>";
+  container.innerHTML = "<div style='color:white;text-align:center;'>Loading Scramjet...</div>";
 
   try {
     const sj = await initScramjet();
-
     if (!activeFrame) {
       activeFrame = sj.createFrame();
       activeFrame.frame.style.width = "100%";
       activeFrame.frame.style.height = "100%";
       activeFrame.frame.style.border = "none";
-
       container.innerHTML = "";
       container.appendChild(activeFrame.frame);
     }
-
     await activeFrame.waitUntilReady();
-    await activeFrame.go("https://search.brave.com/"); // proxy target
-
-  } catch (err) {
+    await activeFrame.go("https://search.brave.com/");
+  } catch(err) {
     console.error(err);
-
-    // fallback iframe for debugging
     container.innerHTML = "";
     const iframe = document.createElement("iframe");
-    iframe.src = "https://www.wikipedia.org/"; // works in iframe
+    iframe.src = "https://www.wikipedia.org/";
     iframe.style.width = "100%";
     iframe.style.height = "100%";
     iframe.style.border = "none";
