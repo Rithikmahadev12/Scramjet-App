@@ -1,250 +1,86 @@
-// ================= TITLE ANIMATION =================
+"use strict";
 
-const title = "Matriarchs OS";
-const titleEl = document.getElementById("animated-title");
+/* ================= PARTICLES ================= */
+const canvas=document.getElementById("particle-canvas");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+window.addEventListener("resize",()=>{canvas.width=window.innerWidth; canvas.height=window.innerHeight;});
+const particles=[]; for(let i=0;i<200;i++){particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+1,vx:(Math.random()-0.5)*0.5,vy:(Math.random()-0.5)*0.5});}
+function animateParticles(){ctx.clearRect(0,0,canvas.width,canvas.height);particles.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle="rgba(255,255,255,0.5)";ctx.fill();p.x+=p.vx;p.y+=p.vy;if(p.x>canvas.width)p.x=0;if(p.x<0)p.x=canvas.width;if(p.y>canvas.height)p.y=0;if(p.y<0)p.y=canvas.height;});requestAnimationFrame(animateParticles);}
+animateParticles();
 
-title.split("").forEach((l,i)=>{
-  const span=document.createElement("span");
-  span.textContent=l;
-  span.style.animationDelay=i*.05+"s";
-  titleEl.appendChild(span);
-});
+/* ================= STATUS BAR ================= */
+function updateTime(){const now=new Date();const time=now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});const day=now.toLocaleDateString([], {weekday:'long', month:'short', day:'numeric'});document.getElementById("time").innerText=`${time} • ${day}`;}
+setInterval(updateTime,1000); updateTime();
+navigator.getBattery().then(b=>{function showBattery(){document.getElementById("battery").innerText=Math.floor(b.level*100)+"%";} b.onlevelchange=showBattery; showBattery();});
 
-let step=1;
+/* ================= ONBOARDING ================= */
+document.getElementById("enter-os-btn").addEventListener("click",()=>{document.getElementById("onboarding").style.display="none";});
 
-document.addEventListener("keydown",e=>{
-  if(e.code==="Space" && step===1){
-    document.querySelectorAll("#animated-title span").forEach((s,i)=>{
-      s.style.animation=`letterOut .4s forwards`;
-      s.style.animationDelay=i*.03+"s";
+/* ================= LAUNCHPAD ================= */
+const launchpad=document.getElementById("launchpad");
+const startBtn=document.getElementById("start-btn");
+startBtn.addEventListener("click",()=>{launchpad.classList.toggle("hidden");});
+launchpad.querySelectorAll(".launch-app").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+        const appId=btn.dataset.app;
+        openWindow(appId);
+        launchpad.classList.add("hidden");
     });
-    setTimeout(nextStep,600);
-  }
 });
 
-function nextStep(){
-  document.querySelector(`#step-${step}`).classList.remove("active");
-  step++;
-  document.querySelector(`#step-${step}`).classList.add("active");
-}
-
-// ================= NAME STEP =================
-
-document.getElementById("saveName").onclick=saveName;
-document.getElementById("nameInput").addEventListener("keydown",e=>{
-  if(e.key==="Enter") saveName();
-});
-
-function saveName(){
-  const name=document.getElementById("nameInput").value.trim();
-  if(!name) return;
-  localStorage.setItem("username",name);
-  nextStep();
-}
-
-// ================= BG PICK =================
-
-document.querySelectorAll(".bg-grid img").forEach(img=>{
-  img.onclick=()=>{
-    localStorage.setItem("bg",img.src);
-    document.getElementById("desktop").style.backgroundImage=`url(${img.src})`;
-    document.getElementById("onboarding").style.display="none";
-
-    alert("Welcome, "+localStorage.getItem("username")+" 👑");
-  };
-});
-
-// Load saved
-window.onload=()=>{
-  const bg=localStorage.getItem("bg");
-  if(bg){
-    document.getElementById("desktop").style.backgroundImage=`url(${bg})`;
-    document.getElementById("onboarding").style.display="none";
-  }
-};
-
-// ================= CLOCK =================
-
-function updateClock(){
-  const now=new Date();
-  document.getElementById("clock").innerText=
-    now.toLocaleTimeString()+" | "+
-    now.toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'});
-}
-setInterval(updateClock,1000);
-updateClock();
-
-// ================= WINDOW SYSTEM =================
-
+/* ================= WINDOW MANAGER ================= */
 const desktop=document.getElementById("desktop");
-let z=1;
+const taskbarWindows=document.getElementById("taskbar-windows");
+const windows={};
+function openWindow(appId){
+    if(windows[appId]){windows[appId].style.zIndex=Date.now(); return;}
+    const win=document.createElement("div");
+    win.className="window";
+    win.style.width="400px"; win.style.height="300px"; win.style.top="100px"; win.style.left="100px";
+    win.innerHTML=`<div class="title-bar"><span class="title">${appId.charAt(0).toUpperCase()+appId.slice(1)}</span><div class="controls"><button class="close">×</button></div></div><div class="content" id="${appId}-content"></div>`;
+    desktop.appendChild(win); windows[appId]=win;
+    makeDraggable(win);
+    updateTaskbar();
+    win.querySelector(".close").onclick=()=>{desktop.removeChild(win); delete windows[appId]; updateTaskbar();};
 
-function openWindow(app){
-  const win=document.createElement("div");
-  win.className="window";
-  win.style.top="100px";
-  win.style.left="100px";
-  win.style.zIndex=z++;
-
-  win.innerHTML=`
-  <div class="titlebar">
-    <span>${app}</span>
-    <div class="controls">
-      <button class="min"></button>
-      <button class="max"></button>
-      <button class="close"></button>
-    </div>
-  </div>
-  <div class="content">${getAppContent(app)}</div>
-  `;
-
-  desktop.appendChild(win);
-  makeDraggable(win);
-
-  win.querySelector(".close").onclick=()=>win.remove();
-
-  win.querySelector(".min").onclick=()=>{
-    win.style.display="none";
-  };
-
-  win.querySelector(".max").onclick=()=>{
-    if(!win.classList.contains("maxed")){
-      win.dataset.prev=JSON.stringify({
-        top:win.style.top,
-        left:win.style.left,
-        width:win.style.width,
-        height:win.style.height
-      });
-      win.style.top="0";
-      win.style.left="0";
-      win.style.width="100%";
-      win.style.height="100%";
-      win.classList.add("maxed");
-    }else{
-      const prev=JSON.parse(win.dataset.prev);
-      win.style.top=prev.top;
-      win.style.left=prev.left;
-      win.style.width=prev.width;
-      win.style.height=prev.height;
-      win.classList.remove("maxed");
-    }
-  };
+    const content=document.getElementById(`${appId}-content`);
+    if(appId==="browser"){initScramjetBrowser(content);}
+    if(appId==="games"){content.innerHTML=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#111;color:#fff;font-size:24px;">Games Coming Soon</div>`;}
+    if(appId==="chat"){initChat(content);}
+    if(appId==="settings"){content.innerHTML=`<p>Settings coming soon</p>`;}
 }
+function updateTaskbar(){taskbarWindows.innerHTML="";Object.keys(windows).forEach(appId=>{const btn=document.createElement("button");btn.innerText=appId.charAt(0).toUpperCase()+appId.slice(1);btn.onclick=()=>{windows[appId].style.zIndex=Date.now();};taskbarWindows.appendChild(btn);});}
+function makeDraggable(el){const bar=el.querySelector(".title-bar");let offsetX, offsetY, dragging=false;bar.addEventListener("mousedown",e=>{dragging=true; offsetX=e.clientX-el.offsetLeft; offsetY=e.clientY-el.offsetTop; el.style.zIndex=Date.now();});document.addEventListener("mousemove",e=>{if(dragging){el.style.left=(e.clientX-offsetX)+"px"; el.style.top=(e.clientY-offsetY)+"px";}});document.addEventListener("mouseup",()=>{dragging=false;});}
 
-function makeDraggable(el){
-  const bar=el.querySelector(".titlebar");
-  let offsetX,offsetY,isDown=false;
-
-  bar.onmousedown=(e)=>{
-    isDown=true;
-    offsetX=e.clientX-el.offsetLeft;
-    offsetY=e.clientY-el.offsetTop;
-    el.style.zIndex=z++;
-  };
-
-  document.onmousemove=(e)=>{
-    if(isDown && !el.classList.contains("maxed")){
-      el.style.left=e.clientX-offsetX+"px";
-      el.style.top=e.clientY-offsetY+"px";
-    }
-  };
-
-  document.onmouseup=()=>isDown=false;
-}
-
-// ================= APPS =================
-
-function getAppContent(app){
-  if(app==="games") return "<h2 style='padding:20px'>Games Coming Soon</h2>";
-
-  if(app==="settings"){
-    return `
-    <h3 style='padding:20px'>Settings</h3>
-    <div style='padding:20px'>
-      <button onclick="cloak('classroom')">Google Classroom</button>
-      <button onclick="cloak('google')">Google</button>
-      <button onclick="cloak('blank')">Blank</button>
-    </div>
-    `;
-  }
-
-  if(app==="browser"){
-    return "<div id='browserArea' style='width:100%;height:100%'></div>";
-  }
-
-  return "";
-}
-
-// ================= TAB CLOAK =================
-
-function cloak(type){
-  if(type==="classroom"){
-    document.title="Google Classroom";
-    setIcon("https://ssl.gstatic.com/classroom/favicon.png");
-  }
-  if(type==="google"){
-    document.title="Google";
-    setIcon("https://www.google.com/favicon.ico");
-  }
-  if(type==="blank"){
-    document.title="New Tab";
-    setIcon("");
-  }
-}
-
-function setIcon(url){
-  let link=document.querySelector("link[rel~='icon']");
-  if(!link){
-    link=document.createElement("link");
-    link.rel="icon";
-    document.head.appendChild(link);
-  }
-  link.href=url;
-}
-
-// ================= LAUNCHPAD =================
-
-document.getElementById("launchBtn").onclick=()=>{
-  document.getElementById("launchpad").classList.toggle("hidden");
-};
-
-document.querySelectorAll("#launchpad button, #pinnedApps button")
-.forEach(btn=>{
-  btn.onclick=()=>openWindow(btn.dataset.app);
-});
-
-// ================= SCRAMJET =================
-
-let scramjetReady=false;
-let scramjet,connection,frame;
-
+/* ================= SCRAMJET BROWSER ================= */
+let scramjet, connection, activeFrame=null, scramjetReady=false;
 async function initScramjet(){
-  if(scramjetReady) return;
-
-  const { ScramjetController } = $scramjetLoadController();
-  scramjet = new ScramjetController({
-    files:{
-      wasm:"/scram/scramjet.wasm.wasm",
-      all:"/scram/scramjet.all.js",
-      sync:"/scram/scramjet.sync.js"
-    }
-  });
-
-  await scramjet.init();
-  connection=new BareMux.BareMuxConnection("/baremux/worker.js");
-  scramjetReady=true;
+    if(scramjetReady) return;
+    const { ScramjetController } = $scramjetLoadController();
+    scramjet = new ScramjetController({ files:{ wasm:"/scram/scramjet.wasm.wasm", all:"/scram/scramjet.all.js", sync:"/scram/scramjet.sync.js"} });
+    await scramjet.init();
+    connection = new BareMux.BareMuxConnection("/baremux/worker.js");
+    scramjetReady=true;
+}
+async function initScramjetBrowser(container){
+    if(!scramjetReady) await initScramjet();
+    await registerSW();
+    const wispUrl=(location.protocol==="https:"?"wss://":"ws://")+location.host+"/wisp/";
+    if((await connection.getTransport())!=="/libcurl/index.mjs"){await connection.setTransport("/libcurl/index.mjs",[{"websocket":wispUrl}]);}
+    if(!activeFrame){activeFrame=scramjet.createFrame(); activeFrame.frame.style.width="100%"; activeFrame.frame.style.height="100%"; activeFrame.frame.style.border="none"; container.appendChild(activeFrame.frame);}
+    if(activeFrame.waitUntilReady) await activeFrame.waitUntilReady();
+    activeFrame.go("https://search.brave.com/");
 }
 
-async function loadBrowser(){
-  await initScramjet();
-  await registerSW();
-
-  const area=document.getElementById("browserArea");
-  frame=scramjet.createFrame();
-  frame.frame.style.width="100%";
-  frame.frame.style.height="100%";
-  area.appendChild(frame.frame);
-
-  await frame.waitUntilReady();
-  frame.go("https://search.brave.com/");
+/* ================= CHAT ================= */
+function initChat(container){
+    container.innerHTML=`<div id="chat-window" style="height:100%;overflow:auto;background:rgba(0,0,0,0.7);padding:10px;margin-bottom:5px;"></div><input id="chat-input" style="width:80%;padding:5px;border-radius:5px;" placeholder="Type a message..."><button id="chat-send">Send</button>`;
+    const chatWindow=document.getElementById("chat-window");
+    const chatInput=document.getElementById("chat-input");
+    const chatSend=document.getElementById("chat-send");
+    const ws=new WebSocket("wss://yourserver.com"); // replace with WS server
+    ws.onmessage=msg=>{const data=JSON.parse(msg.data); chatWindow.innerHTML+=`<div><strong>${data.user}</strong>: ${data.message}</div>`; chatWindow.scrollTop=chatWindow.scrollHeight;};
+    chatSend.addEventListener("click",()=>{if(chatInput.value.trim()==="")return; ws.send(JSON.stringify({user:"Guest",message:chatInput.value})); chatInput.value="";});
+    chatInput.addEventListener("keydown",e=>{if(e.key==="Enter") chatSend.click();});
 }
