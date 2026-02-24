@@ -5,7 +5,7 @@ const canvas=document.getElementById("particle-canvas");
 const ctx=canvas.getContext("2d");
 canvas.width=window.innerWidth; canvas.height=window.innerHeight;
 window.addEventListener("resize",()=>{canvas.width=window.innerWidth; canvas.height=window.innerHeight;});
-const particles=[]; 
+const particles=[];
 for(let i=0;i<200;i++){
     particles.push({
         x:Math.random()*canvas.width,
@@ -22,11 +22,9 @@ function animateParticles(){
         ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
         ctx.fillStyle="rgba(255,255,255,0.5)";
         ctx.fill();
-        p.x+=p.vx; p.y+=p.vy;
-        if(p.x>canvas.width)p.x=0;
-        if(p.x<0)p.x=canvas.width;
-        if(p.y>canvas.height)p.y=0;
-        if(p.y<0)p.y=canvas.height;
+        p.x+=p.vx;p.y+=p.vy;
+        if(p.x>canvas.width)p.x=0;if(p.x<0)p.x=canvas.width;
+        if(p.y>canvas.height)p.y=0;if(p.y<0)p.y=canvas.height;
     });
     requestAnimationFrame(animateParticles);
 }
@@ -42,8 +40,7 @@ function updateTime(){
 setInterval(updateTime,1000); updateTime();
 navigator.getBattery().then(b=>{
     function showBattery(){document.getElementById("battery").innerText=Math.floor(b.level*100)+"%";}
-    b.onlevelchange=showBattery;
-    showBattery();
+    b.onlevelchange=showBattery; showBattery();
 });
 
 /* ================= ONBOARDING ================= */
@@ -110,28 +107,32 @@ let scramjet, connection, activeFrame=null, scramjetReady=false;
 async function initScramjet(){
     if(scramjetReady) return;
     const { ScramjetController } = $scramjetLoadController();
-    scramjet = new ScramjetController({ files:{ wasm:"/scram/scramjet.wasm.wasm", all:"/scram/scramjet.all.js", sync:"/scram/scramjet.sync.js"} });
+    scramjet = new ScramjetController({
+        files:{
+            wasm:"/scram/scramjet.wasm.wasm",
+            all:"/scram/scramjet.all.js",
+            sync:"/scram/scramjet.sync.js"
+        }
+    });
     await scramjet.init();
     connection = new BareMux.BareMuxConnection("/baremux/worker.js");
     scramjetReady=true;
 }
 async function initScramjetBrowser(container){
-    if(!scramjetReady) await initScramjet();
-    await registerSW();
-    if(!activeFrame){
-        activeFrame=scramjet.createFrame();
-        activeFrame.frame.style.width="100%";
-        activeFrame.frame.style.height="100%";
-        activeFrame.frame.style.border="none";
-        container.appendChild(activeFrame.frame);
-    }
-    if(activeFrame.waitUntilReady) await activeFrame.waitUntilReady();
     try{
-        // Wrap in try/catch so OS stays alive even if Scramjet fails
-        activeFrame.go("https://search.brave.com/");
+        if(!scramjetReady) await initScramjet();
+        if(!activeFrame){
+            activeFrame=scramjet.createFrame();
+            activeFrame.frame.style.width="100%";
+            activeFrame.frame.style.height="100%";
+            activeFrame.frame.style.border="none";
+            container.appendChild(activeFrame.frame);
+        }
+        if(activeFrame.waitUntilReady) await activeFrame.waitUntilReady();
+        await activeFrame.go("https://search.brave.com/");
     }catch(err){
-        console.warn("Scramjet browser cannot load:", err.message);
-        activeFrame.frame.innerHTML=`<div style="color:white;display:flex;align-items:center;justify-content:center;height:100%;font-size:16px;">Failed to load page. Check your connection or environment.</div>`;
+        console.warn("Scramjet browser failed:", err.message);
+        if(container) container.innerHTML=`<div style="color:white;display:flex;align-items:center;justify-content:center;height:100%;font-size:16px;">Failed to load page. Browser might not be supported.</div>`;
     }
 }
 
@@ -142,38 +143,25 @@ function initChat(container){
       <input id="chat-input" style="width:80%;padding:5px;border-radius:5px;" placeholder="Type a message...">
       <button id="chat-send">Send</button>
     `;
+    const chatWindow=container.querySelector("#chat-window");
+    const chatInput=container.querySelector("#chat-input");
+    const chatSend=container.querySelector("#chat-send");
+    const username="Guest";
 
-    const chatWindow = container.querySelector("#chat-window");
-    const chatInput = container.querySelector("#chat-input");
-    const chatSend = container.querySelector("#chat-send");
-    const username = "Guest";
-
-    function getMessages() {
-        return JSON.parse(localStorage.getItem("matriarchs-chat") || "[]");
-    }
-    function saveMessage(msg) {
-        const msgs = getMessages();
-        msgs.push(msg);
-        localStorage.setItem("matriarchs-chat", JSON.stringify(msgs));
-    }
-    function renderMessages() {
-        const msgs = getMessages();
-        chatWindow.innerHTML = msgs.map(m => `<div><strong>${m.user}</strong>: ${m.message}</div>`).join('');
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-    }
-
-    setInterval(renderMessages, 2000);
+    function getMessages(){return JSON.parse(localStorage.getItem("matriarchs-chat")||"[]");}
+    function saveMessage(msg){const msgs=getMessages(); msgs.push(msg); localStorage.setItem("matriarchs-chat", JSON.stringify(msgs));}
+    function renderMessages(){const msgs=getMessages(); chatWindow.innerHTML=msgs.map(m=>`<div><strong>${m.user}</strong>: ${m.message}</div>`).join(''); chatWindow.scrollTop=chatWindow.scrollHeight;}
+    
     renderMessages();
+    setInterval(renderMessages,2000);
 
-    chatSend.addEventListener("click", () => {
-        const msg = chatInput.value.trim();
+    chatSend.addEventListener("click",()=>{
+        const msg=chatInput.value.trim();
         if(!msg) return;
-        saveMessage({ user: username, message: msg, time: new Date().toISOString() });
-        chatInput.value = "";
+        saveMessage({user:username,message:msg,time:new Date().toISOString()});
+        chatInput.value="";
         renderMessages();
     });
-
-    chatInput.addEventListener("keydown", e => { if(e.key==="Enter") chatSend.click(); });
-
-    window.addEventListener("storage", renderMessages);
+    chatInput.addEventListener("keydown",e=>{if(e.key==="Enter") chatSend.click();});
+    window.addEventListener("storage",renderMessages);
 }
