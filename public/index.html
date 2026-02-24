@@ -4,51 +4,53 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Matriarchs OS</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="index.css">
+
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
 <script src="/register-sw.js"></script>
-<script defer src="index.js"></script>
+<script src="index.js" defer></script>
 </head>
 <body>
 
-<canvas id="particles"></canvas>
+<!-- Background -->
+<canvas id="particle-canvas"></canvas>
 
-<!-- DESKTOP -->
-<div id="desktop">
-  <div id="welcomeText"></div>
-  <div id="taskbar">
-    <button id="launchBtn">Launchpad</button>
-    <div id="clock"></div>
-  </div>
+<!-- Status Bar -->
+<div class="status-bar">
+  <div id="time"></div>
+  <div id="battery"></div>
+  <div id="theme-toggle">🌙</div>
+</div>
 
-  <!-- LAUNCHPAD -->
-  <div id="launchpad" class="hidden">
-    <button data-app="browser">Browser</button>
-    <button data-app="games">Games</button>
-  </div>
+<!-- Taskbar -->
+<div class="taskbar">
+  <button id="start-btn">☰ Start</button>
+  <div id="taskbar-windows"></div>
+</div>
 
-  <!-- APPS -->
-  <div id="browserApp" class="window hidden">
-    <div class="title-bar">
-      <span>Browser</span>
-      <div class="buttons">
-        <button onclick="closeWin('browser')"></button>
-      </div>
-    </div>
-    <div class="content" id="browserContent"></div>
-  </div>
+<!-- Launchpad -->
+<div id="launchpad" class="launchpad hidden">
+  <button class="launch-app" data-app="browser">Browser</button>
+  <button class="launch-app" data-app="games">Games</button>
+  <button class="launch-app" data-app="chat">Chat</button>
+  <button class="launch-app" data-app="settings">Settings</button>
+</div>
 
-  <div id="gamesApp" class="window hidden">
-    <div class="title-bar">
-      <span>Games</span>
-      <div class="buttons">
-        <button onclick="closeWin('games')"></button>
-      </div>
-    </div>
-    <div class="content">Games coming soon...</div>
+<!-- Onboarding -->
+<section id="onboarding" class="screen active">
+  <div class="onboard-content">
+    <h1>Welcome to Matriarchs OS</h1>
+    <p>Your private universe awaits</p>
+    <button id="enter-os-btn">Enter OS</button>
   </div>
+</section>
+
+<!-- Desktop -->
+<div id="desktop" class="desktop">
+  <!-- Windows are dynamically created -->
 </div>
 
 </body>
