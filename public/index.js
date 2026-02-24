@@ -126,11 +126,10 @@ async function initScramjetBrowser(container){
         container.appendChild(activeFrame.frame);
     }
     if(activeFrame.waitUntilReady) await activeFrame.waitUntilReady();
-    try {
+    try{
         activeFrame.go("https://search.brave.com/");
-    } catch(err){
-        activeFrame.frame.innerHTML = `<div style="color:white;display:flex;align-items:center;justify-content:center;height:100%;font-size:18px;">Failed to load page. Check your connection.</div>`;
-        console.error("Scramjet browser error:", err);
+    }catch(err){
+        console.warn("Scramjet browser error:", err.message);
     }
 }
 
@@ -174,6 +173,5 @@ function initChat(container){
 
     chatInput.addEventListener("keydown", e => { if(e.key==="Enter") chatSend.click(); });
 
-    // Sync across multiple tabs/windows
     window.addEventListener("storage", renderMessages);
 }
