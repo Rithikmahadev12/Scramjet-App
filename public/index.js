@@ -106,12 +106,12 @@ async function openBrowser() {
     }
 
     await activeFrame.waitUntilReady();
-    await activeFrame.go("https://search.brave.com/"); // go through proxy
+    await activeFrame.go("https://search.brave.com/"); // goes through Scramjet proxy
 
   } catch (err) {
     console.error(err);
 
-    // fallback iframe for debugging ONLY, using a site that allows iframe
+    // fallback iframe for debugging — must allow iframe
     container.innerHTML = "";
     const iframe = document.createElement("iframe");
     iframe.src = "https://www.wikipedia.org/";
