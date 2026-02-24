@@ -1,57 +1,96 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Matriarchs OS</title>
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: Inter, sans-serif;
+  overflow: hidden;
+  background: url('https://images.unsplash.com/photo-1514897575457-c4db467cf78e?q=80&w=1600') no-repeat center center/cover;
+}
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="index.css">
+.hidden { display: none; }
 
-<script src="/scram/scramjet.all.js"></script>
-<script src="/baremux/index.js"></script>
-<script src="/register-sw.js"></script>
-<script defer src="index.js"></script>
-</head>
-<body>
+#particles { position: fixed; inset: 0; z-index: 0; }
 
-<canvas id="particles"></canvas>
+#desktop { position: relative; width: 100%; height: 100%; }
 
-<div id="desktop">
-  <div id="welcomeText">Welcome to Matriarchs OS</div>
+#welcomeText {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 28px;
+  font-weight: 600;
+  color: white;
+}
 
-  <div id="taskbar">
-    <button id="launchBtn">Launchpad</button>
-    <div id="clock"></div>
-  </div>
+#taskbar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(15px);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  gap: 10px;
+}
 
-  <div id="launchpad" class="hidden">
-    <button data-app="browser">Browser</button>
-    <button data-app="games">Games</button>
-  </div>
+#clock { margin-left: auto; }
 
-  <!-- Browser App -->
-  <div id="browserApp" class="window hidden">
-    <div class="title-bar">
-      <span>Browser</span>
-      <div class="buttons">
-        <button onclick="closeWin('browser')"></button>
-      </div>
-    </div>
-    <div class="content" id="browserContent"></div>
-  </div>
+#launchpad {
+  position: absolute;
+  bottom: 60px;
+  left: 10px;
+  background: rgba(30,30,40,0.9);
+  padding: 10px;
+  border-radius: 10px;
+}
 
-  <!-- Games App -->
-  <div id="gamesApp" class="window hidden">
-    <div class="title-bar">
-      <span>Games</span>
-      <div class="buttons">
-        <button onclick="closeWin('games')"></button>
-      </div>
-    </div>
-    <div class="content">Games coming soon...</div>
-  </div>
-</div>
+#launchpad button {
+  padding: 10px 15px;
+  margin: 5px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: rgba(255,255,255,0.1);
+  color: white;
+  border: none;
+}
 
-</body>
-</html>
+.window {
+  position: absolute;
+  width: 800px;
+  height: 500px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(20px);
+  border-radius: 12px;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.title-bar {
+  background: rgba(20,20,30,0.9);
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.buttons button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #888;
+  border: none;
+  cursor: pointer;
+}
+
+.content {
+  height: calc(100% - 32px);
+  background: rgba(0,0,0,0.6);
+  position: relative;
+}
