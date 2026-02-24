@@ -103,4 +103,5 @@ body, html {
 .content {
   height: calc(100% - 32px);
   background: rgba(0,0,0,0.6);
+  position: relative;
 }
