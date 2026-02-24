@@ -8,11 +8,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="index.css">
 
-<!-- REQUIRED FOR SCRAMJET -->
+<!-- Scramjet + BareMux -->
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
 <script src="/register-sw.js"></script>
-
 <script defer src="index.js"></script>
 </head>
 <body>
@@ -33,7 +32,7 @@
     <button data-app="games">Games</button>
   </div>
 
-  <!-- Browser -->
+  <!-- Browser App -->
   <div id="browserApp" class="window hidden">
     <div class="title-bar">
       <span>Browser</span>
@@ -44,7 +43,7 @@
     <div class="content" id="browserContent"></div>
   </div>
 
-  <!-- Games -->
+  <!-- Games App -->
   <div id="gamesApp" class="window hidden">
     <div class="title-bar">
       <span>Games</span>
