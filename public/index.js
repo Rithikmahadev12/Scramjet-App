@@ -127,9 +127,11 @@ async function initScramjetBrowser(container){
     }
     if(activeFrame.waitUntilReady) await activeFrame.waitUntilReady();
     try{
+        // Wrap in try/catch so OS stays alive even if Scramjet fails
         activeFrame.go("https://search.brave.com/");
     }catch(err){
-        console.warn("Scramjet browser error:", err.message);
+        console.warn("Scramjet browser cannot load:", err.message);
+        activeFrame.frame.innerHTML=`<div style="color:white;display:flex;align-items:center;justify-content:center;height:100%;font-size:16px;">Failed to load page. Check your connection or environment.</div>`;
     }
 }
 
