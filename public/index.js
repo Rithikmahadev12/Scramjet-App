@@ -8,6 +8,7 @@ function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 }
+
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
@@ -27,7 +28,7 @@ function drawParticles() {
     p.y -= p.speed;
     if (p.y < 0) p.y = canvas.height;
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
     ctx.fillStyle = "white";
     ctx.fill();
   });
@@ -49,9 +50,11 @@ startClock();
 /* ===== LAUNCHPAD ===== */
 const launchBtn = document.getElementById("launchBtn");
 const launchpad = document.getElementById("launchpad");
-launchBtn.onclick = () => launchpad.classList.toggle("hidden");
+launchBtn.onclick = () => launchpad.classList.toggle("show");
 
-document.querySelectorAll("#launchpad button").forEach(btn => btn.onclick = () => openApp(btn.dataset.app));
+document.querySelectorAll("#launchpad button").forEach(btn => {
+  btn.onclick = () => openApp(btn.dataset.app);
+});
 
 /* ===== WINDOWS ===== */
 function openApp(id) {
@@ -59,17 +62,17 @@ function openApp(id) {
   win.classList.remove("hidden");
   if (id === "browser") openBrowser();
 }
+
 function closeWin(id) {
   document.getElementById(id + "App").classList.add("hidden");
 }
 
-/* ===== SCRAMJET + FALLBACK ===== */
+/* ===== SCRAMJET BROWSER WITH FALLBACK ===== */
 let scramjetController = null;
 let activeFrame = null;
 
 async function initScramjet() {
   if (scramjetController) return scramjetController;
-
   const { ScramjetController } = $scramjetLoadController();
   const sj = new ScramjetController({
     files: {
@@ -78,13 +81,12 @@ async function initScramjet() {
       sync: "/scram/scramjet.sync.js"
     }
   });
-
   await sj.init();
   await registerSW();
 
   const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
   await connection.setTransport("/libcurl/index.mjs", [{
-    websocket: `${location.protocol === "https:"?"wss":"ws"}://${location.host}/wisp/`
+    websocket: `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/wisp/`
   }]);
 
   scramjetController = sj;
@@ -109,12 +111,23 @@ async function openBrowser() {
     await activeFrame.go("https://search.brave.com/");
   } catch(err) {
     console.error(err);
+
+    // fallback: use proxy iframe for any site
     container.innerHTML = "";
     const iframe = document.createElement("iframe");
-    iframe.src = "https://www.wikipedia.org/";
+
+    // Example proxy: change to your Scramjet proxy endpoint
+    const proxyUrl = "/proxy?url=https://example.com";
+    iframe.src = proxyUrl;
+
     iframe.style.width = "100%";
     iframe.style.height = "100%";
     iframe.style.border = "none";
     container.appendChild(iframe);
   }
 }
+
+/* ===== SHOW DESKTOP IMMEDIATELY ===== */
+document.getElementById("bootScreen").classList.add("hidden");
+document.getElementById("desktop").classList.remove("hidden");
+document.getElementById("welcomeText").innerText = "Welcome to Matriarchs OS";
