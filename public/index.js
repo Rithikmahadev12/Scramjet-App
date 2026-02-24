@@ -1,41 +1,250 @@
-/* GLOBAL */
-* { margin:0; padding:0; box-sizing:border-box; font-family:"Inter",sans-serif; cursor: url('https://cdn.iconscout.com/icon/free/png-256/cursor-152-458097.png'), auto; }
-body { background: url("https://images.unsplash.com/photo-1514897575457-c4db467cf78e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0") center/cover no-repeat fixed; color:white; height:100vh; overflow:hidden; }
+// ================= TITLE ANIMATION =================
 
-/* PARTICLES */
-#particle-canvas { position:absolute; top:0; left:0; width:100%; height:100%; z-index:-1; }
+const title = "Matriarchs OS";
+const titleEl = document.getElementById("animated-title");
 
-/* STATUS BAR */
-.status-bar { position:fixed; top:0; left:0; right:0; height:35px; display:flex; justify-content:space-between; align-items:center; padding:0 15px; font-weight:600; background: rgba(0,0,0,0.5); z-index:100; border-bottom:1px solid rgba(255,255,255,0.2); }
-#theme-toggle { cursor:pointer; }
+title.split("").forEach((l,i)=>{
+  const span=document.createElement("span");
+  span.textContent=l;
+  span.style.animationDelay=i*.05+"s";
+  titleEl.appendChild(span);
+});
 
-/* TASKBAR */
-.taskbar { position:fixed; bottom:0; left:0; right:0; height:50px; background: rgba(0,0,0,0.7); display:flex; align-items:center; padding:0 10px; gap:5px; z-index:100; border-top:1px solid rgba(255,255,255,0.2); }
-.taskbar button { cursor:pointer; padding:5px 10px; border:none; border-radius:5px; background: rgba(255,255,255,0.1); color:white; }
+let step=1;
 
-/* LAUNCHPAD */
-.launchpad { position:fixed; bottom:60px; left:10px; width:300px; background: rgba(0,0,0,0.8); padding:10px; border-radius:15px; backdrop-filter: blur(10px); display:flex; flex-direction:column; gap:10px; z-index:101; }
-.launchpad.hidden { display:none; }
-.launch-app { padding:10px; border:none; border-radius:10px; cursor:pointer; background: rgba(255,255,255,0.1); color:white; transition:.3s; }
-.launch-app:hover { transform:scale(1.05); background: rgba(255,255,255,0.2); }
+document.addEventListener("keydown",e=>{
+  if(e.code==="Space" && step===1){
+    document.querySelectorAll("#animated-title span").forEach((s,i)=>{
+      s.style.animation=`letterOut .4s forwards`;
+      s.style.animationDelay=i*.03+"s";
+    });
+    setTimeout(nextStep,600);
+  }
+});
 
-/* ONBOARDING */
-#onboarding { position:fixed; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.8); flex-direction:column; z-index:200; }
-.onboard-content h1 { font-size:60px; background:linear-gradient(45deg,#ff6a00,#e52e71); -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:glow 2s infinite alternate; }
-.onboard-content p { margin:20px 0; font-size:20px; opacity:0.9; }
-.onboard-content button { padding:15px 50px; border:none; border-radius:40px; background:linear-gradient(45deg,#ff6a00,#e52e71); color:white; font-size:18px; cursor:pointer; transition:.3s; }
-.onboard-content button:hover { transform:scale(1.1); }
+function nextStep(){
+  document.querySelector(`#step-${step}`).classList.remove("active");
+  step++;
+  document.querySelector(`#step-${step}`).classList.add("active");
+}
 
-/* DESKTOP */
-.desktop { width:100%; height:100%; position:relative; }
+// ================= NAME STEP =================
 
-/* WINDOWS */
-.window { position:absolute; background: rgba(0,0,0,0.8); border-radius:15px; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); display:flex; flex-direction:column; box-shadow: 0 15px 30px rgba(0,0,0,0.5); transition: transform 0.3s ease, box-shadow 0.3s ease; }
-.window .title-bar { display:flex; justify-content:space-between; align-items:center; padding:5px 10px; background: rgba(255,255,255,0.1); cursor:move; border-radius: 15px 15px 0 0; }
-.window .title-bar .title { font-weight:600; }
-.window .title-bar .controls { display:flex; gap:5px; }
-.window .title-bar button { width:20px; height:20px; border:none; border-radius:50%; cursor:pointer; }
-.window .content { flex:1; padding:10px; overflow:auto; color:white; }
+document.getElementById("saveName").onclick=saveName;
+document.getElementById("nameInput").addEventListener("keydown",e=>{
+  if(e.key==="Enter") saveName();
+});
 
-/* ANIMATIONS */
-@keyframes glow { from {text-shadow:0 0 5px #ff6a00;} to {text-shadow:0 0 20px #e52e71;} }
+function saveName(){
+  const name=document.getElementById("nameInput").value.trim();
+  if(!name) return;
+  localStorage.setItem("username",name);
+  nextStep();
+}
+
+// ================= BG PICK =================
+
+document.querySelectorAll(".bg-grid img").forEach(img=>{
+  img.onclick=()=>{
+    localStorage.setItem("bg",img.src);
+    document.getElementById("desktop").style.backgroundImage=`url(${img.src})`;
+    document.getElementById("onboarding").style.display="none";
+
+    alert("Welcome, "+localStorage.getItem("username")+" 👑");
+  };
+});
+
+// Load saved
+window.onload=()=>{
+  const bg=localStorage.getItem("bg");
+  if(bg){
+    document.getElementById("desktop").style.backgroundImage=`url(${bg})`;
+    document.getElementById("onboarding").style.display="none";
+  }
+};
+
+// ================= CLOCK =================
+
+function updateClock(){
+  const now=new Date();
+  document.getElementById("clock").innerText=
+    now.toLocaleTimeString()+" | "+
+    now.toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'});
+}
+setInterval(updateClock,1000);
+updateClock();
+
+// ================= WINDOW SYSTEM =================
+
+const desktop=document.getElementById("desktop");
+let z=1;
+
+function openWindow(app){
+  const win=document.createElement("div");
+  win.className="window";
+  win.style.top="100px";
+  win.style.left="100px";
+  win.style.zIndex=z++;
+
+  win.innerHTML=`
+  <div class="titlebar">
+    <span>${app}</span>
+    <div class="controls">
+      <button class="min"></button>
+      <button class="max"></button>
+      <button class="close"></button>
+    </div>
+  </div>
+  <div class="content">${getAppContent(app)}</div>
+  `;
+
+  desktop.appendChild(win);
+  makeDraggable(win);
+
+  win.querySelector(".close").onclick=()=>win.remove();
+
+  win.querySelector(".min").onclick=()=>{
+    win.style.display="none";
+  };
+
+  win.querySelector(".max").onclick=()=>{
+    if(!win.classList.contains("maxed")){
+      win.dataset.prev=JSON.stringify({
+        top:win.style.top,
+        left:win.style.left,
+        width:win.style.width,
+        height:win.style.height
+      });
+      win.style.top="0";
+      win.style.left="0";
+      win.style.width="100%";
+      win.style.height="100%";
+      win.classList.add("maxed");
+    }else{
+      const prev=JSON.parse(win.dataset.prev);
+      win.style.top=prev.top;
+      win.style.left=prev.left;
+      win.style.width=prev.width;
+      win.style.height=prev.height;
+      win.classList.remove("maxed");
+    }
+  };
+}
+
+function makeDraggable(el){
+  const bar=el.querySelector(".titlebar");
+  let offsetX,offsetY,isDown=false;
+
+  bar.onmousedown=(e)=>{
+    isDown=true;
+    offsetX=e.clientX-el.offsetLeft;
+    offsetY=e.clientY-el.offsetTop;
+    el.style.zIndex=z++;
+  };
+
+  document.onmousemove=(e)=>{
+    if(isDown && !el.classList.contains("maxed")){
+      el.style.left=e.clientX-offsetX+"px";
+      el.style.top=e.clientY-offsetY+"px";
+    }
+  };
+
+  document.onmouseup=()=>isDown=false;
+}
+
+// ================= APPS =================
+
+function getAppContent(app){
+  if(app==="games") return "<h2 style='padding:20px'>Games Coming Soon</h2>";
+
+  if(app==="settings"){
+    return `
+    <h3 style='padding:20px'>Settings</h3>
+    <div style='padding:20px'>
+      <button onclick="cloak('classroom')">Google Classroom</button>
+      <button onclick="cloak('google')">Google</button>
+      <button onclick="cloak('blank')">Blank</button>
+    </div>
+    `;
+  }
+
+  if(app==="browser"){
+    return "<div id='browserArea' style='width:100%;height:100%'></div>";
+  }
+
+  return "";
+}
+
+// ================= TAB CLOAK =================
+
+function cloak(type){
+  if(type==="classroom"){
+    document.title="Google Classroom";
+    setIcon("https://ssl.gstatic.com/classroom/favicon.png");
+  }
+  if(type==="google"){
+    document.title="Google";
+    setIcon("https://www.google.com/favicon.ico");
+  }
+  if(type==="blank"){
+    document.title="New Tab";
+    setIcon("");
+  }
+}
+
+function setIcon(url){
+  let link=document.querySelector("link[rel~='icon']");
+  if(!link){
+    link=document.createElement("link");
+    link.rel="icon";
+    document.head.appendChild(link);
+  }
+  link.href=url;
+}
+
+// ================= LAUNCHPAD =================
+
+document.getElementById("launchBtn").onclick=()=>{
+  document.getElementById("launchpad").classList.toggle("hidden");
+};
+
+document.querySelectorAll("#launchpad button, #pinnedApps button")
+.forEach(btn=>{
+  btn.onclick=()=>openWindow(btn.dataset.app);
+});
+
+// ================= SCRAMJET =================
+
+let scramjetReady=false;
+let scramjet,connection,frame;
+
+async function initScramjet(){
+  if(scramjetReady) return;
+
+  const { ScramjetController } = $scramjetLoadController();
+  scramjet = new ScramjetController({
+    files:{
+      wasm:"/scram/scramjet.wasm.wasm",
+      all:"/scram/scramjet.all.js",
+      sync:"/scram/scramjet.sync.js"
+    }
+  });
+
+  await scramjet.init();
+  connection=new BareMux.BareMuxConnection("/baremux/worker.js");
+  scramjetReady=true;
+}
+
+async function loadBrowser(){
+  await initScramjet();
+  await registerSW();
+
+  const area=document.getElementById("browserArea");
+  frame=scramjet.createFrame();
+  frame.frame.style.width="100%";
+  frame.frame.style.height="100%";
+  area.appendChild(frame.frame);
+
+  await frame.waitUntilReady();
+  frame.go("https://search.brave.com/");
+}
