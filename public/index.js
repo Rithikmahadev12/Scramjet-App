@@ -54,9 +54,7 @@ startClock();
 const launchBtn = document.getElementById("launchBtn");
 const launchpad = document.getElementById("launchpad");
 
-launchBtn.onclick = () => {
-  launchpad.classList.toggle("hidden");
-};
+launchBtn.onclick = () => launchpad.classList.toggle("hidden");
 
 document.querySelectorAll("#launchpad button").forEach(btn => {
   btn.onclick = () => openApp(btn.dataset.app);
@@ -66,6 +64,7 @@ document.querySelectorAll("#launchpad button").forEach(btn => {
 function openApp(id) {
   const win = document.getElementById(id + "App");
   win.classList.remove("hidden");
+
   if (id === "browser") openBrowser();
 }
 
@@ -73,7 +72,7 @@ function closeWin(id) {
   document.getElementById(id + "App").classList.add("hidden");
 }
 
-/* ===== SCRAMJET BROWSER ===== */
+/* ===== SCRAMJET BROWSER WITH FALLBACK ===== */
 let scramjetController = null;
 let activeFrame = null;
 
@@ -105,17 +104,32 @@ async function initScramjet() {
 
 async function openBrowser() {
   const container = document.getElementById("browserContent");
-  container.innerHTML = "";
+  container.innerHTML = "<div style='color:white; text-align:center;'>Loading Scramjet...</div>";
 
-  const sj = await initScramjet();
+  try {
+    const sj = await initScramjet();
 
-  activeFrame = sj.createFrame();
-  activeFrame.frame.style.width = "100%";
-  activeFrame.frame.style.height = "100%";
-  activeFrame.frame.style.border = "none";
+    if (!activeFrame) {
+      activeFrame = sj.createFrame();
+      activeFrame.frame.style.width = "100%";
+      activeFrame.frame.style.height = "100%";
+      activeFrame.frame.style.border = "none";
 
-  container.appendChild(activeFrame.frame);
+      container.innerHTML = "";
+      container.appendChild(activeFrame.frame);
+    }
 
-  await activeFrame.waitUntilReady();
-  activeFrame.go("https://search.brave.com/");
+    await activeFrame.waitUntilReady();
+    await activeFrame.go("https://search.brave.com/");
+  } catch (err) {
+    console.error(err);
+    // fallback iframe if Scramjet fails
+    container.innerHTML = "";
+    const iframe = document.createElement("iframe");
+    iframe.src = "https://example.com/";
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    iframe.style.border = "none";
+    container.appendChild(iframe);
+  }
 }
