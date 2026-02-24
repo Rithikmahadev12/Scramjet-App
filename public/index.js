@@ -60,7 +60,8 @@ function startBoot() {
 
 /* ===== ONBOARDING ===== */
 function showOnboarding() {
-  document.getElementById("onboarding").classList.remove("hidden");
+  const onboarding = document.getElementById("onboarding");
+  onboarding.classList.remove("hidden");
 
   const title = "Matriarchs OS";
   const el = document.getElementById("introTitle");
@@ -82,15 +83,28 @@ function showOnboarding() {
   });
 }
 
-/* SPACE TO CONTINUE */
-document.addEventListener("keydown", e => {
-  if (e.code === "Space" &&
-      !document.getElementById("onboarding").classList.contains("hidden")) {
+/* ===== CONTINUE FUNCTION ===== */
+function continueToDesktop() {
+  document.getElementById("onboarding").classList.add("hidden");
+  document.getElementById("desktop").classList.remove("hidden");
+  startClock();
+}
 
-    document.getElementById("onboarding").classList.add("hidden");
-    document.getElementById("desktop").classList.remove("hidden");
-    startClock();
+/* ===== SPACE KEY FIX ===== */
+document.addEventListener("keydown", function (e) {
+  if (!document.getElementById("onboarding").classList.contains("hidden")) {
+
+    if (e.code === "Space" || e.key === " ") {
+      e.preventDefault(); // IMPORTANT FIX
+      continueToDesktop();
+    }
+
   }
+});
+
+/* ===== CLICK FALLBACK ===== */
+document.getElementById("onboarding").addEventListener("click", function () {
+  continueToDesktop();
 });
 
 /* ===== CLOCK ===== */
