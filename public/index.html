@@ -8,25 +8,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="index.css">
 
+<!-- REQUIRED FOR SCRAMJET -->
+<script src="/scram/scramjet.all.js"></script>
+<script src="/baremux/index.js"></script>
+<script src="/register-sw.js"></script>
+
 <script defer src="index.js"></script>
 </head>
 <body>
 
 <canvas id="particles"></canvas>
 
-<!-- BOOT SCREEN -->
-<div id="bootScreen">
-  <span id="bootText"></span>
-</div>
-
-<!-- ONBOARDING -->
-<div id="onboarding" class="hidden">
-  <div id="introTitle"></div>
-  <div class="press-space">Press SPACE to continue</div>
-</div>
-
 <!-- DESKTOP -->
-<div id="desktop" class="hidden">
+<div id="desktop">
   <div id="welcomeText">Welcome to Matriarchs OS</div>
 
   <div id="taskbar">
@@ -47,7 +41,7 @@
         <button onclick="closeWin('browser')"></button>
       </div>
     </div>
-    <div class="content">Browser coming soon...</div>
+    <div class="content" id="browserContent"></div>
   </div>
 
   <!-- Games -->
