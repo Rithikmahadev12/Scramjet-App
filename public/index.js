@@ -49,8 +49,19 @@ startClock();
 /* ===== LAUNCHPAD ===== */
 const launchBtn = document.getElementById("launchBtn");
 const launchpad = document.getElementById("launchpad");
-launchBtn.onclick = () => launchpad.classList.toggle("show");
 
+// Fixed toggle logic
+launchBtn.onclick = () => {
+  if (launchpad.classList.contains("hidden")) {
+    launchpad.classList.remove("hidden");
+    launchpad.classList.add("show");
+  } else {
+    launchpad.classList.remove("show");
+    launchpad.classList.add("hidden");
+  }
+};
+
+// Launchpad buttons
 document.querySelectorAll("#launchpad button").forEach(btn => {
   btn.onclick = () => openApp(btn.dataset.app);
 });
