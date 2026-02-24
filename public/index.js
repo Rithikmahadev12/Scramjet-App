@@ -1,138 +1,41 @@
-"use strict";
+/* GLOBAL */
+* { margin:0; padding:0; box-sizing:border-box; font-family:"Inter",sans-serif; cursor: url('https://cdn.iconscout.com/icon/free/png-256/cursor-152-458097.png'), auto; }
+body { background: url("https://images.unsplash.com/photo-1514897575457-c4db467cf78e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0") center/cover no-repeat fixed; color:white; height:100vh; overflow:hidden; }
 
-/* ===== PARTICLES ===== */
-const canvas = document.getElementById("particles");
-const ctx = canvas.getContext("2d");
+/* PARTICLES */
+#particle-canvas { position:absolute; top:0; left:0; width:100%; height:100%; z-index:-1; }
 
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resizeCanvas();
-window.addEventListener("resize", resizeCanvas);
+/* STATUS BAR */
+.status-bar { position:fixed; top:0; left:0; right:0; height:35px; display:flex; justify-content:space-between; align-items:center; padding:0 15px; font-weight:600; background: rgba(0,0,0,0.5); z-index:100; border-bottom:1px solid rgba(255,255,255,0.2); }
+#theme-toggle { cursor:pointer; }
 
-let particles = [];
-for (let i = 0; i < 150; i++) {
-  particles.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    r: Math.random() * 2 + 0.5,
-    speed: Math.random() * 0.5 + 0.2
-  });
-}
+/* TASKBAR */
+.taskbar { position:fixed; bottom:0; left:0; right:0; height:50px; background: rgba(0,0,0,0.7); display:flex; align-items:center; padding:0 10px; gap:5px; z-index:100; border-top:1px solid rgba(255,255,255,0.2); }
+.taskbar button { cursor:pointer; padding:5px 10px; border:none; border-radius:5px; background: rgba(255,255,255,0.1); color:white; }
 
-function drawParticles() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  particles.forEach(p => {
-    p.y -= p.speed;
-    if (p.y < 0) p.y = canvas.height;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-    ctx.fillStyle = "white";
-    ctx.fill();
-  });
-  requestAnimationFrame(drawParticles);
-}
-drawParticles();
+/* LAUNCHPAD */
+.launchpad { position:fixed; bottom:60px; left:10px; width:300px; background: rgba(0,0,0,0.8); padding:10px; border-radius:15px; backdrop-filter: blur(10px); display:flex; flex-direction:column; gap:10px; z-index:101; }
+.launchpad.hidden { display:none; }
+.launch-app { padding:10px; border:none; border-radius:10px; cursor:pointer; background: rgba(255,255,255,0.1); color:white; transition:.3s; }
+.launch-app:hover { transform:scale(1.05); background: rgba(255,255,255,0.2); }
 
-/* ===== CLOCK ===== */
-function startClock() {
-  setInterval(() => {
-    const d = new Date();
-    document.getElementById("clock").innerText =
-      d.toLocaleTimeString() + " | " +
-      d.toLocaleDateString(undefined, { weekday:"long", month:"short", day:"numeric" });
-  }, 1000);
-}
-startClock();
+/* ONBOARDING */
+#onboarding { position:fixed; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.8); flex-direction:column; z-index:200; }
+.onboard-content h1 { font-size:60px; background:linear-gradient(45deg,#ff6a00,#e52e71); -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:glow 2s infinite alternate; }
+.onboard-content p { margin:20px 0; font-size:20px; opacity:0.9; }
+.onboard-content button { padding:15px 50px; border:none; border-radius:40px; background:linear-gradient(45deg,#ff6a00,#e52e71); color:white; font-size:18px; cursor:pointer; transition:.3s; }
+.onboard-content button:hover { transform:scale(1.1); }
 
-/* ===== LAUNCHPAD ===== */
-const launchBtn = document.getElementById("launchBtn");
-const launchpad = document.getElementById("launchpad");
+/* DESKTOP */
+.desktop { width:100%; height:100%; position:relative; }
 
-// Fixed toggle logic
-launchBtn.onclick = () => {
-  if (launchpad.classList.contains("hidden")) {
-    launchpad.classList.remove("hidden");
-    launchpad.classList.add("show");
-  } else {
-    launchpad.classList.remove("show");
-    launchpad.classList.add("hidden");
-  }
-};
+/* WINDOWS */
+.window { position:absolute; background: rgba(0,0,0,0.8); border-radius:15px; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); display:flex; flex-direction:column; box-shadow: 0 15px 30px rgba(0,0,0,0.5); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.window .title-bar { display:flex; justify-content:space-between; align-items:center; padding:5px 10px; background: rgba(255,255,255,0.1); cursor:move; border-radius: 15px 15px 0 0; }
+.window .title-bar .title { font-weight:600; }
+.window .title-bar .controls { display:flex; gap:5px; }
+.window .title-bar button { width:20px; height:20px; border:none; border-radius:50%; cursor:pointer; }
+.window .content { flex:1; padding:10px; overflow:auto; color:white; }
 
-// Launchpad buttons
-document.querySelectorAll("#launchpad button").forEach(btn => {
-  btn.onclick = () => openApp(btn.dataset.app);
-});
-
-/* ===== WINDOWS ===== */
-function openApp(id) {
-  const win = document.getElementById(id + "App");
-  win.classList.remove("hidden");
-  if (id === "browser") openBrowser();
-}
-
-function closeWin(id) {
-  document.getElementById(id + "App").classList.add("hidden");
-}
-
-/* ===== SCRAMJET + PROXY FALLBACK ===== */
-let scramjetController = null;
-let activeFrame = null;
-
-async function initScramjet() {
-  if (scramjetController) return scramjetController;
-
-  const { ScramjetController } = $scramjetLoadController();
-  const sj = new ScramjetController({
-    files: {
-      wasm: "/scram/scramjet.wasm",
-      all: "/scram/scramjet.all.js",
-      sync: "/scram/scramjet.sync.js"
-    }
-  });
-
-  await sj.init();
-  await registerSW();
-
-  const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
-  await connection.setTransport("/libcurl/index.mjs", [{
-    websocket: `${location.protocol==="https:"?"wss":"ws"}://${location.host}/wisp/`
-  }]);
-
-  scramjetController = sj;
-  return sj;
-}
-
-async function openBrowser() {
-  const container = document.getElementById("browserContent");
-  container.innerHTML = "<div style='color:white;text-align:center;'>Loading Scramjet...</div>";
-
-  try {
-    const sj = await initScramjet();
-    if (!activeFrame) {
-      activeFrame = sj.createFrame();
-      activeFrame.frame.style.width = "100%";
-      activeFrame.frame.style.height = "100%";
-      activeFrame.frame.style.border = "none";
-      container.innerHTML = "";
-      container.appendChild(activeFrame.frame);
-    }
-    await activeFrame.waitUntilReady();
-    await activeFrame.go("https://search.brave.com/");
-  } catch(err) {
-    console.error("Scramjet failed, using proxy fallback:", err);
-    container.innerHTML = "";
-    const iframe = document.createElement("iframe");
-    iframe.src = "/proxy?url=https://search.brave.com";
-    iframe.style.width = "100%";
-    iframe.style.height = "100%";
-    iframe.style.border = "none";
-    container.appendChild(iframe);
-  }
-}
-
-/* ===== SHOW DESKTOP ===== */
-document.getElementById("desktop").classList.remove("hidden");
-document.getElementById("welcomeText").innerText = "Welcome to Matriarchs OS";
+/* ANIMATIONS */
+@keyframes glow { from {text-shadow:0 0 5px #ff6a00;} to {text-shadow:0 0 20px #e52e71;} }
