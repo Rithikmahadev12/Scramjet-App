@@ -35,78 +35,6 @@ function drawParticles() {
 }
 drawParticles();
 
-/* ===== BOOT ===== */
-window.addEventListener("load", startBoot);
-
-function startBoot() {
-  let text = "Matriarchs OS";
-  let i = 0;
-  const el = document.getElementById("bootText");
-
-  function type() {
-    if (i < text.length) {
-      el.textContent += text[i++];
-      setTimeout(type, 100);
-    } else {
-      setTimeout(() => {
-        document.getElementById("bootScreen").classList.add("hidden");
-        showOnboarding();
-      }, 500);
-    }
-  }
-
-  type();
-}
-
-/* ===== ONBOARDING ===== */
-function showOnboarding() {
-  const onboarding = document.getElementById("onboarding");
-  onboarding.classList.remove("hidden");
-
-  const title = "Matriarchs OS";
-  const el = document.getElementById("introTitle");
-  el.innerHTML = "";
-
-  title.split("").forEach((c, i) => {
-    const span = document.createElement("span");
-    span.textContent = c;
-    span.style.opacity = 0;
-    span.style.display = "inline-block";
-    span.style.transform = "translateY(40px)";
-    span.style.transition = "0.5s ease";
-    el.appendChild(span);
-
-    setTimeout(() => {
-      span.style.opacity = 1;
-      span.style.transform = "translateY(0)";
-    }, i * 80);
-  });
-}
-
-/* ===== CONTINUE FUNCTION ===== */
-function continueToDesktop() {
-  document.getElementById("onboarding").classList.add("hidden");
-  document.getElementById("desktop").classList.remove("hidden");
-  startClock();
-}
-
-/* ===== SPACE KEY FIX ===== */
-document.addEventListener("keydown", function (e) {
-  if (!document.getElementById("onboarding").classList.contains("hidden")) {
-
-    if (e.code === "Space" || e.key === " ") {
-      e.preventDefault(); // IMPORTANT FIX
-      continueToDesktop();
-    }
-
-  }
-});
-
-/* ===== CLICK FALLBACK ===== */
-document.getElementById("onboarding").addEventListener("click", function () {
-  continueToDesktop();
-});
-
 /* ===== CLOCK ===== */
 function startClock() {
   setInterval(() => {
@@ -120,6 +48,7 @@ function startClock() {
       });
   }, 1000);
 }
+startClock();
 
 /* ===== LAUNCHPAD ===== */
 const launchBtn = document.getElementById("launchBtn");
@@ -135,9 +64,58 @@ document.querySelectorAll("#launchpad button").forEach(btn => {
 
 /* ===== WINDOWS ===== */
 function openApp(id) {
-  document.getElementById(id + "App").classList.remove("hidden");
+  const win = document.getElementById(id + "App");
+  win.classList.remove("hidden");
+  if (id === "browser") openBrowser();
 }
 
 function closeWin(id) {
   document.getElementById(id + "App").classList.add("hidden");
+}
+
+/* ===== SCRAMJET BROWSER ===== */
+let scramjetController = null;
+let activeFrame = null;
+
+async function initScramjet() {
+  if (scramjetController) return scramjetController;
+
+  const { ScramjetController } = $scramjetLoadController();
+
+  const sj = new ScramjetController({
+    files: {
+      wasm: "/scram/scramjet.wasm",
+      all: "/scram/scramjet.all.js",
+      sync: "/scram/scramjet.sync.js"
+    }
+  });
+
+  await sj.init();
+  await registerSW();
+
+  const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
+
+  await connection.setTransport("/libcurl/index.mjs", [{
+    websocket: `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/wisp/`
+  }]);
+
+  scramjetController = sj;
+  return sj;
+}
+
+async function openBrowser() {
+  const container = document.getElementById("browserContent");
+  container.innerHTML = "";
+
+  const sj = await initScramjet();
+
+  activeFrame = sj.createFrame();
+  activeFrame.frame.style.width = "100%";
+  activeFrame.frame.style.height = "100%";
+  activeFrame.frame.style.border = "none";
+
+  container.appendChild(activeFrame.frame);
+
+  await activeFrame.waitUntilReady();
+  activeFrame.go("https://search.brave.com/");
 }
