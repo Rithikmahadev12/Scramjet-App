@@ -35,16 +35,8 @@ function drawParticles() {
 }
 drawParticles();
 
-/* ===== LOAD FLOW ===== */
-window.addEventListener("load", () => {
-  const saved = localStorage.getItem("username");
-
-  if (saved) {
-    showDesktop(saved);
-  } else {
-    startBoot();
-  }
-});
+/* ===== BOOT ===== */
+window.addEventListener("load", startBoot);
 
 function startBoot() {
   let text = "Matriarchs OS";
@@ -58,7 +50,7 @@ function startBoot() {
     } else {
       setTimeout(() => {
         document.getElementById("bootScreen").classList.add("hidden");
-        document.getElementById("onboarding").classList.remove("hidden");
+        showOnboarding();
       }, 500);
     }
   }
@@ -66,34 +58,42 @@ function startBoot() {
   type();
 }
 
-/* SPACE */
+/* ===== ONBOARDING ===== */
+function showOnboarding() {
+  document.getElementById("onboarding").classList.remove("hidden");
+
+  const title = "Matriarchs OS";
+  const el = document.getElementById("introTitle");
+  el.innerHTML = "";
+
+  title.split("").forEach((c, i) => {
+    const span = document.createElement("span");
+    span.textContent = c;
+    span.style.opacity = 0;
+    span.style.display = "inline-block";
+    span.style.transform = "translateY(40px)";
+    span.style.transition = "0.5s ease";
+    el.appendChild(span);
+
+    setTimeout(() => {
+      span.style.opacity = 1;
+      span.style.transform = "translateY(0)";
+    }, i * 80);
+  });
+}
+
+/* SPACE TO CONTINUE */
 document.addEventListener("keydown", e => {
   if (e.code === "Space" &&
       !document.getElementById("onboarding").classList.contains("hidden")) {
+
     document.getElementById("onboarding").classList.add("hidden");
-    document.getElementById("nameInputScreen").classList.remove("hidden");
+    document.getElementById("desktop").classList.remove("hidden");
+    startClock();
   }
 });
 
-/* SAVE NAME */
-document.getElementById("saveNameBtn").addEventListener("click", () => {
-  const name = document.getElementById("nameField").value.trim();
-  if (!name) return;
-
-  localStorage.setItem("username", name);
-  showDesktop(name);
-});
-
-function showDesktop(name) {
-  document.getElementById("bootScreen").classList.add("hidden");
-  document.getElementById("onboarding").classList.add("hidden");
-  document.getElementById("nameInputScreen").classList.add("hidden");
-  document.getElementById("desktop").classList.remove("hidden");
-  document.getElementById("welcomeText").innerText = "Welcome, " + name;
-  startClock();
-}
-
-/* CLOCK */
+/* ===== CLOCK ===== */
 function startClock() {
   setInterval(() => {
     const d = new Date();
@@ -107,7 +107,7 @@ function startClock() {
   }, 1000);
 }
 
-/* LAUNCHPAD */
+/* ===== LAUNCHPAD ===== */
 const launchBtn = document.getElementById("launchBtn");
 const launchpad = document.getElementById("launchpad");
 
@@ -119,10 +119,11 @@ document.querySelectorAll("#launchpad button").forEach(btn => {
   btn.onclick = () => openApp(btn.dataset.app);
 });
 
-/* WINDOWS */
+/* ===== WINDOWS ===== */
 function openApp(id) {
   document.getElementById(id + "App").classList.remove("hidden");
 }
+
 function closeWin(id) {
   document.getElementById(id + "App").classList.add("hidden");
 }
