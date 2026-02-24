@@ -118,29 +118,18 @@ async function initScramjet(){
 async function initScramjetBrowser(container){
     if(!scramjetReady) await initScramjet();
     await registerSW();
-
-    // Ensure libcurl WASM is loaded first
-    if(connection && connection.libcurl){
-        if(!connection.libcurl.loaded){
-            await connection.libcurl.load_wasm();
-        }
-    }
-
     if(!activeFrame){
-        activeFrame = scramjet.createFrame();
-        activeFrame.frame.style.width = "100%";
-        activeFrame.frame.style.height = "100%";
-        activeFrame.frame.style.border = "none";
+        activeFrame=scramjet.createFrame();
+        activeFrame.frame.style.width="100%";
+        activeFrame.frame.style.height="100%";
+        activeFrame.frame.style.border="none";
         container.appendChild(activeFrame.frame);
     }
-
     if(activeFrame.waitUntilReady) await activeFrame.waitUntilReady();
-
-    // Navigate only after WASM is loaded
     try {
         activeFrame.go("https://search.brave.com/");
     } catch(err){
-        activeFrame.frame.innerHTML = `<div style="color:white;display:flex;align-items:center;justify-content:center;height:100%;font-size:18px;">Failed to load page. Please check your connection.</div>`;
+        activeFrame.frame.innerHTML = `<div style="color:white;display:flex;align-items:center;justify-content:center;height:100%;font-size:18px;">Failed to load page. Check your connection.</div>`;
         console.error("Scramjet browser error:", err);
     }
 }
