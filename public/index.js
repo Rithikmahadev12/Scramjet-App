@@ -27,7 +27,7 @@ function drawParticles() {
     p.y -= p.speed;
     if (p.y < 0) p.y = canvas.height;
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
     ctx.fillStyle = "white";
     ctx.fill();
   });
@@ -41,7 +41,7 @@ function startClock() {
     const d = new Date();
     document.getElementById("clock").innerText =
       d.toLocaleTimeString() + " | " +
-      d.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
+      d.toLocaleDateString(undefined, { weekday:"long", month:"short", day:"numeric" });
   }, 1000);
 }
 startClock();
@@ -61,11 +61,12 @@ function openApp(id) {
   win.classList.remove("hidden");
   if (id === "browser") openBrowser();
 }
+
 function closeWin(id) {
   document.getElementById(id + "App").classList.add("hidden");
 }
 
-/* ===== SCRAMJET BROWSER WITH PROXY FALLBACK ===== */
+/* ===== SCRAMJET + PROXY FALLBACK ===== */
 let scramjetController = null;
 let activeFrame = null;
 
@@ -86,7 +87,7 @@ async function initScramjet() {
 
   const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
   await connection.setTransport("/libcurl/index.mjs", [{
-    websocket: `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/wisp/`
+    websocket: `${location.protocol==="https:"?"wss":"ws"}://${location.host}/wisp/`
   }]);
 
   scramjetController = sj;
@@ -99,7 +100,6 @@ async function openBrowser() {
 
   try {
     const sj = await initScramjet();
-
     if (!activeFrame) {
       activeFrame = sj.createFrame();
       activeFrame.frame.style.width = "100%";
@@ -108,31 +108,20 @@ async function openBrowser() {
       container.innerHTML = "";
       container.appendChild(activeFrame.frame);
     }
-
     await activeFrame.waitUntilReady();
-
-    // Open Brave search inside Scramjet
     await activeFrame.go("https://search.brave.com/");
   } catch(err) {
     console.error("Scramjet failed, using proxy fallback:", err);
-
-    // Proxy fallback
     container.innerHTML = "";
     const iframe = document.createElement("iframe");
-
-    // Use your local or remote proxy here
-    const proxyUrl = "/proxy?url=https://search.brave.com";
-    iframe.src = proxyUrl;
-
+    iframe.src = "/proxy?url=https://search.brave.com";
     iframe.style.width = "100%";
     iframe.style.height = "100%";
     iframe.style.border = "none";
-
     container.appendChild(iframe);
   }
 }
 
-/* ===== SHOW DESKTOP IMMEDIATELY ===== */
-document.getElementById("bootScreen").classList.add("hidden");
+/* ===== SHOW DESKTOP ===== */
 document.getElementById("desktop").classList.remove("hidden");
 document.getElementById("welcomeText").innerText = "Welcome to Matriarchs OS";
