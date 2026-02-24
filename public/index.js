@@ -8,7 +8,6 @@ function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 }
-
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
@@ -62,17 +61,17 @@ function openApp(id) {
   win.classList.remove("hidden");
   if (id === "browser") openBrowser();
 }
-
 function closeWin(id) {
   document.getElementById(id + "App").classList.add("hidden");
 }
 
-/* ===== SCRAMJET BROWSER WITH FALLBACK ===== */
+/* ===== SCRAMJET BROWSER WITH PROXY FALLBACK ===== */
 let scramjetController = null;
 let activeFrame = null;
 
 async function initScramjet() {
   if (scramjetController) return scramjetController;
+
   const { ScramjetController } = $scramjetLoadController();
   const sj = new ScramjetController({
     files: {
@@ -81,6 +80,7 @@ async function initScramjet() {
       sync: "/scram/scramjet.sync.js"
     }
   });
+
   await sj.init();
   await registerSW();
 
@@ -99,6 +99,7 @@ async function openBrowser() {
 
   try {
     const sj = await initScramjet();
+
     if (!activeFrame) {
       activeFrame = sj.createFrame();
       activeFrame.frame.style.width = "100%";
@@ -107,22 +108,26 @@ async function openBrowser() {
       container.innerHTML = "";
       container.appendChild(activeFrame.frame);
     }
+
     await activeFrame.waitUntilReady();
+
+    // Open Brave search inside Scramjet
     await activeFrame.go("https://search.brave.com/");
   } catch(err) {
-    console.error(err);
+    console.error("Scramjet failed, using proxy fallback:", err);
 
-    // fallback: use proxy iframe for any site
+    // Proxy fallback
     container.innerHTML = "";
     const iframe = document.createElement("iframe");
 
-    // Example proxy: change to your Scramjet proxy endpoint
-    const proxyUrl = "/proxy?url=https://example.com";
+    // Use your local or remote proxy here
+    const proxyUrl = "/proxy?url=https://search.brave.com";
     iframe.src = proxyUrl;
 
     iframe.style.width = "100%";
     iframe.style.height = "100%";
     iframe.style.border = "none";
+
     container.appendChild(iframe);
   }
 }
