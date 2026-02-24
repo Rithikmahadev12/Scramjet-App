@@ -1,4 +1,3 @@
-/* ===== GLOBAL ===== */
 body, html {
   margin: 0;
   padding: 0;
@@ -11,14 +10,13 @@ body, html {
 
 .hidden { display: none; }
 
-/* ===== PARTICLES ===== */
 #particles {
   position: fixed;
   inset: 0;
   z-index: 0;
 }
 
-/* ===== BOOT SCREEN ===== */
+/* Boot */
 #bootScreen {
   position: fixed;
   inset: 0;
@@ -31,7 +29,18 @@ body, html {
   z-index: 10;
 }
 
-/* ===== ONBOARDING ===== */
+/* Onboarding */
+#onboarding {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,0.7);
+  z-index: 15;
+}
+
 #introTitle {
   font-size: 80px;
   font-weight: 900;
@@ -46,11 +55,11 @@ body, html {
   margin-top: 20px;
 }
 
-/* ===== NAME INPUT ===== */
+/* Name Input */
 #nameInputScreen {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.8);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -58,16 +67,26 @@ body, html {
   z-index: 20;
 }
 
-#nameField { padding: 12px 18px; border-radius: 10px; border: none; margin-bottom: 10px; width: 250px; }
-#saveNameBtn { padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; }
+#nameField {
+  padding: 12px 18px;
+  border-radius: 10px;
+  border: none;
+  margin-bottom: 10px;
+  width: 250px;
+}
 
-/* ===== DESKTOP ===== */
+#saveNameBtn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* Desktop */
 #desktop {
   position: relative;
   width: 100%;
   height: 100%;
-  background-size: cover;
-  background-position: center;
   z-index: 1;
 }
 
@@ -80,7 +99,7 @@ body, html {
   color: white;
 }
 
-/* ===== TASKBAR ===== */
+/* Taskbar */
 #taskbar {
   position: absolute;
   bottom: 0;
@@ -93,29 +112,18 @@ body, html {
   align-items: center;
   padding: 0 10px;
   gap: 10px;
-  z-index: 5;
 }
 
 #clock { margin-left: auto; }
 
-/* ===== LAUNCHPAD ===== */
+/* Launchpad */
 #launchpad {
   position: absolute;
   bottom: 60px;
   left: 10px;
-  background: rgba(30,30,40,0.8);
-  backdrop-filter: blur(15px);
+  background: rgba(30,30,40,0.9);
   padding: 10px;
   border-radius: 10px;
-  z-index: 5;
-  opacity: 0;
-  transform: scale(0.8);
-  transition: all 0.3s ease;
-}
-
-#launchpad.show {
-  opacity: 1;
-  transform: scale(1);
 }
 
 #launchpad button {
@@ -128,23 +136,23 @@ body, html {
   border: none;
 }
 
-/* ===== WINDOWS ===== */
+/* Windows */
 .window {
   position: absolute;
   width: 600px;
   height: 400px;
-  background: rgba(0,0,0,0.7);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.8);
   backdrop-filter: blur(20px);
   border-radius: 12px;
-  z-index: 5;
   overflow: hidden;
-  transition: all 0.3s ease;
 }
 
 .title-bar {
-  background: rgba(20,20,30,0.8);
+  background: rgba(20,20,30,0.9);
   padding: 8px 12px;
-  cursor: move;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -154,7 +162,6 @@ body, html {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  margin-left: 6px;
   background: #888;
   border: none;
   cursor: pointer;
@@ -162,10 +169,8 @@ body, html {
 
 .content {
   height: calc(100% - 32px);
-  background: rgba(0,0,0,0.5);
   color: white;
   padding: 10px;
 }
 
-/* ===== ANIMATIONS ===== */
 @keyframes blink { 50% { opacity: 0.2; } }
