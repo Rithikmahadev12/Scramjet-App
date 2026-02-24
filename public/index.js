@@ -41,11 +41,7 @@ function startClock() {
     const d = new Date();
     document.getElementById("clock").innerText =
       d.toLocaleTimeString() + " | " +
-      d.toLocaleDateString(undefined, {
-        weekday: "long",
-        month: "short",
-        day: "numeric"
-      });
+      d.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
   }, 1000);
 }
 startClock();
@@ -53,26 +49,18 @@ startClock();
 /* ===== LAUNCHPAD ===== */
 const launchBtn = document.getElementById("launchBtn");
 const launchpad = document.getElementById("launchpad");
-
 launchBtn.onclick = () => launchpad.classList.toggle("hidden");
-
-document.querySelectorAll("#launchpad button").forEach(btn => {
-  btn.onclick = () => openApp(btn.dataset.app);
-});
+document.querySelectorAll("#launchpad button").forEach(btn => btn.onclick = () => openApp(btn.dataset.app));
 
 /* ===== WINDOWS ===== */
 function openApp(id) {
   const win = document.getElementById(id + "App");
   win.classList.remove("hidden");
-
   if (id === "browser") openBrowser();
 }
+function closeWin(id) { document.getElementById(id + "App").classList.add("hidden"); }
 
-function closeWin(id) {
-  document.getElementById(id + "App").classList.add("hidden");
-}
-
-/* ===== SCRAMJET BROWSER WITH FALLBACK ===== */
+/* ===== SCRAMJET PROXY BROWSER ===== */
 let scramjetController = null;
 let activeFrame = null;
 
@@ -80,7 +68,6 @@ async function initScramjet() {
   if (scramjetController) return scramjetController;
 
   const { ScramjetController } = $scramjetLoadController();
-
   const sj = new ScramjetController({
     files: {
       wasm: "/scram/scramjet.wasm",
@@ -93,7 +80,6 @@ async function initScramjet() {
   await registerSW();
 
   const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
-
   await connection.setTransport("/libcurl/index.mjs", [{
     websocket: `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/wisp/`
   }]);
@@ -104,7 +90,7 @@ async function initScramjet() {
 
 async function openBrowser() {
   const container = document.getElementById("browserContent");
-  container.innerHTML = "<div style='color:white; text-align:center;'>Loading Scramjet...</div>";
+  container.innerHTML = "<div style='color:white;text-align:center;'>Loading Scramjet proxy...</div>";
 
   try {
     const sj = await initScramjet();
@@ -120,13 +106,15 @@ async function openBrowser() {
     }
 
     await activeFrame.waitUntilReady();
-    await activeFrame.go("https://search.brave.com/");
+    await activeFrame.go("https://search.brave.com/"); // go through proxy
+
   } catch (err) {
     console.error(err);
-    // fallback iframe if Scramjet fails
+
+    // fallback iframe for debugging ONLY, using a site that allows iframe
     container.innerHTML = "";
     const iframe = document.createElement("iframe");
-    iframe.src = "https://example.com/";
+    iframe.src = "https://www.wikipedia.org/";
     iframe.style.width = "100%";
     iframe.style.height = "100%";
     iframe.style.border = "none";
