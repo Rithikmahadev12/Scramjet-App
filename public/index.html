@@ -1,76 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Matriarchs OS</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="index.css">
 
-<!-- Scramjet -->
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
 <script src="/register-sw.js"></script>
-
 <script src="index.js" defer></script>
 </head>
 <body>
 
-<!-- ================= ONBOARDING ================= -->
+<!-- Background -->
+<canvas id="particle-canvas"></canvas>
 
-<div id="onboarding">
-
-  <div id="step-1" class="step active">
-    <h1 id="animated-title"></h1>
-    <p class="space-next">Press SPACE to continue</p>
-  </div>
-
-  <div id="step-2" class="step">
-    <div class="card">
-      <h2>What should we call you?</h2>
-      <input id="nameInput" placeholder="Enter your name">
-      <button id="saveName">Continue</button>
-    </div>
-  </div>
-
-  <div id="step-3" class="step">
-    <h2>Pick Your Background</h2>
-    <div class="bg-grid">
-      <img src="https://images.unsplash.com/photo-1514897575457-c4db467cf78e?q=80&w=1170&auto=format&fit=crop">
-      <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1170&auto=format&fit=crop">
-      <img src="https://images.unsplash.com/photo-1493244040629-496f6d136cc3?q=80&w=1170&auto=format&fit=crop">
-    </div>
-  </div>
-
+<!-- Status Bar -->
+<div class="status-bar">
+  <div id="time"></div>
+  <div id="battery"></div>
+  <div id="theme-toggle">🌙</div>
 </div>
 
-<!-- ================= DESKTOP ================= -->
-
-<div id="desktop"></div>
-
-<!-- ================= TASKBAR ================= -->
-
+<!-- Taskbar -->
 <div class="taskbar">
-  <button id="launchBtn">☰</button>
-
-  <div id="pinnedApps">
-    <button data-app="browser">🌐</button>
-    <button data-app="games">🎮</button>
-    <button data-app="settings">⚙</button>
-  </div>
-
-  <div id="taskApps"></div>
-
-  <div id="clock"></div>
+  <button id="start-btn">☰ Start</button>
+  <div id="taskbar-windows"></div>
 </div>
 
-<!-- ================= LAUNCHPAD ================= -->
+<!-- Launchpad -->
+<div id="launchpad" class="launchpad hidden">
+  <button class="launch-app" data-app="browser">Browser</button>
+  <button class="launch-app" data-app="games">Games</button>
+  <button class="launch-app" data-app="chat">Chat</button>
+  <button class="launch-app" data-app="settings">Settings</button>
+</div>
 
-<div id="launchpad" class="hidden">
-  <button data-app="browser">Browser</button>
-  <button data-app="games">Games</button>
-  <button data-app="settings">Settings</button>
+<!-- Onboarding -->
+<section id="onboarding" class="screen active">
+  <div class="onboard-content">
+    <h1>Welcome to Matriarchs OS</h1>
+    <p>Your private universe awaits</p>
+    <button id="enter-os-btn">Enter OS</button>
+  </div>
+</section>
+
+<!-- Desktop -->
+<div id="desktop" class="desktop">
+  <!-- Windows are dynamically created -->
 </div>
 
 </body>
