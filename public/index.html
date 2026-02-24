@@ -1,135 +1,55 @@
-"use strict";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matriarchs OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="index.css">
+<script src="/scram/scramjet.all.js"></script>
+<script src="/baremux/index.js"></script>
+<script src="/register-sw.js"></script>
+<script defer src="index.js"></script>
+</head>
+<body>
 
-/* ===== PARTICLES ===== */
-const canvas = document.getElementById("particles");
-const ctx = canvas.getContext("2d");
+<canvas id="particles"></canvas>
 
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resizeCanvas();
-window.addEventListener("resize", resizeCanvas);
+<!-- DESKTOP -->
+<div id="desktop">
+  <div id="welcomeText">Welcome, User</div>
+  <div id="taskbar">
+    <button id="launchBtn">Launchpad</button>
+    <div id="clock"></div>
+  </div>
 
-let particles = [];
-for (let i = 0; i < 150; i++) {
-  particles.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    r: Math.random() * 2 + 0.5,
-    speed: Math.random() * 0.5 + 0.2
-  });
-}
+  <!-- LAUNCHPAD -->
+  <div id="launchpad" class="hidden">
+    <button data-app="browser">Browser</button>
+    <button data-app="games">Games</button>
+  </div>
 
-function drawParticles() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  particles.forEach(p => {
-    p.y -= p.speed;
-    if (p.y < 0) p.y = canvas.height;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fillStyle = "white";
-    ctx.fill();
-  });
-  requestAnimationFrame(drawParticles);
-}
-drawParticles();
+  <!-- APPS -->
+  <div id="browserApp" class="window hidden">
+    <div class="title-bar">
+      <span>Browser</span>
+      <div class="buttons">
+        <button onclick="closeWin('browser')"></button>
+      </div>
+    </div>
+    <div class="content" id="browserContent"></div>
+  </div>
 
-/* ===== CLOCK ===== */
-function startClock() {
-  setInterval(() => {
-    const d = new Date();
-    document.getElementById("clock").innerText =
-      d.toLocaleTimeString() + " | " +
-      d.toLocaleDateString(undefined, {
-        weekday: "long",
-        month: "short",
-        day: "numeric"
-      });
-  }, 1000);
-}
-startClock();
+  <div id="gamesApp" class="window hidden">
+    <div class="title-bar">
+      <span>Games</span>
+      <div class="buttons">
+        <button onclick="closeWin('games')"></button>
+      </div>
+    </div>
+    <div class="content">Games coming soon...</div>
+  </div>
+</div>
 
-/* ===== LAUNCHPAD ===== */
-const launchBtn = document.getElementById("launchBtn");
-const launchpad = document.getElementById("launchpad");
-
-launchBtn.onclick = () => launchpad.classList.toggle("hidden");
-
-document.querySelectorAll("#launchpad button").forEach(btn => {
-  btn.onclick = () => openApp(btn.dataset.app);
-});
-
-/* ===== WINDOWS ===== */
-function openApp(id) {
-  const win = document.getElementById(id + "App");
-  win.classList.remove("hidden");
-
-  if (id === "browser") openBrowser();
-}
-
-function closeWin(id) {
-  document.getElementById(id + "App").classList.add("hidden");
-}
-
-/* ===== SCRAMJET BROWSER WITH FALLBACK ===== */
-let scramjetController = null;
-let activeFrame = null;
-
-async function initScramjet() {
-  if (scramjetController) return scramjetController;
-
-  const { ScramjetController } = $scramjetLoadController();
-
-  const sj = new ScramjetController({
-    files: {
-      wasm: "/scram/scramjet.wasm",
-      all: "/scram/scramjet.all.js",
-      sync: "/scram/scramjet.sync.js"
-    }
-  });
-
-  await sj.init();
-  await registerSW();
-
-  const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
-
-  await connection.setTransport("/libcurl/index.mjs", [{
-    websocket: `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/wisp/`
-  }]);
-
-  scramjetController = sj;
-  return sj;
-}
-
-async function openBrowser() {
-  const container = document.getElementById("browserContent");
-  container.innerHTML = "<div style='color:white; text-align:center;'>Loading Scramjet...</div>";
-
-  try {
-    const sj = await initScramjet();
-
-    if (!activeFrame) {
-      activeFrame = sj.createFrame();
-      activeFrame.frame.style.width = "100%";
-      activeFrame.frame.style.height = "100%";
-      activeFrame.frame.style.border = "none";
-
-      container.innerHTML = "";
-      container.appendChild(activeFrame.frame);
-    }
-
-    await activeFrame.waitUntilReady();
-    await activeFrame.go("https://search.brave.com/");
-  } catch (err) {
-    console.error(err);
-    // fallback iframe if Scramjet fails
-    container.innerHTML = "";
-    const iframe = document.createElement("iframe");
-    iframe.src = "https://example.com/";
-    iframe.style.width = "100%";
-    iframe.style.height = "100%";
-    iframe.style.border = "none";
-    container.appendChild(iframe);
-  }
-}
+</body>
+</html>
