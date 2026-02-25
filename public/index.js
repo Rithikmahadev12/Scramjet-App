@@ -46,12 +46,122 @@ function openWindow(appId){
 
     const content=document.getElementById(`${appId}-content`);
     if(appId==="browser"){initScramjetBrowser(content);}
-    if(appId==="games"){content.innerHTML=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#111;color:#fff;font-size:24px;">Games Coming Soon</div>`;}
+    if(appId==="games"){initGames(content);}
     if(appId==="chat"){initChat(content);}
     if(appId==="settings"){content.innerHTML=`<p>Settings coming soon</p>`;}
 }
 function updateTaskbar(){taskbarWindows.innerHTML="";Object.keys(windows).forEach(appId=>{const btn=document.createElement("button");btn.innerText=appId.charAt(0).toUpperCase()+appId.slice(1);btn.onclick=()=>{windows[appId].style.zIndex=Date.now();};taskbarWindows.appendChild(btn);});}
 function makeDraggable(el){const bar=el.querySelector(".title-bar");let offsetX, offsetY, dragging=false;bar.addEventListener("mousedown",e=>{dragging=true; offsetX=e.clientX-el.offsetLeft; offsetY=e.clientY-el.offsetTop; el.style.zIndex=Date.now();});document.addEventListener("mousemove",e=>{if(dragging){el.style.left=(e.clientX-offsetX)+"px"; el.style.top=(e.clientY-offsetY)+"px";}});document.addEventListener("mouseup",()=>{dragging=false;});}
+
+/* ================= GAMES ================= */
+function initGames(content){
+    content.innerHTML=`
+    <div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <h2 style="margin-bottom:10px;">Select a Game</h2>
+        <div style="display:flex;gap:10px;">
+            <button id="snake-btn">Snake</button>
+            <button id="tictactoe-btn">Tic-Tac-Toe</button>
+        </div>
+        <div id="game-container" style="margin-top:20px;width:100%;height:70%;display:flex;align-items:center;justify-content:center;"></div>
+    </div>
+    `;
+    const gameContainer = document.getElementById("game-container");
+
+    // Snake Game
+    document.getElementById("snake-btn").onclick = () => {
+        gameContainer.innerHTML = `<canvas id="snake-canvas" width="300" height="300" style="background:#111;"></canvas>`;
+        const canvas = document.getElementById("snake-canvas");
+        const ctx = canvas.getContext("2d");
+        const box = 20;
+        let snake = [{x:9*box, y:9*box}];
+        let food = {x: Math.floor(Math.random()*15)*box, y: Math.floor(Math.random()*15)*box};
+        let dir = null;
+        let game;
+
+        document.addEventListener("keydown", e => {
+            if(e.key==="ArrowUp" && dir!="DOWN") dir="UP";
+            if(e.key==="ArrowDown" && dir!="UP") dir="DOWN";
+            if(e.key==="ArrowLeft" && dir!="RIGHT") dir="LEFT";
+            if(e.key==="ArrowRight" && dir!="LEFT") dir="RIGHT";
+        });
+
+        function draw() {
+            ctx.fillStyle="#111";
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+
+            for(let i=0;i<snake.length;i++){
+                ctx.fillStyle=(i===0)?"#0f0":"#0a0";
+                ctx.fillRect(snake[i].x, snake[i].y, box, box);
+            }
+
+            ctx.fillStyle="#f00";
+            ctx.fillRect(food.x, food.y, box, box);
+
+            let headX = snake[0].x;
+            let headY = snake[0].y;
+
+            if(dir==="UP") headY -= box;
+            if(dir==="DOWN") headY += box;
+            if(dir==="LEFT") headX -= box;
+            if(dir==="RIGHT") headX += box;
+
+            if(headX===food.x && headY===food.y){
+                snake.unshift({x:headX, y:headY});
+                food = {x: Math.floor(Math.random()*15)*box, y: Math.floor(Math.random()*15)*box};
+            } else {
+                snake.pop();
+                snake.unshift({x:headX, y:headY});
+            }
+
+            if(headX<0||headX>=canvas.width||headY<0||headY>=canvas.height||
+               snake.slice(1).some(s=>s.x===headX && s.y===headY)){
+                clearInterval(game);
+                alert("Game Over!");
+            }
+        }
+
+        game = setInterval(draw, 150);
+    };
+
+    // Tic-Tac-Toe
+    document.getElementById("tictactoe-btn").onclick = () => {
+        gameContainer.innerHTML = `
+        <div id="ttt-board" style="display:grid;grid-template-columns:repeat(3,100px);grid-gap:5px;"></div>
+        <p id="ttt-msg" style="margin-top:10px;"></p>
+        `;
+        const boardDiv = document.getElementById("ttt-board");
+        const msg = document.getElementById("ttt-msg");
+        let board = Array(9).fill("");
+        let currentPlayer = "X";
+
+        function renderBoard(){
+            boardDiv.innerHTML = "";
+            board.forEach((cell,i)=>{
+                const c = document.createElement("div");
+                c.style.width="100px"; c.style.height="100px";
+                c.style.display="flex"; c.style.alignItems="center"; c.style.justifyContent="center";
+                c.style.fontSize="48px"; c.style.background="#111"; c.style.color="#0f0"; c.style.cursor="pointer";
+                c.innerText = cell;
+                c.onclick = ()=>{ if(cell!=="") return; board[i]=currentPlayer; checkWinner(); currentPlayer=currentPlayer==="X"?"O":"X"; renderBoard();}
+                boardDiv.appendChild(c);
+            });
+        }
+
+        function checkWinner(){
+            const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            for(const w of wins){
+                if(board[w[0]] && board[w[0]]===board[w[1]] && board[w[1]]===board[w[2]]){
+                    msg.innerText=`Player ${board[w[0]]} wins!`;
+                    board.fill("");
+                    return;
+                }
+            }
+            if(board.every(c=>c)) msg.innerText="Draw!"; 
+        }
+
+        renderBoard();
+    };
+}
 
 /* ================= SCRAMJET BROWSER ================= */
 let scramjet, connection, activeFrame=null, scramjetReady=false;
