@@ -5,17 +5,50 @@ const canvas=document.getElementById("particle-canvas");
 const ctx=canvas.getContext("2d");
 canvas.width=window.innerWidth; canvas.height=window.innerHeight;
 window.addEventListener("resize",()=>{canvas.width=window.innerWidth; canvas.height=window.innerHeight;});
-const particles=[]; for(let i=0;i<200;i++){particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+1,vx:(Math.random()-0.5)*0.5,vy:(Math.random()-0.5)*0.5});}
-function animateParticles(){ctx.clearRect(0,0,canvas.width,canvas.height);particles.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle="rgba(255,255,255,0.5)";ctx.fill();p.x+=p.vx;p.y+=p.vy;if(p.x>canvas.width)p.x=0;if(p.x<0)p.x=canvas.width;if(p.y>canvas.height)p.y=0;if(p.y<0)p.y=canvas.height;});requestAnimationFrame(animateParticles);}
+const particles=[];
+for(let i=0;i<200;i++){
+    particles.push({
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+        r:Math.random()*2+1,
+        vx:(Math.random()-0.5)*0.5,
+        vy:(Math.random()-0.5)*0.5
+    });
+}
+function animateParticles(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle="rgba(255,255,255,0.5)";
+        ctx.fill();
+        p.x+=p.vx; p.y+=p.vy;
+        if(p.x>canvas.width)p.x=0;
+        if(p.x<0)p.x=canvas.width;
+        if(p.y>canvas.height)p.y=0;
+        if(p.y<0)p.y=canvas.height;
+    });
+    requestAnimationFrame(animateParticles);
+}
 animateParticles();
 
 /* ================= STATUS BAR ================= */
-function updateTime(){const now=new Date();const time=now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});const day=now.toLocaleDateString([], {weekday:'long', month:'short', day:'numeric'});document.getElementById("time").innerText=`${time} • ${day}`;}
+function updateTime(){
+    const now=new Date();
+    const time=now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    const day=now.toLocaleDateString([], {weekday:'long', month:'short', day:'numeric'});
+    document.getElementById("time").innerText=`${time} • ${day}`;
+}
 setInterval(updateTime,1000); updateTime();
-navigator.getBattery().then(b=>{function showBattery(){document.getElementById("battery").innerText=Math.floor(b.level*100)+"%";} b.onlevelchange=showBattery; showBattery();});
+navigator.getBattery().then(b=>{
+    function showBattery(){document.getElementById("battery").innerText=Math.floor(b.level*100)+"%";}
+    b.onlevelchange=showBattery; showBattery();
+});
 
 /* ================= ONBOARDING ================= */
-document.getElementById("enter-os-btn").addEventListener("click",()=>{document.getElementById("onboarding").style.display="none";});
+document.getElementById("enter-os-btn").addEventListener("click",()=>{
+    document.getElementById("onboarding").style.display="none";
+});
 
 /* ================= LAUNCHPAD ================= */
 const launchpad=document.getElementById("launchpad");
@@ -46,124 +79,27 @@ function openWindow(appId){
 
     const content=document.getElementById(`${appId}-content`);
     if(appId==="browser"){initScramjetBrowser(content);}
-    if(appId==="games"){initGames(content);}
+    if(appId==="games"){initGNMathGames(content);}
     if(appId==="chat"){initChat(content);}
     if(appId==="settings"){content.innerHTML=`<p>Settings coming soon</p>`;}
 }
-function updateTaskbar(){taskbarWindows.innerHTML="";Object.keys(windows).forEach(appId=>{const btn=document.createElement("button");btn.innerText=appId.charAt(0).toUpperCase()+appId.slice(1);btn.onclick=()=>{windows[appId].style.zIndex=Date.now();};taskbarWindows.appendChild(btn);});}
-function makeDraggable(el){const bar=el.querySelector(".title-bar");let offsetX, offsetY, dragging=false;bar.addEventListener("mousedown",e=>{dragging=true; offsetX=e.clientX-el.offsetLeft; offsetY=e.clientY-el.offsetTop; el.style.zIndex=Date.now();});document.addEventListener("mousemove",e=>{if(dragging){el.style.left=(e.clientX-offsetX)+"px"; el.style.top=(e.clientY-offsetY)+"px";}});document.addEventListener("mouseup",()=>{dragging=false;});}
-
-/* ================= GAMES ================= */
-function initGames(content){
-    content.innerHTML=`
-    <div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-        <h2 style="margin-bottom:10px;">Select a Game</h2>
-        <div style="display:flex;gap:10px;">
-            <button id="snake-btn">Snake</button>
-            <button id="tictactoe-btn">Tic-Tac-Toe</button>
-        </div>
-        <div id="game-container" style="margin-top:20px;width:100%;height:70%;display:flex;align-items:center;justify-content:center;"></div>
-    </div>
-    `;
-    const gameContainer = document.getElementById("game-container");
-
-    // Snake Game
-    document.getElementById("snake-btn").onclick = () => {
-        gameContainer.innerHTML = `<canvas id="snake-canvas" width="300" height="300" style="background:#111;"></canvas>`;
-        const canvas = document.getElementById("snake-canvas");
-        const ctx = canvas.getContext("2d");
-        const box = 20;
-        let snake = [{x:9*box, y:9*box}];
-        let food = {x: Math.floor(Math.random()*15)*box, y: Math.floor(Math.random()*15)*box};
-        let dir = null;
-        let game;
-
-        document.addEventListener("keydown", e => {
-            if(e.key==="ArrowUp" && dir!="DOWN") dir="UP";
-            if(e.key==="ArrowDown" && dir!="UP") dir="DOWN";
-            if(e.key==="ArrowLeft" && dir!="RIGHT") dir="LEFT";
-            if(e.key==="ArrowRight" && dir!="LEFT") dir="RIGHT";
-        });
-
-        function draw() {
-            ctx.fillStyle="#111";
-            ctx.fillRect(0,0,canvas.width,canvas.height);
-
-            for(let i=0;i<snake.length;i++){
-                ctx.fillStyle=(i===0)?"#0f0":"#0a0";
-                ctx.fillRect(snake[i].x, snake[i].y, box, box);
-            }
-
-            ctx.fillStyle="#f00";
-            ctx.fillRect(food.x, food.y, box, box);
-
-            let headX = snake[0].x;
-            let headY = snake[0].y;
-
-            if(dir==="UP") headY -= box;
-            if(dir==="DOWN") headY += box;
-            if(dir==="LEFT") headX -= box;
-            if(dir==="RIGHT") headX += box;
-
-            if(headX===food.x && headY===food.y){
-                snake.unshift({x:headX, y:headY});
-                food = {x: Math.floor(Math.random()*15)*box, y: Math.floor(Math.random()*15)*box};
-            } else {
-                snake.pop();
-                snake.unshift({x:headX, y:headY});
-            }
-
-            if(headX<0||headX>=canvas.width||headY<0||headY>=canvas.height||
-               snake.slice(1).some(s=>s.x===headX && s.y===headY)){
-                clearInterval(game);
-                alert("Game Over!");
-            }
-        }
-
-        game = setInterval(draw, 150);
-    };
-
-    // Tic-Tac-Toe
-    document.getElementById("tictactoe-btn").onclick = () => {
-        gameContainer.innerHTML = `
-        <div id="ttt-board" style="display:grid;grid-template-columns:repeat(3,100px);grid-gap:5px;"></div>
-        <p id="ttt-msg" style="margin-top:10px;"></p>
-        `;
-        const boardDiv = document.getElementById("ttt-board");
-        const msg = document.getElementById("ttt-msg");
-        let board = Array(9).fill("");
-        let currentPlayer = "X";
-
-        function renderBoard(){
-            boardDiv.innerHTML = "";
-            board.forEach((cell,i)=>{
-                const c = document.createElement("div");
-                c.style.width="100px"; c.style.height="100px";
-                c.style.display="flex"; c.style.alignItems="center"; c.style.justifyContent="center";
-                c.style.fontSize="48px"; c.style.background="#111"; c.style.color="#0f0"; c.style.cursor="pointer";
-                c.innerText = cell;
-                c.onclick = ()=>{ if(cell!=="") return; board[i]=currentPlayer; checkWinner(); currentPlayer=currentPlayer==="X"?"O":"X"; renderBoard();}
-                boardDiv.appendChild(c);
-            });
-        }
-
-        function checkWinner(){
-            const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-            for(const w of wins){
-                if(board[w[0]] && board[w[0]]===board[w[1]] && board[w[1]]===board[w[2]]){
-                    msg.innerText=`Player ${board[w[0]]} wins!`;
-                    board.fill("");
-                    return;
-                }
-            }
-            if(board.every(c=>c)) msg.innerText="Draw!"; 
-        }
-
-        renderBoard();
-    };
+function updateTaskbar(){
+    taskbarWindows.innerHTML="";
+    Object.keys(windows).forEach(appId=>{
+        const btn=document.createElement("button");
+        btn.innerText=appId.charAt(0).toUpperCase()+appId.slice(1);
+        btn.onclick=()=>{windows[appId].style.zIndex=Date.now();};
+        taskbarWindows.appendChild(btn);
+    });
+}
+function makeDraggable(el){
+    const bar=el.querySelector(".title-bar");let offsetX, offsetY, dragging=false;
+    bar.addEventListener("mousedown",e=>{dragging=true; offsetX=e.clientX-el.offsetLeft; offsetY=e.clientY-el.offsetTop; el.style.zIndex=Date.now();});
+    document.addEventListener("mousemove",e=>{if(dragging){el.style.left=(e.clientX-offsetX)+"px"; el.style.top=(e.clientY-offsetY)+"px";}});
+    document.addEventListener("mouseup",()=>{dragging=false;});
 }
 
-/* ================= SCRAMJET BROWSER ================= */
+/* ================= SCRAMJET BROWSER (unchanged) ================= */
 let scramjet, connection, activeFrame=null, scramjetReady=false;
 async function initScramjet(){
     if(scramjetReady) return;
@@ -193,4 +129,84 @@ function initChat(container){
     ws.onmessage=msg=>{const data=JSON.parse(msg.data); chatWindow.innerHTML+=`<div><strong>${data.user}</strong>: ${data.message}</div>`; chatWindow.scrollTop=chatWindow.scrollHeight;};
     chatSend.addEventListener("click",()=>{if(chatInput.value.trim()==="")return; ws.send(JSON.stringify({user:"Guest",message:chatInput.value})); chatInput.value="";});
     chatInput.addEventListener("keydown",e=>{if(e.key==="Enter") chatSend.click();});
+}
+
+/* ================= GN-MATH GAMES ================= */
+function initGNMathGames(content){
+    content.innerHTML=`
+    <div style="display:flex;flex-direction:column;height:100%;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px;">
+            <input id="gn-search" placeholder="Search games..." style="flex:1;margin-right:5px;padding:5px;border-radius:5px;">
+            <select id="gn-sort">
+                <option value="name">Name</option>
+                <option value="id">ID</option>
+                <option value="popular">Popular</option>
+            </select>
+        </div>
+        <div id="gn-container" style="flex:1;overflow:auto;display:flex;flex-wrap:wrap;gap:10px;padding:5px;"></div>
+        <div id="gn-zoneViewer" style="display:none;flex:1;position:relative;">
+            <iframe id="gn-zoneFrame" style="width:100%;height:100%;border:none;"></iframe>
+            <button style="position:absolute;top:5px;right:5px;z-index:10;" onclick="document.getElementById('gn-zoneViewer').style.display='none';">Close</button>
+        </div>
+    </div>
+    `;
+
+    const gnContainer = content.querySelector('#gn-container');
+    const gnZoneViewer = content.querySelector('#gn-zoneViewer');
+    const gnZoneFrame = content.querySelector('#gn-zoneFrame');
+    const gnSearch = content.querySelector('#gn-search');
+    const gnSort = content.querySelector('#gn-sort');
+
+    let zones=[], popularity={};
+
+    async function listZones(){
+        const zonesURL = "https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json";
+        try{
+            const res = await fetch(zonesURL);
+            zones = await res.json();
+
+            const popRes = await fetch("https://data.jsdelivr.com/v1/stats/packages/gh/gn-math/html@main/files?period=year");
+            const popData = await popRes.json();
+            popData.forEach(f=>{ const idMatch=f.name.match(/\/(\d+)\.html$/); if(idMatch) popularity[idMatch[1]]=f.hits.total; });
+
+            displayZones(zones);
+        } catch(e){ gnContainer.innerHTML = "Failed to load games: "+e; }
+    }
+
+    function displayZones(list){
+        gnContainer.innerHTML="";
+        list.forEach(zone=>{
+            const div=document.createElement("div");
+            div.style.width="120px"; div.style.cursor="pointer"; div.style.textAlign="center";
+            const img=document.createElement("img");
+            img.src = zone.cover.replace("{COVER_URL}", "https://cdn.jsdelivr.net/gh/gn-math/covers@main").replace("{HTML_URL}", "https://cdn.jsdelivr.net/gh/gn-math/html@main");
+            img.style.width="100%"; img.style.borderRadius="5px"; div.appendChild(img);
+            const btn = document.createElement("div");
+            btn.innerText=zone.name; btn.style.fontSize="12px"; btn.style.marginTop="3px"; div.appendChild(btn);
+            div.onclick = ()=>openZone(zone);
+            gnContainer.appendChild(div);
+        });
+    }
+
+    function openZone(zone){
+        const url = zone.url.replace("{COVER_URL}", "https://cdn.jsdelivr.net/gh/gn-math/covers@main")
+                            .replace("{HTML_URL}", "https://cdn.jsdelivr.net/gh/gn-math/html@main");
+        gnZoneFrame.src = url;
+        gnZoneViewer.style.display="block";
+    }
+
+    gnSearch.addEventListener("input",()=>{ 
+        const q=gnSearch.value.toLowerCase();
+        displayZones(zones.filter(z=>z.name.toLowerCase().includes(q)));
+    });
+    gnSort.addEventListener("change",()=>{
+        const val = gnSort.value;
+        let sorted = [...zones];
+        if(val==="name") sorted.sort((a,b)=>a.name.localeCompare(b.name));
+        else if(val==="id") sorted.sort((a,b)=>a.id-b.id);
+        else if(val==="popular") sorted.sort((a,b)=> (popularity[b.id]||0)-(popularity[a.id]||0));
+        displayZones(sorted);
+    });
+
+    listZones();
 }
