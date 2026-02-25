@@ -1,239 +1,230 @@
 "use strict";
 
 /* ================= PARTICLES ================= */
-const canvas = document.getElementById("particle-canvas");
-const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth; 
-canvas.height = window.innerHeight;
-window.addEventListener("resize", () => {
-    canvas.width = window.innerWidth; 
-    canvas.height = window.innerHeight;
-});
-const particles = [];
-for (let i = 0; i < 200; i++) {
+const canvas=document.getElementById("particle-canvas");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+window.addEventListener("resize",()=>{canvas.width=window.innerWidth; canvas.height=window.innerHeight;});
+const particles=[]; 
+for(let i=0;i<200;i++){
     particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 2 + 1,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+        r:Math.random()*2+1,
+        vx:(Math.random()-0.5)*0.5,
+        vy:(Math.random()-0.5)*0.5
     });
 }
-function animateParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach(p => {
+function animateParticles(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(255,255,255,0.5)";
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle="rgba(255,255,255,0.5)";
         ctx.fill();
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.x < 0) p.x = canvas.width;
-        if (p.y > canvas.height) p.y = 0;
-        if (p.y < 0) p.y = canvas.height;
+        p.x+=p.vx;
+        p.y+=p.vy;
+        if(p.x>canvas.width)p.x=0;
+        if(p.x<0)p.x=canvas.width;
+        if(p.y>canvas.height)p.y=0;
+        if(p.y<0)p.y=canvas.height;
     });
     requestAnimationFrame(animateParticles);
 }
 animateParticles();
 
 /* ================= STATUS BAR ================= */
-function updateTime() {
-    const now = new Date();
-    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const day = now.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
-    document.getElementById("time").innerText = `${time} • ${day}`;
+function updateTime(){
+    const now=new Date();
+    const time=now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    const day=now.toLocaleDateString([], {weekday:'long', month:'short', day:'numeric'});
+    document.getElementById("time").innerText=`${time} • ${day}`;
 }
-setInterval(updateTime, 1000); 
+setInterval(updateTime,1000); 
 updateTime();
-navigator.getBattery().then(b => {
-    function showBattery() {
-        document.getElementById("battery").innerText = Math.floor(b.level * 100) + "%";
+navigator.getBattery().then(b=>{
+    function showBattery(){
+        document.getElementById("battery").innerText=Math.floor(b.level*100)+"%";
     } 
-    b.onlevelchange = showBattery; 
+    b.onlevelchange=showBattery; 
     showBattery();
 });
 
 /* ================= ONBOARDING ================= */
-document.getElementById("enter-os-btn").addEventListener("click", () => {
-    document.getElementById("onboarding").style.display = "none";
+document.getElementById("enter-os-btn").addEventListener("click",()=>{
+    document.getElementById("onboarding").style.display="none";
 });
 
 /* ================= LAUNCHPAD ================= */
-const launchpad = document.getElementById("launchpad");
-const startBtn = document.getElementById("start-btn");
-startBtn.addEventListener("click", () => {
-    launchpad.classList.toggle("hidden");
-});
-launchpad.querySelectorAll(".launch-app").forEach(btn => {
-    btn.addEventListener("click", () => {
-        const appId = btn.dataset.app;
+const launchpad=document.getElementById("launchpad");
+const startBtn=document.getElementById("start-btn");
+startBtn.addEventListener("click",()=>{launchpad.classList.toggle("hidden");});
+launchpad.querySelectorAll(".launch-app").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+        const appId=btn.dataset.app;
         openWindow(appId);
         launchpad.classList.add("hidden");
     });
 });
 
 /* ================= WINDOW MANAGER ================= */
-const desktop = document.getElementById("desktop");
-const taskbarWindows = document.getElementById("taskbar-windows");
-const windows = {};
-function openWindow(appId) {
-    if (windows[appId]) {
-        windows[appId].style.zIndex = Date.now(); 
+const desktop=document.getElementById("desktop");
+const taskbarWindows=document.getElementById("taskbar-windows");
+const windows={};
+
+function openWindow(appId){
+    if(windows[appId]){
+        windows[appId].style.zIndex=Date.now();
         return;
     }
-    const win = document.createElement("div");
-    win.className = "window";
-    win.style.width = "400px"; 
-    win.style.height = "300px"; 
-    win.style.top = "100px"; 
-    win.style.left = "100px";
-    win.innerHTML = `
+    const win=document.createElement("div");
+    win.className="window";
+    win.style.width="500px"; win.style.height="400px"; 
+    win.style.top="100px"; win.style.left="100px";
+    win.innerHTML=`
         <div class="title-bar">
-            <span class="title">${appId.charAt(0).toUpperCase() + appId.slice(1)}</span>
-            <div class="controls">
-                <button class="close">×</button>
-            </div>
+            <span class="title">${appId.charAt(0).toUpperCase()+appId.slice(1)}</span>
+            <div class="controls"><button class="close">×</button></div>
         </div>
         <div class="content" id="${appId}-content"></div>
     `;
-    desktop.appendChild(win); 
-    windows[appId] = win;
+    desktop.appendChild(win); windows[appId]=win;
     makeDraggable(win);
     updateTaskbar();
-    win.querySelector(".close").onclick = () => {
-        desktop.removeChild(win); 
-        delete windows[appId]; 
-        updateTaskbar();
-    };
+    win.querySelector(".close").onclick=()=>{desktop.removeChild(win); delete windows[appId]; updateTaskbar();};
 
-    const content = document.getElementById(`${appId}-content`);
-    if (appId === "browser") {
-        initScramjetBrowser(content);
-    }
-    if (appId === "games") {
-        initGames(content);
-    }
-    if (appId === "chat") {
-        initChat(content);
-    }
-    if (appId === "settings") {
-        content.innerHTML = `<p>Settings coming soon</p>`;
-    }
+    const content=document.getElementById(`${appId}-content`);
+    if(appId==="browser"){initScramjetBrowser(content);}
+    if(appId==="games"){initGames(content);}
+    if(appId==="chat"){initChat(content);}
+    if(appId==="settings"){content.innerHTML=`<p>Settings coming soon</p>`;}
 }
-function updateTaskbar() {
-    taskbarWindows.innerHTML = "";
-    Object.keys(windows).forEach(appId => {
-        const btn = document.createElement("button");
-        btn.innerText = appId.charAt(0).toUpperCase() + appId.slice(1);
-        btn.onclick = () => { windows[appId].style.zIndex = Date.now(); };
+
+function updateTaskbar(){
+    taskbarWindows.innerHTML="";
+    Object.keys(windows).forEach(appId=>{
+        const btn=document.createElement("button");
+        btn.innerText=appId.charAt(0).toUpperCase()+appId.slice(1);
+        btn.onclick=()=>{windows[appId].style.zIndex=Date.now();};
         taskbarWindows.appendChild(btn);
     });
 }
-function makeDraggable(el) {
-    const bar = el.querySelector(".title-bar");
-    let offsetX, offsetY, dragging = false;
-    bar.addEventListener("mousedown", e => {
-        dragging = true; 
-        offsetX = e.clientX - el.offsetLeft; 
-        offsetY = e.clientY - el.offsetTop; 
-        el.style.zIndex = Date.now();
+
+function makeDraggable(el){
+    const bar=el.querySelector(".title-bar");
+    let offsetX, offsetY, dragging=false;
+    bar.addEventListener("mousedown",e=>{
+        dragging=true; 
+        offsetX=e.clientX-el.offsetLeft; 
+        offsetY=e.clientY-el.offsetTop; 
+        el.style.zIndex=Date.now();
     });
-    document.addEventListener("mousemove", e => {
-        if (dragging) {
-            el.style.left = (e.clientX - offsetX) + "px"; 
-            el.style.top = (e.clientY - offsetY) + "px";
+    document.addEventListener("mousemove",e=>{
+        if(dragging){
+            el.style.left=(e.clientX-offsetX)+"px"; 
+            el.style.top=(e.clientY-offsetY)+"px";
         }
     });
-    document.addEventListener("mouseup", () => { dragging = false; });
+    document.addEventListener("mouseup",()=>{dragging=false;});
 }
 
 /* ================= SCRAMJET BROWSER ================= */
-let scramjet, connection, activeFrame = null, scramjetReady = false;
-async function initScramjet() {
-    if (scramjetReady) return;
+let scramjet, connection, activeFrame=null, scramjetReady=false;
+async function initScramjet(){
+    if(scramjetReady) return;
     const { ScramjetController } = $scramjetLoadController();
-    scramjet = new ScramjetController({ files: { wasm: "/scram/scramjet.wasm.wasm", all: "/scram/scramjet.all.js", sync: "/scram/scramjet.sync.js"} });
+    scramjet = new ScramjetController({ 
+        files:{ wasm:"/scram/scramjet.wasm.wasm", all:"/scram/scramjet.all.js", sync:"/scram/scramjet.sync.js"} 
+    });
     await scramjet.init();
     connection = new BareMux.BareMuxConnection("/baremux/worker.js");
-    scramjetReady = true;
+    scramjetReady=true;
 }
-async function initScramjetBrowser(container) {
-    if (!scramjetReady) await initScramjet();
+async function initScramjetBrowser(container){
+    if(!scramjetReady) await initScramjet();
     await registerSW();
-    const wispUrl = (location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/wisp/";
-    if ((await connection.getTransport()) !== "/libcurl/index.mjs") {
-        await connection.setTransport("/libcurl/index.mjs", [{"websocket": wispUrl}]);
+    const wispUrl=(location.protocol==="https:"?"wss://":"ws://")+location.host+"/wisp/";
+    if((await connection.getTransport())!=="/libcurl/index.mjs"){
+        await connection.setTransport("/libcurl/index.mjs",[{"websocket":wispUrl}]);
     }
-    if (!activeFrame) {
-        activeFrame = scramjet.createFrame(); 
-        activeFrame.frame.style.width = "100%"; 
-        activeFrame.frame.style.height = "100%"; 
-        activeFrame.frame.style.border = "none"; 
+    if(!activeFrame){
+        activeFrame=scramjet.createFrame(); 
+        activeFrame.frame.style.width="100%"; 
+        activeFrame.frame.style.height="100%"; 
+        activeFrame.frame.style.border="none"; 
         container.appendChild(activeFrame.frame);
     }
-    if (activeFrame.waitUntilReady) await activeFrame.waitUntilReady();
+    if(activeFrame.waitUntilReady) await activeFrame.waitUntilReady();
     activeFrame.go("https://search.brave.com/");
 }
 
-/* ================= GAMES ================= */
-const proxyPrefix = "/wisp"; // same as your Brave search proxy
-const zonesURL = "https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json";
-const coverURL = "https://cdn.jsdelivr.net/gh/gn-math/covers@main";
-const htmlURL = "https://cdn.jsdelivr.net/gh/gn-math/html@main";
-let zones = [];
-let popularityData = {};
+/* ================= GN-MATH GAMES ================= */
+function initGames(container){
+    container.innerHTML=`
+        <div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;">
+            <h3 style="margin:10px;color:#fff;">Loading games...</h3>
+            <div id="gn-games-container" style="width:100%;flex:1;"></div>
+        </div>
+    `;
+    const gamesContainer = document.getElementById("gn-games-container");
 
-async function initGames(container) {
-    container.innerHTML = `<p style="text-align:center;margin-top:50px;">Loading games...</p>`;
-    try {
-        const res = await fetch(zonesURL);
-        zones = await res.json();
-        displayGames(container, zones);
-    } catch (err) {
-        container.innerHTML = `<p>Error loading games: ${err}</p>`;
-    }
-}
+    const zonesURL = "https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json";
+    const coverURL = "https://cdn.jsdelivr.net/gh/gn-math/covers@main";
+    const htmlURL = "https://cdn.jsdelivr.net/gh/gn-math/html@main";
+    const proxyURL = "https://api.allorigins.win/raw?url="; // Use proxy
 
-function displayGames(container, zones) {
-    container.innerHTML = "";
-    zones.forEach(game => {
-        const gameBtn = document.createElement("button");
-        gameBtn.style.margin = "10px";
-        gameBtn.style.padding = "10px 20px";
-        gameBtn.style.borderRadius = "10px";
-        gameBtn.style.background = "rgba(255,255,255,0.1)";
-        gameBtn.style.color = "#fff";
-        gameBtn.style.cursor = "pointer";
-        gameBtn.innerText = game.name;
-        gameBtn.onclick = () => openGame(container, game);
-        container.appendChild(gameBtn);
+    fetch(zonesURL)
+    .then(res => res.json())
+    .then(zones=>{
+        gamesContainer.innerHTML="";
+        zones.forEach(zone=>{
+            const gameItem=document.createElement("div");
+            gameItem.style.margin="10px"; gameItem.style.cursor="pointer"; gameItem.style.textAlign="center";
+            const img=document.createElement("img");
+            img.src=zone.cover.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL);
+            img.style.width="100px"; img.style.height="100px"; img.style.objectFit="cover";
+            gameItem.appendChild(img);
+            const name=document.createElement("div");
+            name.innerText=zone.name; name.style.color="#fff"; name.style.marginTop="5px";
+            gameItem.appendChild(name);
+            gameItem.onclick=()=>{
+                const gameURL=zone.url.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL);
+                const iframe=document.createElement("iframe");
+                iframe.src=proxyURL + encodeURIComponent(gameURL);
+                iframe.style.width="100%"; iframe.style.height="100%"; iframe.style.border="none";
+                container.innerHTML="";
+                container.appendChild(iframe);
+            };
+            gamesContainer.appendChild(gameItem);
+        });
+    })
+    .catch(err=>{
+        gamesContainer.innerHTML=`<p style="color:red;">Failed to load games: ${err}</p>`;
     });
-}
-
-function openGame(container, game) {
-    const proxiedURL = `${proxyPrefix}/${game.url.replace("{HTML_URL}", htmlURL)}`;
-    container.innerHTML = `<iframe src="${proxiedURL}" style="width:100%;height:100%;border:none;"></iframe>`;
 }
 
 /* ================= CHAT ================= */
 function initChat(container){
-    container.innerHTML = `<div id="chat-window" style="height:100%;overflow:auto;background:rgba(0,0,0,0.7);padding:10px;margin-bottom:5px;"></div>
-    <input id="chat-input" style="width:80%;padding:5px;border-radius:5px;" placeholder="Type a message...">
-    <button id="chat-send">Send</button>`;
-    const chatWindow = document.getElementById("chat-window");
-    const chatInput = document.getElementById("chat-input");
-    const chatSend = document.getElementById("chat-send");
-    const ws = new WebSocket("wss://yourserver.com"); // replace with WS server
-    ws.onmessage = msg => {
-        const data = JSON.parse(msg.data);
-        chatWindow.innerHTML += `<div><strong>${data.user}</strong>: ${data.message}</div>`;
-        chatWindow.scrollTop = chatWindow.scrollHeight;
+    container.innerHTML=`
+        <div id="chat-window" style="height:100%;overflow:auto;background:rgba(0,0,0,0.7);padding:10px;margin-bottom:5px;"></div>
+        <input id="chat-input" style="width:80%;padding:5px;border-radius:5px;" placeholder="Type a message...">
+        <button id="chat-send">Send</button>
+    `;
+    const chatWindow=document.getElementById("chat-window");
+    const chatInput=document.getElementById("chat-input");
+    const chatSend=document.getElementById("chat-send");
+    const ws=new WebSocket("wss://yourserver.com"); // replace with WS server
+    ws.onmessage=msg=>{
+        const data=JSON.parse(msg.data);
+        chatWindow.innerHTML+=`<div><strong>${data.user}</strong>: ${data.message}</div>`;
+        chatWindow.scrollTop=chatWindow.scrollHeight;
     };
-    chatSend.addEventListener("click", () => {
-        if(chatInput.value.trim()==="") return;
-        ws.send(JSON.stringify({user:"Guest",message:chatInput.value}));
+    chatSend.addEventListener("click",()=>{
+        if(chatInput.value.trim()==="") return; 
+        ws.send(JSON.stringify({user:"Guest",message:chatInput.value})); 
         chatInput.value="";
     });
-    chatInput.addEventListener("keydown", e => {if(e.key==="Enter") chatSend.click();});
+    chatInput.addEventListener("keydown",e=>{
+        if(e.key==="Enter") chatSend.click();
+    });
 }
