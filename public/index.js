@@ -6,71 +6,71 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 window.addEventListener("resize", () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 });
 const particles = [];
 for (let i = 0; i < 200; i++) {
-  particles.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    r: Math.random() * 2 + 1,
-    vx: (Math.random() - 0.5) * 0.5,
-    vy: (Math.random() - 0.5) * 0.5
-  });
+    particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 2 + 1,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5
+    });
 }
 function animateParticles() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  particles.forEach(p => {
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(255,255,255,0.5)";
-    ctx.fill();
-    p.x += p.vx;
-    p.y += p.vy;
-    if (p.x > canvas.width) p.x = 0;
-    if (p.x < 0) p.x = canvas.width;
-    if (p.y > canvas.height) p.y = 0;
-    if (p.y < 0) p.y = canvas.height;
-  });
-  requestAnimationFrame(animateParticles);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255,255,255,0.5)";
+        ctx.fill();
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.y > canvas.height) p.y = 0;
+        if (p.y < 0) p.y = canvas.height;
+    });
+    requestAnimationFrame(animateParticles);
 }
 animateParticles();
 
 /* ================= STATUS BAR ================= */
 function updateTime() {
-  const now = new Date();
-  const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  const day = now.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
-  document.getElementById("time").innerText = `${time} • ${day}`;
+    const now = new Date();
+    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const day = now.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
+    document.getElementById("time").innerText = `${time} • ${day}`;
 }
 setInterval(updateTime, 1000);
 updateTime();
 navigator.getBattery().then(b => {
-  function showBattery() {
-    document.getElementById("battery").innerText = Math.floor(b.level * 100) + "%";
-  }
-  b.onlevelchange = showBattery;
-  showBattery();
+    function showBattery() {
+        document.getElementById("battery").innerText = Math.floor(b.level * 100) + "%";
+    }
+    b.onlevelchange = showBattery;
+    showBattery();
 });
 
 /* ================= ONBOARDING ================= */
 document.getElementById("enter-os-btn").addEventListener("click", () => {
-  document.getElementById("onboarding").style.display = "none";
+    document.getElementById("onboarding").style.display = "none";
 });
 
 /* ================= LAUNCHPAD ================= */
 const launchpad = document.getElementById("launchpad");
 const startBtn = document.getElementById("start-btn");
 startBtn.addEventListener("click", () => {
-  launchpad.classList.toggle("hidden");
+    launchpad.classList.toggle("hidden");
 });
 launchpad.querySelectorAll(".launch-app").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const appId = btn.dataset.app;
-    openWindow(appId);
-    launchpad.classList.add("hidden");
-  });
+    btn.addEventListener("click", () => {
+        const appId = btn.dataset.app;
+        openWindow(appId);
+        launchpad.classList.add("hidden");
+    });
 });
 
 /* ================= WINDOW MANAGER ================= */
@@ -79,140 +79,151 @@ const taskbarWindows = document.getElementById("taskbar-windows");
 const windows = {};
 
 function openWindow(appId) {
-  if (windows[appId]) { windows[appId].style.zIndex = Date.now(); return; }
-  const win = document.createElement("div");
-  win.className = "window";
-  win.style.width = "400px"; win.style.height = "300px"; win.style.top = "100px"; win.style.left = "100px";
-  win.innerHTML = `<div class="title-bar"><span class="title">${appId.charAt(0).toUpperCase() + appId.slice(1)}</span><div class="controls"><button class="close">×</button></div></div><div class="content" id="${appId}-content"></div>`;
-  desktop.appendChild(win); windows[appId] = win;
-  makeDraggable(win);
-  updateTaskbar();
-  win.querySelector(".close").onclick = () => { desktop.removeChild(win); delete windows[appId]; updateTaskbar(); };
+    if (windows[appId]) {
+        windows[appId].style.zIndex = Date.now();
+        return;
+    }
 
-  const content = document.getElementById(`${appId}-content`);
-  if (appId === "browser") { initScramjetBrowser(content); }
-  if (appId === "games") { initGames(content); }
-  if (appId === "chat") { initChat(content); }
-  if (appId === "settings") { content.innerHTML = `<p>Settings coming soon</p>`; }
+    const win = document.createElement("div");
+    win.className = "window";
+    win.style.width = "400px";
+    win.style.height = "300px";
+    win.style.top = "100px";
+    win.style.left = "100px";
+    win.innerHTML = `
+        <div class="title-bar">
+            <span class="title">${appId.charAt(0).toUpperCase() + appId.slice(1)}</span>
+            <div class="controls"><button class="close">×</button></div>
+        </div>
+        <div class="content" id="${appId}-content"></div>
+    `;
+    desktop.appendChild(win);
+    windows[appId] = win;
+
+    makeDraggable(win);
+    updateTaskbar();
+
+    win.querySelector(".close").onclick = () => {
+        desktop.removeChild(win);
+        delete windows[appId];
+        updateTaskbar();
+    };
+
+    const content = document.getElementById(`${appId}-content`);
+
+    if (appId === "browser") initScramjetBrowser(content);
+    if (appId === "games") initGNMathGames(content);
+    if (appId === "chat") initChat(content);
+    if (appId === "settings") content.innerHTML = `<p>Settings coming soon</p>`;
 }
+
 function updateTaskbar() {
-  taskbarWindows.innerHTML = "";
-  Object.keys(windows).forEach(appId => {
-    const btn = document.createElement("button");
-    btn.innerText = appId.charAt(0).toUpperCase() + appId.slice(1);
-    btn.onclick = () => { windows[appId].style.zIndex = Date.now(); };
-    taskbarWindows.appendChild(btn);
-  });
+    taskbarWindows.innerHTML = "";
+    Object.keys(windows).forEach(appId => {
+        const btn = document.createElement("button");
+        btn.innerText = appId.charAt(0).toUpperCase() + appId.slice(1);
+        btn.onclick = () => { windows[appId].style.zIndex = Date.now(); };
+        taskbarWindows.appendChild(btn);
+    });
 }
+
 function makeDraggable(el) {
-  const bar = el.querySelector(".title-bar");
-  let offsetX, offsetY, dragging = false;
-  bar.addEventListener("mousedown", e => { dragging = true; offsetX = e.clientX - el.offsetLeft; offsetY = e.clientY - el.offsetTop; el.style.zIndex = Date.now(); });
-  document.addEventListener("mousemove", e => { if (dragging) { el.style.left = (e.clientX - offsetX) + "px"; el.style.top = (e.clientY - offsetY) + "px"; } });
-  document.addEventListener("mouseup", () => { dragging = false; });
+    const bar = el.querySelector(".title-bar");
+    let offsetX, offsetY, dragging = false;
+    bar.addEventListener("mousedown", e => {
+        dragging = true;
+        offsetX = e.clientX - el.offsetLeft;
+        offsetY = e.clientY - el.offsetTop;
+        el.style.zIndex = Date.now();
+    });
+    document.addEventListener("mousemove", e => {
+        if (dragging) {
+            el.style.left = (e.clientX - offsetX) + "px";
+            el.style.top = (e.clientY - offsetY) + "px";
+        }
+    });
+    document.addEventListener("mouseup", () => { dragging = false; });
 }
 
 /* ================= SCRAMJET BROWSER ================= */
-let scramjet, scramjetReady = false;
+let scramjet, connection, activeFrame = null, scramjetReady = false;
+
 async function initScramjet() {
-  if (scramjetReady) return;
-  const { ScramjetController } = $scramjetLoadController();
-  scramjet = new ScramjetController({
-    files: {
-      wasm: "/scram/scramjet.wasm.wasm",
-      all: "/scram/scramjet.all.js",
-      sync: "/scram/scramjet.sync.js"
-    }
-  });
-  await scramjet.init();
-  scramjetReady = true;
+    if (scramjetReady) return;
+    const { ScramjetController } = $scramjetLoadController();
+    scramjet = new ScramjetController({
+        files: { wasm: "/scram/scramjet.wasm.wasm", all: "/scram/scramjet.all.js", sync: "/scram/scramjet.sync.js" }
+    });
+    await scramjet.init();
+    connection = new BareMux.BareMuxConnection("/baremux/worker.js");
+    scramjetReady = true;
 }
 
 async function initScramjetBrowser(container) {
-  if (!scramjetReady) await initScramjet();
-  const frame = scramjet.createFrame();
-  frame.frame.style.width = "100%";
-  frame.frame.style.height = "100%";
-  frame.frame.style.border = "none";
-  container.appendChild(frame.frame);
-  await frame.waitUntilReady();
-  frame.go("https://search.brave.com/");
+    if (!scramjetReady) await initScramjet();
+    await registerSW();
+    const wispUrl = (location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/wisp/";
+    if ((await connection.getTransport()) !== "/libcurl/index.mjs") {
+        await connection.setTransport("/libcurl/index.mjs", [{ "websocket": wispUrl }]);
+    }
+    if (!activeFrame) {
+        activeFrame = scramjet.createFrame();
+        activeFrame.frame.style.width = "100%";
+        activeFrame.frame.style.height = "100%";
+        activeFrame.frame.style.border = "none";
+        container.appendChild(activeFrame.frame);
+    }
+    if (activeFrame.waitUntilReady) await activeFrame.waitUntilReady();
+    activeFrame.go("https://search.brave.com/");
 }
 
-/* ================= GAMES APP ================= */
-async function initGames(container) {
-  if (!scramjetReady) await initScramjet();
-  container.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:white;">Loading games...</div>`;
-
-  try {
-    const zonesResp = await scramjet.fetch("https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json");
-    const zones = await zonesResp.json();
-
-    container.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:10px;overflow:auto;height:100%;padding:5px;"></div>`;
-    const wrapper = container.firstChild;
-
-    zones.forEach(zone => {
-      const zoneDiv = document.createElement("div");
-      zoneDiv.style.width = "120px";
-      zoneDiv.style.textAlign = "center";
-      zoneDiv.style.cursor = "pointer";
-      zoneDiv.style.color = "white";
-
-      const img = document.createElement("img");
-      img.src = zone.cover.replace("{COVER_URL}", "https://cdn.jsdelivr.net/gh/gn-math/covers@main");
-      img.alt = zone.name;
-      img.style.width = "100%";
-      img.style.borderRadius = "5px";
-      img.style.marginBottom = "5px";
-
-      const label = document.createElement("div");
-      label.textContent = zone.name;
-      label.style.fontSize = "12px";
-
-      zoneDiv.appendChild(img);
-      zoneDiv.appendChild(label);
-
-      zoneDiv.onclick = async () => {
-        const gameUrl = zone.url.replace("{HTML_URL}", "https://cdn.jsdelivr.net/gh/gn-math/html@main");
-        const frame = document.createElement("iframe");
-        frame.style.width = "100%";
-        frame.style.height = "100%";
-        frame.style.border = "none";
+/* ================= GN MATH GAMES ================= */
+async function initGNMathGames(container) {
+    if (!scramjetReady) await initScramjet();
+    try {
+        const response = await scramjet.fetch("https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json");
+        const zones = await response.json();
         container.innerHTML = "";
-        container.appendChild(frame);
-
-        // Use Scramjet fetch directly
-        const resp = await scramjet.fetch(gameUrl);
-        const html = await resp.text();
-
-        frame.contentDocument.open();
-        frame.contentDocument.write(html);
-        frame.contentDocument.close();
-      };
-
-      wrapper.appendChild(zoneDiv);
-    });
-  } catch (err) {
-    container.innerHTML = `<p style="color:red;">Failed to load games: ${err}</p>`;
-  }
+        zones.forEach(file => {
+            const btn = document.createElement("button");
+            btn.textContent = file.name;
+            btn.style.display = "block";
+            btn.style.margin = "5px";
+            btn.onclick = async () => {
+                const html = await scramjet.fetch(file.url.replace("{HTML_URL}", "https://cdn.jsdelivr.net/gh/gn-math/html@main")).then(r => r.text());
+                const iframe = document.createElement("iframe");
+                iframe.style.width = "100%";
+                iframe.style.height = "100%";
+                iframe.style.border = "none";
+                iframe.srcdoc = html;
+                container.innerHTML = "";
+                container.appendChild(iframe);
+            };
+            container.appendChild(btn);
+        });
+    } catch (e) {
+        container.innerHTML = "Failed to load games: " + e;
+    }
 }
 
 /* ================= CHAT ================= */
 function initChat(container) {
-  container.innerHTML = `<div id="chat-window" style="height:100%;overflow:auto;background:rgba(0,0,0,0.7);padding:10px;margin-bottom:5px;"></div><input id="chat-input" style="width:80%;padding:5px;border-radius:5px;" placeholder="Type a message..."><button id="chat-send">Send</button>`;
-  const chatWindow = document.getElementById("chat-window");
-  const chatInput = document.getElementById("chat-input");
-  const chatSend = document.getElementById("chat-send");
-  const ws = new WebSocket("wss://yourserver.com"); // replace with your WS server
-  ws.onmessage = msg => {
-    const data = JSON.parse(msg.data);
-    chatWindow.innerHTML += `<div><strong>${data.user}</strong>: ${data.message}</div>`;
-    chatWindow.scrollTop = chatWindow.scrollHeight;
-  };
-  chatSend.addEventListener("click", () => {
-    if (chatInput.value.trim() === "") return;
-    ws.send(JSON.stringify({ user: "Guest", message: chatInput.value }));
-    chatInput.value = "";
-  });
-  chatInput.addEventListener("keydown", e => { if (e.key === "Enter") chatSend.click(); });
+    container.innerHTML = `<div id="chat-window" style="height:100%;overflow:auto;background:rgba(0,0,0,0.7);padding:10px;margin-bottom:5px;"></div>
+    <input id="chat-input" style="width:80%;padding:5px;border-radius:5px;" placeholder="Type a message...">
+    <button id="chat-send">Send</button>`;
+    const chatWindow = document.getElementById("chat-window");
+    const chatInput = document.getElementById("chat-input");
+    const chatSend = document.getElementById("chat-send");
+    const ws = new WebSocket("wss://yourserver.com"); // replace with your WS server
+    ws.onmessage = msg => {
+        const data = JSON.parse(msg.data);
+        chatWindow.innerHTML += `<div><strong>${data.user}</strong>: ${data.message}</div>`;
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    };
+    chatSend.addEventListener("click", () => {
+        if (chatInput.value.trim() === "") return;
+        ws.send(JSON.stringify({ user: "Guest", message: chatInput.value }));
+        chatInput.value = "";
+    });
+    chatInput.addEventListener("keydown", e => { if (e.key === "Enter") chatSend.click(); });
 }
