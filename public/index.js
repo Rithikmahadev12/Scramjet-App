@@ -1,212 +1,239 @@
 "use strict";
 
 /* ================= PARTICLES ================= */
-const canvas=document.getElementById("particle-canvas");
-const ctx=canvas.getContext("2d");
-canvas.width=window.innerWidth; canvas.height=window.innerHeight;
-window.addEventListener("resize",()=>{canvas.width=window.innerWidth; canvas.height=window.innerHeight;});
-const particles=[];
-for(let i=0;i<200;i++){
+const canvas = document.getElementById("particle-canvas");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth; 
+canvas.height = window.innerHeight;
+window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth; 
+    canvas.height = window.innerHeight;
+});
+const particles = [];
+for (let i = 0; i < 200; i++) {
     particles.push({
-        x:Math.random()*canvas.width,
-        y:Math.random()*canvas.height,
-        r:Math.random()*2+1,
-        vx:(Math.random()-0.5)*0.5,
-        vy:(Math.random()-0.5)*0.5
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 2 + 1,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5
     });
 }
-function animateParticles(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    particles.forEach(p=>{
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
         ctx.beginPath();
-        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-        ctx.fillStyle="rgba(255,255,255,0.5)";
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255,255,255,0.5)";
         ctx.fill();
-        p.x+=p.vx; p.y+=p.vy;
-        if(p.x>canvas.width)p.x=0;
-        if(p.x<0)p.x=canvas.width;
-        if(p.y>canvas.height)p.y=0;
-        if(p.y<0)p.y=canvas.height;
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.y > canvas.height) p.y = 0;
+        if (p.y < 0) p.y = canvas.height;
     });
     requestAnimationFrame(animateParticles);
 }
 animateParticles();
 
 /* ================= STATUS BAR ================= */
-function updateTime(){
-    const now=new Date();
-    const time=now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-    const day=now.toLocaleDateString([], {weekday:'long', month:'short', day:'numeric'});
-    document.getElementById("time").innerText=`${time} • ${day}`;
+function updateTime() {
+    const now = new Date();
+    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const day = now.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
+    document.getElementById("time").innerText = `${time} • ${day}`;
 }
-setInterval(updateTime,1000); updateTime();
-navigator.getBattery().then(b=>{
-    function showBattery(){document.getElementById("battery").innerText=Math.floor(b.level*100)+"%";}
-    b.onlevelchange=showBattery; showBattery();
+setInterval(updateTime, 1000); 
+updateTime();
+navigator.getBattery().then(b => {
+    function showBattery() {
+        document.getElementById("battery").innerText = Math.floor(b.level * 100) + "%";
+    } 
+    b.onlevelchange = showBattery; 
+    showBattery();
 });
 
 /* ================= ONBOARDING ================= */
-document.getElementById("enter-os-btn").addEventListener("click",()=>{
-    document.getElementById("onboarding").style.display="none";
+document.getElementById("enter-os-btn").addEventListener("click", () => {
+    document.getElementById("onboarding").style.display = "none";
 });
 
 /* ================= LAUNCHPAD ================= */
-const launchpad=document.getElementById("launchpad");
-const startBtn=document.getElementById("start-btn");
-startBtn.addEventListener("click",()=>{launchpad.classList.toggle("hidden");});
-launchpad.querySelectorAll(".launch-app").forEach(btn=>{
-    btn.addEventListener("click",()=>{
-        const appId=btn.dataset.app;
+const launchpad = document.getElementById("launchpad");
+const startBtn = document.getElementById("start-btn");
+startBtn.addEventListener("click", () => {
+    launchpad.classList.toggle("hidden");
+});
+launchpad.querySelectorAll(".launch-app").forEach(btn => {
+    btn.addEventListener("click", () => {
+        const appId = btn.dataset.app;
         openWindow(appId);
         launchpad.classList.add("hidden");
     });
 });
 
 /* ================= WINDOW MANAGER ================= */
-const desktop=document.getElementById("desktop");
-const taskbarWindows=document.getElementById("taskbar-windows");
-const windows={};
-function openWindow(appId){
-    if(windows[appId]){windows[appId].style.zIndex=Date.now(); return;}
-    const win=document.createElement("div");
-    win.className="window";
-    win.style.width="400px"; win.style.height="300px"; win.style.top="100px"; win.style.left="100px";
-    win.innerHTML=`<div class="title-bar"><span class="title">${appId.charAt(0).toUpperCase()+appId.slice(1)}</span><div class="controls"><button class="close">×</button></div></div><div class="content" id="${appId}-content"></div>`;
-    desktop.appendChild(win); windows[appId]=win;
+const desktop = document.getElementById("desktop");
+const taskbarWindows = document.getElementById("taskbar-windows");
+const windows = {};
+function openWindow(appId) {
+    if (windows[appId]) {
+        windows[appId].style.zIndex = Date.now(); 
+        return;
+    }
+    const win = document.createElement("div");
+    win.className = "window";
+    win.style.width = "400px"; 
+    win.style.height = "300px"; 
+    win.style.top = "100px"; 
+    win.style.left = "100px";
+    win.innerHTML = `
+        <div class="title-bar">
+            <span class="title">${appId.charAt(0).toUpperCase() + appId.slice(1)}</span>
+            <div class="controls">
+                <button class="close">×</button>
+            </div>
+        </div>
+        <div class="content" id="${appId}-content"></div>
+    `;
+    desktop.appendChild(win); 
+    windows[appId] = win;
     makeDraggable(win);
     updateTaskbar();
-    win.querySelector(".close").onclick=()=>{desktop.removeChild(win); delete windows[appId]; updateTaskbar();};
+    win.querySelector(".close").onclick = () => {
+        desktop.removeChild(win); 
+        delete windows[appId]; 
+        updateTaskbar();
+    };
 
-    const content=document.getElementById(`${appId}-content`);
-    if(appId==="browser"){initScramjetBrowser(content);}
-    if(appId==="games"){initGNMathGames(content);}
-    if(appId==="chat"){initChat(content);}
-    if(appId==="settings"){content.innerHTML=`<p>Settings coming soon</p>`;}
+    const content = document.getElementById(`${appId}-content`);
+    if (appId === "browser") {
+        initScramjetBrowser(content);
+    }
+    if (appId === "games") {
+        initGames(content);
+    }
+    if (appId === "chat") {
+        initChat(content);
+    }
+    if (appId === "settings") {
+        content.innerHTML = `<p>Settings coming soon</p>`;
+    }
 }
-function updateTaskbar(){
-    taskbarWindows.innerHTML="";
-    Object.keys(windows).forEach(appId=>{
-        const btn=document.createElement("button");
-        btn.innerText=appId.charAt(0).toUpperCase()+appId.slice(1);
-        btn.onclick=()=>{windows[appId].style.zIndex=Date.now();};
+function updateTaskbar() {
+    taskbarWindows.innerHTML = "";
+    Object.keys(windows).forEach(appId => {
+        const btn = document.createElement("button");
+        btn.innerText = appId.charAt(0).toUpperCase() + appId.slice(1);
+        btn.onclick = () => { windows[appId].style.zIndex = Date.now(); };
         taskbarWindows.appendChild(btn);
     });
 }
-function makeDraggable(el){
-    const bar=el.querySelector(".title-bar");let offsetX, offsetY, dragging=false;
-    bar.addEventListener("mousedown",e=>{dragging=true; offsetX=e.clientX-el.offsetLeft; offsetY=e.clientY-el.offsetTop; el.style.zIndex=Date.now();});
-    document.addEventListener("mousemove",e=>{if(dragging){el.style.left=(e.clientX-offsetX)+"px"; el.style.top=(e.clientY-offsetY)+"px";}});
-    document.addEventListener("mouseup",()=>{dragging=false;});
+function makeDraggable(el) {
+    const bar = el.querySelector(".title-bar");
+    let offsetX, offsetY, dragging = false;
+    bar.addEventListener("mousedown", e => {
+        dragging = true; 
+        offsetX = e.clientX - el.offsetLeft; 
+        offsetY = e.clientY - el.offsetTop; 
+        el.style.zIndex = Date.now();
+    });
+    document.addEventListener("mousemove", e => {
+        if (dragging) {
+            el.style.left = (e.clientX - offsetX) + "px"; 
+            el.style.top = (e.clientY - offsetY) + "px";
+        }
+    });
+    document.addEventListener("mouseup", () => { dragging = false; });
 }
 
-/* ================= SCRAMJET BROWSER (unchanged) ================= */
-let scramjet, connection, activeFrame=null, scramjetReady=false;
-async function initScramjet(){
-    if(scramjetReady) return;
+/* ================= SCRAMJET BROWSER ================= */
+let scramjet, connection, activeFrame = null, scramjetReady = false;
+async function initScramjet() {
+    if (scramjetReady) return;
     const { ScramjetController } = $scramjetLoadController();
-    scramjet = new ScramjetController({ files:{ wasm:"/scram/scramjet.wasm.wasm", all:"/scram/scramjet.all.js", sync:"/scram/scramjet.sync.js"} });
+    scramjet = new ScramjetController({ files: { wasm: "/scram/scramjet.wasm.wasm", all: "/scram/scramjet.all.js", sync: "/scram/scramjet.sync.js"} });
     await scramjet.init();
     connection = new BareMux.BareMuxConnection("/baremux/worker.js");
-    scramjetReady=true;
+    scramjetReady = true;
 }
-async function initScramjetBrowser(container){
-    if(!scramjetReady) await initScramjet();
+async function initScramjetBrowser(container) {
+    if (!scramjetReady) await initScramjet();
     await registerSW();
-    const wispUrl=(location.protocol==="https:"?"wss://":"ws://")+location.host+"/wisp/";
-    if((await connection.getTransport())!=="/libcurl/index.mjs"){await connection.setTransport("/libcurl/index.mjs",[{"websocket":wispUrl}]);}
-    if(!activeFrame){activeFrame=scramjet.createFrame(); activeFrame.frame.style.width="100%"; activeFrame.frame.style.height="100%"; activeFrame.frame.style.border="none"; container.appendChild(activeFrame.frame);}
-    if(activeFrame.waitUntilReady) await activeFrame.waitUntilReady();
+    const wispUrl = (location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/wisp/";
+    if ((await connection.getTransport()) !== "/libcurl/index.mjs") {
+        await connection.setTransport("/libcurl/index.mjs", [{"websocket": wispUrl}]);
+    }
+    if (!activeFrame) {
+        activeFrame = scramjet.createFrame(); 
+        activeFrame.frame.style.width = "100%"; 
+        activeFrame.frame.style.height = "100%"; 
+        activeFrame.frame.style.border = "none"; 
+        container.appendChild(activeFrame.frame);
+    }
+    if (activeFrame.waitUntilReady) await activeFrame.waitUntilReady();
     activeFrame.go("https://search.brave.com/");
+}
+
+/* ================= GAMES ================= */
+const proxyPrefix = "/wisp"; // same as your Brave search proxy
+const zonesURL = "https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json";
+const coverURL = "https://cdn.jsdelivr.net/gh/gn-math/covers@main";
+const htmlURL = "https://cdn.jsdelivr.net/gh/gn-math/html@main";
+let zones = [];
+let popularityData = {};
+
+async function initGames(container) {
+    container.innerHTML = `<p style="text-align:center;margin-top:50px;">Loading games...</p>`;
+    try {
+        const res = await fetch(zonesURL);
+        zones = await res.json();
+        displayGames(container, zones);
+    } catch (err) {
+        container.innerHTML = `<p>Error loading games: ${err}</p>`;
+    }
+}
+
+function displayGames(container, zones) {
+    container.innerHTML = "";
+    zones.forEach(game => {
+        const gameBtn = document.createElement("button");
+        gameBtn.style.margin = "10px";
+        gameBtn.style.padding = "10px 20px";
+        gameBtn.style.borderRadius = "10px";
+        gameBtn.style.background = "rgba(255,255,255,0.1)";
+        gameBtn.style.color = "#fff";
+        gameBtn.style.cursor = "pointer";
+        gameBtn.innerText = game.name;
+        gameBtn.onclick = () => openGame(container, game);
+        container.appendChild(gameBtn);
+    });
+}
+
+function openGame(container, game) {
+    const proxiedURL = `${proxyPrefix}/${game.url.replace("{HTML_URL}", htmlURL)}`;
+    container.innerHTML = `<iframe src="${proxiedURL}" style="width:100%;height:100%;border:none;"></iframe>`;
 }
 
 /* ================= CHAT ================= */
 function initChat(container){
-    container.innerHTML=`<div id="chat-window" style="height:100%;overflow:auto;background:rgba(0,0,0,0.7);padding:10px;margin-bottom:5px;"></div><input id="chat-input" style="width:80%;padding:5px;border-radius:5px;" placeholder="Type a message..."><button id="chat-send">Send</button>`;
-    const chatWindow=document.getElementById("chat-window");
-    const chatInput=document.getElementById("chat-input");
-    const chatSend=document.getElementById("chat-send");
-    const ws=new WebSocket("wss://yourserver.com"); // replace with WS server
-    ws.onmessage=msg=>{const data=JSON.parse(msg.data); chatWindow.innerHTML+=`<div><strong>${data.user}</strong>: ${data.message}</div>`; chatWindow.scrollTop=chatWindow.scrollHeight;};
-    chatSend.addEventListener("click",()=>{if(chatInput.value.trim()==="")return; ws.send(JSON.stringify({user:"Guest",message:chatInput.value})); chatInput.value="";});
-    chatInput.addEventListener("keydown",e=>{if(e.key==="Enter") chatSend.click();});
-}
-
-/* ================= GN-MATH GAMES ================= */
-function initGNMathGames(content){
-    content.innerHTML=`
-    <div style="display:flex;flex-direction:column;height:100%;">
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px;">
-            <input id="gn-search" placeholder="Search games..." style="flex:1;margin-right:5px;padding:5px;border-radius:5px;">
-            <select id="gn-sort">
-                <option value="name">Name</option>
-                <option value="id">ID</option>
-                <option value="popular">Popular</option>
-            </select>
-        </div>
-        <div id="gn-container" style="flex:1;overflow:auto;display:flex;flex-wrap:wrap;gap:10px;padding:5px;"></div>
-        <div id="gn-zoneViewer" style="display:none;flex:1;position:relative;">
-            <iframe id="gn-zoneFrame" style="width:100%;height:100%;border:none;"></iframe>
-            <button style="position:absolute;top:5px;right:5px;z-index:10;" onclick="document.getElementById('gn-zoneViewer').style.display='none';">Close</button>
-        </div>
-    </div>
-    `;
-
-    const gnContainer = content.querySelector('#gn-container');
-    const gnZoneViewer = content.querySelector('#gn-zoneViewer');
-    const gnZoneFrame = content.querySelector('#gn-zoneFrame');
-    const gnSearch = content.querySelector('#gn-search');
-    const gnSort = content.querySelector('#gn-sort');
-
-    let zones=[], popularity={};
-
-    async function listZones(){
-        const zonesURL = "https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json";
-        try{
-            const res = await fetch(zonesURL);
-            zones = await res.json();
-
-            const popRes = await fetch("https://data.jsdelivr.com/v1/stats/packages/gh/gn-math/html@main/files?period=year");
-            const popData = await popRes.json();
-            popData.forEach(f=>{ const idMatch=f.name.match(/\/(\d+)\.html$/); if(idMatch) popularity[idMatch[1]]=f.hits.total; });
-
-            displayZones(zones);
-        } catch(e){ gnContainer.innerHTML = "Failed to load games: "+e; }
-    }
-
-    function displayZones(list){
-        gnContainer.innerHTML="";
-        list.forEach(zone=>{
-            const div=document.createElement("div");
-            div.style.width="120px"; div.style.cursor="pointer"; div.style.textAlign="center";
-            const img=document.createElement("img");
-            img.src = zone.cover.replace("{COVER_URL}", "https://cdn.jsdelivr.net/gh/gn-math/covers@main").replace("{HTML_URL}", "https://cdn.jsdelivr.net/gh/gn-math/html@main");
-            img.style.width="100%"; img.style.borderRadius="5px"; div.appendChild(img);
-            const btn = document.createElement("div");
-            btn.innerText=zone.name; btn.style.fontSize="12px"; btn.style.marginTop="3px"; div.appendChild(btn);
-            div.onclick = ()=>openZone(zone);
-            gnContainer.appendChild(div);
-        });
-    }
-
-    function openZone(zone){
-        const url = zone.url.replace("{COVER_URL}", "https://cdn.jsdelivr.net/gh/gn-math/covers@main")
-                            .replace("{HTML_URL}", "https://cdn.jsdelivr.net/gh/gn-math/html@main");
-        gnZoneFrame.src = url;
-        gnZoneViewer.style.display="block";
-    }
-
-    gnSearch.addEventListener("input",()=>{ 
-        const q=gnSearch.value.toLowerCase();
-        displayZones(zones.filter(z=>z.name.toLowerCase().includes(q)));
+    container.innerHTML = `<div id="chat-window" style="height:100%;overflow:auto;background:rgba(0,0,0,0.7);padding:10px;margin-bottom:5px;"></div>
+    <input id="chat-input" style="width:80%;padding:5px;border-radius:5px;" placeholder="Type a message...">
+    <button id="chat-send">Send</button>`;
+    const chatWindow = document.getElementById("chat-window");
+    const chatInput = document.getElementById("chat-input");
+    const chatSend = document.getElementById("chat-send");
+    const ws = new WebSocket("wss://yourserver.com"); // replace with WS server
+    ws.onmessage = msg => {
+        const data = JSON.parse(msg.data);
+        chatWindow.innerHTML += `<div><strong>${data.user}</strong>: ${data.message}</div>`;
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    };
+    chatSend.addEventListener("click", () => {
+        if(chatInput.value.trim()==="") return;
+        ws.send(JSON.stringify({user:"Guest",message:chatInput.value}));
+        chatInput.value="";
     });
-    gnSort.addEventListener("change",()=>{
-        const val = gnSort.value;
-        let sorted = [...zones];
-        if(val==="name") sorted.sort((a,b)=>a.name.localeCompare(b.name));
-        else if(val==="id") sorted.sort((a,b)=>a.id-b.id);
-        else if(val==="popular") sorted.sort((a,b)=> (popularity[b.id]||0)-(popularity[a.id]||0));
-        displayZones(sorted);
-    });
-
-    listZones();
+    chatInput.addEventListener("keydown", e => {if(e.key==="Enter") chatSend.click();});
 }
