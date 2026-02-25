@@ -4,42 +4,55 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Matriarchs OS</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="index.css">
+
+<!-- Scramjet + BareMux -->
+<script src="/scram/scramjet.all.js"></script>
+<script src="/baremux/index.js"></script>
+<script src="/register-sw.js"></script>
+<script src="index.js" defer></script>
 </head>
 <body>
+
+<!-- Background -->
 <canvas id="particle-canvas"></canvas>
 
-<!-- Onboarding -->
-<div id="onboarding">
-    <h1>Welcome to Matriarchs OS</h1>
-    <button id="enter-os-btn">Enter OS</button>
+<!-- Status Bar -->
+<div class="status-bar">
+  <div id="time"></div>
+  <div id="battery"></div>
+  <div id="theme-toggle">🌙</div>
 </div>
 
-<!-- Desktop -->
-<div id="desktop"></div>
-
 <!-- Taskbar -->
-<div id="taskbar">
-    <div id="time"></div>
-    <div id="battery"></div>
-    <div id="taskbar-windows"></div>
-    <button id="start-btn">Start</button>
+<div class="taskbar">
+  <button id="start-btn">☰ Start</button>
+  <div id="taskbar-windows"></div>
 </div>
 
 <!-- Launchpad -->
-<div id="launchpad" class="hidden">
-    <button class="launch-app" data-app="browser">Browser</button>
-    <button class="launch-app" data-app="games">Games</button>
-    <button class="launch-app" data-app="chat">Chat</button>
-    <button class="launch-app" data-app="settings">Settings</button>
+<div id="launchpad" class="launchpad hidden">
+  <button class="launch-app" data-app="browser">Browser</button>
+  <button class="launch-app" data-app="games">Games</button>
+  <button class="launch-app" data-app="chat">Chat</button>
+  <button class="launch-app" data-app="settings">Settings</button>
 </div>
 
-<!-- Include Scramjet Files -->
-<script src="/scram/scramjet.all.js"></script>
-<script src="/scram/scramjet.sync.js"></script>
-<script src="/scram/scramjet.wasm.wasm"></script>
+<!-- Onboarding -->
+<section id="onboarding" class="screen active">
+  <div class="onboard-content">
+    <h1>Welcome to Matriarchs OS</h1>
+    <p>Your private universe awaits</p>
+    <button id="enter-os-btn">Enter OS</button>
+  </div>
+</section>
 
-<!-- Main JS -->
-<script src="index.js"></script>
+<!-- Desktop -->
+<div id="desktop" class="desktop">
+  <!-- Windows are dynamically created -->
+</div>
+
 </body>
 </html>
