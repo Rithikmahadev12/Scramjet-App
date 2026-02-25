@@ -84,6 +84,7 @@ function openWindow(appId) {
     windows[appId].style.zIndex = Date.now();
     return;
   }
+
   const win = document.createElement("div");
   win.className = "window";
   win.style.width = "400px";
@@ -93,21 +94,64 @@ function openWindow(appId) {
   win.innerHTML = `
     <div class="title-bar">
       <span class="title">${appId.charAt(0).toUpperCase() + appId.slice(1)}</span>
-      <div class="controls"><button class="close">×</button></div>
+      <div class="controls">
+        <button class="minimize">−</button>
+        <button class="fullscreen">⬜</button>
+        <button class="close">×</button>
+      </div>
     </div>
     <div class="content" id="${appId}-content"></div>
   `;
   desktop.appendChild(win);
   windows[appId] = win;
+
   makeDraggable(win);
   updateTaskbar();
-  win.querySelector(".close").onclick = () => {
+
+  const content = document.getElementById(`${appId}-content`);
+
+  // Window control buttons
+  const btnClose = win.querySelector(".close");
+  const btnMin = win.querySelector(".minimize");
+  const btnFS = win.querySelector(".fullscreen");
+  let prevState = {};
+
+  btnClose.onclick = () => {
     desktop.removeChild(win);
     delete windows[appId];
     updateTaskbar();
   };
 
-  const content = document.getElementById(`${appId}-content`);
+  btnMin.onclick = () => {
+    win.style.display = "none";
+    updateTaskbar();
+  };
+
+  btnFS.onclick = () => {
+    if (!win.classList.contains("fullscreen")) {
+      // Save previous state
+      prevState = {
+        width: win.style.width,
+        height: win.style.height,
+        top: win.style.top,
+        left: win.style.left
+      };
+      win.style.width = "100%";
+      win.style.height = "100%";
+      win.style.top = "0";
+      win.style.left = "0";
+      win.classList.add("fullscreen");
+    } else {
+      // Restore
+      win.style.width = prevState.width;
+      win.style.height = prevState.height;
+      win.style.top = prevState.top;
+      win.style.left = prevState.left;
+      win.classList.remove("fullscreen");
+    }
+  };
+
+  // Load apps
   if (appId === "browser") { initScramjetBrowser(content); }
   if (appId === "games") { initGNGames(content); }
   if (appId === "chat") { initChat(content); }
@@ -119,7 +163,11 @@ function updateTaskbar() {
   Object.keys(windows).forEach(appId => {
     const btn = document.createElement("button");
     btn.innerText = appId.charAt(0).toUpperCase() + appId.slice(1);
-    btn.onclick = () => { windows[appId].style.zIndex = Date.now(); };
+    btn.onclick = () => {
+      const win = windows[appId];
+      win.style.display = "flex"; // restore if minimized
+      win.style.zIndex = Date.now();
+    };
     taskbarWindows.appendChild(btn);
   });
 }
@@ -128,6 +176,7 @@ function makeDraggable(el) {
   const bar = el.querySelector(".title-bar");
   let offsetX, offsetY, dragging = false;
   bar.addEventListener("mousedown", e => {
+    if (el.classList.contains("fullscreen")) return; // disable dragging in fullscreen
     dragging = true;
     offsetX = e.clientX - el.offsetLeft;
     offsetY = e.clientY - el.offsetTop;
@@ -236,16 +285,13 @@ async function openGNGame(url, contentDiv) {
     const res = await fetch(fullURL);
     let html = await res.text();
 
-    // fix relative src/href assets
     html = html.replace(
       /((src|href)=["'])(?!https?:|data:)/g,
       `$1https://cdn.jsdelivr.net/gh/gn-math/html@main/`
     );
 
-    // convert HTML into a data URI
     const dataURL = "data:text/html;charset=utf-8," + encodeURIComponent(html);
     frame.go(dataURL);
-
   } catch (err) {
     contentDiv.innerHTML = "Failed to load game: " + err;
   }
