@@ -231,12 +231,21 @@ async function openGNGame(url, contentDiv) {
   frame.frame.style.border = "none";
   contentDiv.appendChild(frame.frame);
 
-  let fullURL = url.replace("{HTML_URL}", "https://cdn.jsdelivr.net/gh/gn-math/html@main");
-
   try {
+    let fullURL = url.replace("{HTML_URL}", "https://cdn.jsdelivr.net/gh/gn-math/html@main");
     const res = await fetch(fullURL);
-    const html = await res.text();
-    frame.setHTML(html); // inject HTML directly into Scramjet frame
+    let html = await res.text();
+
+    // fix relative src/href assets
+    html = html.replace(
+      /((src|href)=["'])(?!https?:|data:)/g,
+      `$1https://cdn.jsdelivr.net/gh/gn-math/html@main/`
+    );
+
+    // convert HTML into a data URI
+    const dataURL = "data:text/html;charset=utf-8," + encodeURIComponent(html);
+    frame.go(dataURL);
+
   } catch (err) {
     contentDiv.innerHTML = "Failed to load game: " + err;
   }
