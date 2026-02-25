@@ -81,6 +81,7 @@ const windows = {};
 
 function openWindow(appId) {
   if (windows[appId]) {
+    windows[appId].style.display = "flex"; // restore if minimized
     windows[appId].style.zIndex = Date.now();
     return;
   }
@@ -129,7 +130,6 @@ function openWindow(appId) {
 
   btnFS.onclick = () => {
     if (!win.classList.contains("fullscreen")) {
-      // Save previous state
       prevState = {
         width: win.style.width,
         height: win.style.height,
@@ -142,7 +142,6 @@ function openWindow(appId) {
       win.style.left = "0";
       win.classList.add("fullscreen");
     } else {
-      // Restore
       win.style.width = prevState.width;
       win.style.height = prevState.height;
       win.style.top = prevState.top;
@@ -192,7 +191,8 @@ function makeDraggable(el) {
 }
 
 /* ================= SCRAMJET BROWSER ================= */
-let scramjet, connection, activeFrame = null, scramjetReady = false;
+let scramjet, connection, scramjetReady = false;
+
 async function initScramjet() {
   if (scramjetReady) return;
   const { ScramjetController } = $scramjetLoadController();
@@ -207,19 +207,22 @@ async function initScramjet() {
 async function initScramjetBrowser(container) {
   if (!scramjetReady) await initScramjet();
   await registerSW();
+
+  // Each browser window gets its own frame
+  const browserFrame = scramjet.createFrame();
+  browserFrame.frame.style.width = "100%";
+  browserFrame.frame.style.height = "100%";
+  browserFrame.frame.style.border = "none";
+  container.appendChild(browserFrame.frame);
+
   const wispUrl = (location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/wisp/";
   if ((await connection.getTransport()) !== "/libcurl/index.mjs") {
-    await connection.setTransport("/libcurl/index.mjs", [{ "websocket": wispUrl }]);
+    await connection.setTransport("/libcurl/index.mjs", [{ websocket: wispUrl }]);
   }
-  if (!activeFrame) {
-    activeFrame = scramjet.createFrame();
-    activeFrame.frame.style.width = "100%";
-    activeFrame.frame.style.height = "100%";
-    activeFrame.frame.style.border = "none";
-    container.appendChild(activeFrame.frame);
-  }
-  if (activeFrame.waitUntilReady) await activeFrame.waitUntilReady();
-  activeFrame.go("https://search.brave.com/");
+
+  if (browserFrame.waitUntilReady) await browserFrame.waitUntilReady();
+
+  browserFrame.go("https://search.brave.com/");
 }
 
 /* ================= GN-MATH GAMES ================= */
@@ -285,10 +288,7 @@ async function openGNGame(url, contentDiv) {
     const res = await fetch(fullURL);
     let html = await res.text();
 
-    html = html.replace(
-      /((src|href)=["'])(?!https?:|data:)/g,
-      `$1https://cdn.jsdelivr.net/gh/gn-math/html@main/`
-    );
+    html = html.replace(/((src|href)=["'])(?!https?:|data:)/g, `$1https://cdn.jsdelivr.net/gh/gn-math/html@main/`);
 
     const dataURL = "data:text/html;charset=utf-8," + encodeURIComponent(html);
     frame.go(dataURL);
@@ -307,7 +307,7 @@ function initChat(container) {
   const chatWindow = document.getElementById("chat-window");
   const chatInput = document.getElementById("chat-input");
   const chatSend = document.getElementById("chat-send");
-  const ws = new WebSocket("wss://yourserver.com"); // replace with WS server
+  const ws = new WebSocket("wss://yourserver.com"); // replace with your WS server
 
   ws.onmessage = msg => {
     const data = JSON.parse(msg.data);
