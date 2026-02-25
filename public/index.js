@@ -33,7 +33,6 @@ launchpad.querySelectorAll(".launch-app").forEach(btn=>{
 const desktop=document.getElementById("desktop");
 const taskbarWindows=document.getElementById("taskbar-windows");
 const windows={};
-
 function openWindow(appId){
     if(windows[appId]){windows[appId].style.zIndex=Date.now(); return;}
     const win=document.createElement("div");
@@ -46,13 +45,11 @@ function openWindow(appId){
     win.querySelector(".close").onclick=()=>{desktop.removeChild(win); delete windows[appId]; updateTaskbar();};
 
     const content=document.getElementById(`${appId}-content`);
-
     if(appId==="browser"){initScramjetBrowser(content);}
     if(appId==="games"){initGNMathGames(content);}
     if(appId==="chat"){initChat(content);}
     if(appId==="settings"){content.innerHTML=`<p>Settings coming soon</p>`;}
 }
-
 function updateTaskbar(){taskbarWindows.innerHTML="";Object.keys(windows).forEach(appId=>{const btn=document.createElement("button");btn.innerText=appId.charAt(0).toUpperCase()+appId.slice(1);btn.onclick=()=>{windows[appId].style.zIndex=Date.now();};taskbarWindows.appendChild(btn);});}
 function makeDraggable(el){const bar=el.querySelector(".title-bar");let offsetX, offsetY, dragging=false;bar.addEventListener("mousedown",e=>{dragging=true; offsetX=e.clientX-el.offsetLeft; offsetY=e.clientY-el.offsetTop; el.style.zIndex=Date.now();});document.addEventListener("mousemove",e=>{if(dragging){el.style.left=(e.clientX-offsetX)+"px"; el.style.top=(e.clientY-offsetY)+"px";}});document.addEventListener("mouseup",()=>{dragging=false;});}
 
@@ -76,13 +73,23 @@ async function initScramjetBrowser(container){
     activeFrame.go("https://search.brave.com/");
 }
 
+/* ================= CHAT ================= */
+function initChat(container){
+    container.innerHTML=`<div id="chat-window" style="height:100%;overflow:auto;background:rgba(0,0,0,0.7);padding:10px;margin-bottom:5px;"></div><input id="chat-input" style="width:80%;padding:5px;border-radius:5px;" placeholder="Type a message..."><button id="chat-send">Send</button>`;
+    const chatWindow=document.getElementById("chat-window");
+    const chatInput=document.getElementById("chat-input");
+    const chatSend=document.getElementById("chat-send");
+    const ws=new WebSocket("wss://yourserver.com"); // replace with WS server
+    ws.onmessage=msg=>{const data=JSON.parse(msg.data); chatWindow.innerHTML+=`<div><strong>${data.user}</strong>: ${data.message}</div>`; chatWindow.scrollTop=chatWindow.scrollHeight;};
+    chatSend.addEventListener("click",()=>{if(chatInput.value.trim()==="")return; ws.send(JSON.stringify({user:"Guest",message:chatInput.value})); chatInput.value="";});
+    chatInput.addEventListener("keydown",e=>{if(e.key==="Enter") chatSend.click();});
+}
+
 /* ================= GN-MATH GAMES ================= */
 async function initGNMathGames(container){
     container.innerHTML=`<div id="gn-game-container" style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow:auto;padding:10px;"></div>`;
     const gameContainer = document.getElementById("gn-game-container");
 
-    // Load zones.json from GN-Math via Scramjet proxy
-    const proxyURL = "/libcurl/index.mjs"; // Scramjet proxy
     const zonesURL = "https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json";
     
     try {
@@ -94,7 +101,10 @@ async function initGNMathGames(container){
             const button = document.createElement("button");
             button.textContent = zone.name;
             button.style.margin="5px"; button.style.padding="10px"; button.style.width="90%";
-            button.onclick = () => openGNGame(zone.url, zone.name);
+            button.onclick = async () => {
+                const contentDiv = container.closest(".window").querySelector(".content");
+                openGNGame(zone.url, contentDiv);
+            };
             gameContainer.appendChild(button);
         });
 
@@ -103,29 +113,13 @@ async function initGNMathGames(container){
     }
 }
 
-async function openGNGame(url, name){
+async function openGNGame(url, contentDiv){
     if(!scramjetReady) await initScramjet();
-    if(!activeFrame){
-        activeFrame = scramjet.createFrame();
-        activeFrame.frame.style.width="100%";
-        activeFrame.frame.style.height="100%";
-        activeFrame.frame.style.border="none";
-        const contentDiv = document.getElementById(`${name}-content`) || document.querySelector(".window .content");
-        contentDiv.innerHTML="";
-        contentDiv.appendChild(activeFrame.frame);
-    }
-    // Use Scramjet's proxy to load the GN-Math game
-    activeFrame.go(url);
-}
-
-/* ================= CHAT ================= */
-function initChat(container){
-    container.innerHTML=`<div id="chat-window" style="height:100%;overflow:auto;background:rgba(0,0,0,0.7);padding:10px;margin-bottom:5px;"></div><input id="chat-input" style="width:80%;padding:5px;border-radius:5px;" placeholder="Type a message..."><button id="chat-send">Send</button>`;
-    const chatWindow=document.getElementById("chat-window");
-    const chatInput=document.getElementById("chat-input");
-    const chatSend=document.getElementById("chat-send");
-    const ws=new WebSocket("wss://yourserver.com"); // replace with WS server
-    ws.onmessage=msg=>{const data=JSON.parse(msg.data); chatWindow.innerHTML+=`<div><strong>${data.user}</strong>: ${data.message}</div>`; chatWindow.scrollTop=chatWindow.scrollHeight;};
-    chatSend.addEventListener("click",()=>{if(chatInput.value.trim()==="")return; ws.send(JSON.stringify({user:"Guest",message:chatInput.value})); chatInput.value="";});
-    chatInput.addEventListener("keydown",e=>{if(e.key==="Enter") chatSend.click();});
+    contentDiv.innerHTML = "";
+    const frame = scramjet.createFrame();
+    frame.frame.style.width="100%";
+    frame.frame.style.height="100%";
+    frame.frame.style.border="none";
+    contentDiv.appendChild(frame.frame);
+    frame.go(url);
 }
