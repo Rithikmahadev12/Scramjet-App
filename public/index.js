@@ -33,6 +33,7 @@ launchpad.querySelectorAll(".launch-app").forEach(btn=>{
 const desktop=document.getElementById("desktop");
 const taskbarWindows=document.getElementById("taskbar-windows");
 const windows={};
+
 function openWindow(appId){
     if(windows[appId]){windows[appId].style.zIndex=Date.now(); return;}
     const win=document.createElement("div");
@@ -46,10 +47,11 @@ function openWindow(appId){
 
     const content=document.getElementById(`${appId}-content`);
     if(appId==="browser"){initScramjetBrowser(content);}
-    if(appId==="games"){initGNMathGames(content);}
+    if(appId==="games"){initGNGames(content);}
     if(appId==="chat"){initChat(content);}
     if(appId==="settings"){content.innerHTML=`<p>Settings coming soon</p>`;}
 }
+
 function updateTaskbar(){taskbarWindows.innerHTML="";Object.keys(windows).forEach(appId=>{const btn=document.createElement("button");btn.innerText=appId.charAt(0).toUpperCase()+appId.slice(1);btn.onclick=()=>{windows[appId].style.zIndex=Date.now();};taskbarWindows.appendChild(btn);});}
 function makeDraggable(el){const bar=el.querySelector(".title-bar");let offsetX, offsetY, dragging=false;bar.addEventListener("mousedown",e=>{dragging=true; offsetX=e.clientX-el.offsetLeft; offsetY=e.clientY-el.offsetTop; el.style.zIndex=Date.now();});document.addEventListener("mousemove",e=>{if(dragging){el.style.left=(e.clientX-offsetX)+"px"; el.style.top=(e.clientY-offsetY)+"px";}});document.addEventListener("mouseup",()=>{dragging=false;});}
 
@@ -73,6 +75,73 @@ async function initScramjetBrowser(container){
     activeFrame.go("https://search.brave.com/");
 }
 
+/* ================= GN-MATH GAMES ================= */
+async function initGNGames(container){
+    container.innerHTML = `<div id="gnGamesContainer" style="width:100%;height:100%;overflow:auto;display:flex;flex-wrap:wrap;gap:10px;padding:10px;">Loading games...</div>`;
+    try {
+        const zonesURL = "https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json";
+        const coverURL = "https://cdn.jsdelivr.net/gh/gn-math/covers@main";
+        const htmlURL = "https://cdn.jsdelivr.net/gh/gn-math/html@main";
+
+        const response = await fetch(zonesURL);
+        const zones = await response.json();
+        const containerDiv = document.getElementById("gnGamesContainer");
+        containerDiv.innerHTML = "";
+
+        zones.forEach(zone => {
+            const card = document.createElement("div");
+            card.style.width = "120px";
+            card.style.height = "140px";
+            card.style.background = "#111";
+            card.style.borderRadius = "10px";
+            card.style.overflow = "hidden";
+            card.style.display = "flex";
+            card.style.flexDirection = "column";
+            card.style.alignItems = "center";
+            card.style.justifyContent = "center";
+            card.style.cursor = "pointer";
+
+            const img = document.createElement("img");
+            img.src = zone.cover.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL);
+            img.style.width = "100%";
+            img.style.height = "80px";
+            img.style.objectFit = "cover";
+            card.appendChild(img);
+
+            const label = document.createElement("span");
+            label.innerText = zone.name;
+            label.style.fontSize = "12px";
+            label.style.textAlign = "center";
+            label.style.marginTop = "5px";
+            card.appendChild(label);
+
+            card.onclick = () => openGNGame(zone.url, container);
+            containerDiv.appendChild(card);
+        });
+    } catch(err){
+        container.innerHTML = "Failed to load GN-Math games: " + err;
+    }
+}
+
+async function openGNGame(url, contentDiv){
+    if(!scramjetReady) await initScramjet();
+    contentDiv.innerHTML = "";
+
+    // Create Scramjet frame
+    const frame = scramjet.createFrame();
+    frame.frame.style.width="100%";
+    frame.frame.style.height="100%";
+    frame.frame.style.border="none";
+    contentDiv.appendChild(frame.frame);
+
+    // Replace placeholder and load through Scramjet
+    let proxiedURL = url;
+    if(!url.startsWith("http")){
+        proxiedURL = url.replace("{HTML_URL}", "https://cdn.jsdelivr.net/gh/gn-math/html@main");
+    }
+    frame.go(proxiedURL);
+}
+
 /* ================= CHAT ================= */
 function initChat(container){
     container.innerHTML=`<div id="chat-window" style="height:100%;overflow:auto;background:rgba(0,0,0,0.7);padding:10px;margin-bottom:5px;"></div><input id="chat-input" style="width:80%;padding:5px;border-radius:5px;" placeholder="Type a message..."><button id="chat-send">Send</button>`;
@@ -83,43 +152,4 @@ function initChat(container){
     ws.onmessage=msg=>{const data=JSON.parse(msg.data); chatWindow.innerHTML+=`<div><strong>${data.user}</strong>: ${data.message}</div>`; chatWindow.scrollTop=chatWindow.scrollHeight;};
     chatSend.addEventListener("click",()=>{if(chatInput.value.trim()==="")return; ws.send(JSON.stringify({user:"Guest",message:chatInput.value})); chatInput.value="";});
     chatInput.addEventListener("keydown",e=>{if(e.key==="Enter") chatSend.click();});
-}
-
-/* ================= GN-MATH GAMES ================= */
-async function initGNMathGames(container){
-    container.innerHTML=`<div id="gn-game-container" style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow:auto;padding:10px;"></div>`;
-    const gameContainer = document.getElementById("gn-game-container");
-
-    const zonesURL = "https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json";
-    
-    try {
-        const response = await fetch(zonesURL);
-        const zones = await response.json();
-
-        zones.forEach(zone => {
-            if(!zone.url) return;
-            const button = document.createElement("button");
-            button.textContent = zone.name;
-            button.style.margin="5px"; button.style.padding="10px"; button.style.width="90%";
-            button.onclick = async () => {
-                const contentDiv = container.closest(".window").querySelector(".content");
-                openGNGame(zone.url, contentDiv);
-            };
-            gameContainer.appendChild(button);
-        });
-
-    } catch(e) {
-        gameContainer.innerHTML="Failed to load GN-Math games: "+e;
-    }
-}
-
-async function openGNGame(url, contentDiv){
-    if(!scramjetReady) await initScramjet();
-    contentDiv.innerHTML = "";
-    const frame = scramjet.createFrame();
-    frame.frame.style.width="100%";
-    frame.frame.style.height="100%";
-    frame.frame.style.border="none";
-    contentDiv.appendChild(frame.frame);
-    frame.go(url);
 }
