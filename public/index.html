@@ -20,33 +20,27 @@
 <div class="status-bar">
   <div id="time"></div>
   <div id="battery"></div>
-  <div id="user-display"></div>
+  <div id="theme-toggle">🌙</div>
 </div>
 
 <div class="taskbar">
-  <button id="start-btn">☰</button>
-  <button class="dock-icon" data-app="browser">🌐</button>
-  <button class="dock-icon" data-app="games">🎮</button>
-  <button class="dock-icon" data-app="apps">📦</button>
-  <button class="dock-icon" data-app="settings">⚙</button>
+  <button id="start-btn">☰ Start</button>
   <div id="taskbar-windows"></div>
 </div>
 
 <div id="launchpad" class="launchpad hidden">
-  <button class="launch-app" data-app="browser">Browser</button>
-  <button class="launch-app" data-app="games">Games</button>
-  <button class="launch-app" data-app="apps">Apps</button>
-  <button class="launch-app" data-app="settings">Settings</button>
+  <button class="launch-app" data-app="browser">🌐 Browser</button>
+  <button class="launch-app" data-app="games">🎮 Games</button>
+  <button class="launch-app" data-app="movies">🎬 Movies</button>
+  <button class="launch-app" data-app="chat">💬 Chat</button>
+  <button class="launch-app" data-app="settings">⚙ Settings</button>
 </div>
 
-<!-- LOGIN SCREEN -->
-<section id="login-screen" class="screen active">
-  <div class="login-box">
-    <h1>Matriarchs OS</h1>
-    <input id="username" placeholder="Username">
-    <input id="password" type="password" placeholder="Password">
-    <button id="login-btn">Login</button>
-    <button id="register-btn">Register</button>
+<section id="onboarding" class="screen active">
+  <div class="onboard-content">
+    <h1>Welcome to Matriarchs OS</h1>
+    <p>Your private universe awaits</p>
+    <button id="enter-os-btn">Enter OS</button>
   </div>
 </section>
 
