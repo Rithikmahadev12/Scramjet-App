@@ -67,9 +67,9 @@ startBtn.addEventListener("click", () => {
   launchpad.classList.toggle("hidden");
 });
 launchpad.querySelectorAll(".launch-app").forEach(btn => {
-  btn.addEventListener("click", () => {
+  btn.addEventListener("click", async () => {
     const appId = btn.dataset.app;
-    openWindow(appId);
+    await openWindow(appId);
     launchpad.classList.add("hidden");
   });
 });
@@ -79,7 +79,7 @@ const desktop = document.getElementById("desktop");
 const taskbarWindows = document.getElementById("taskbar-windows");
 const windows = {};
 
-function openWindow(appId) {
+async function openWindow(appId) {
   if (windows[appId]) {
     windows[appId].style.display = "flex";
     windows[appId].style.zIndex = Date.now();
@@ -111,6 +111,7 @@ function openWindow(appId) {
 
   const content = document.getElementById(`${appId}-content`);
 
+  // Window control buttons
   const btnClose = win.querySelector(".close");
   const btnMin = win.querySelector(".minimize");
   const btnFS = win.querySelector(".fullscreen");
@@ -121,19 +122,13 @@ function openWindow(appId) {
     delete windows[appId];
     updateTaskbar();
   };
-
   btnMin.onclick = () => {
     win.style.display = "none";
+    updateTaskbar();
   };
-
   btnFS.onclick = () => {
     if (!win.classList.contains("fullscreen")) {
-      prevState = {
-        width: win.style.width,
-        height: win.style.height,
-        top: win.style.top,
-        left: win.style.left
-      };
+      prevState = { width: win.style.width, height: win.style.height, top: win.style.top, left: win.style.left };
       win.style.width = "100%";
       win.style.height = "100%";
       win.style.top = "0";
@@ -148,11 +143,12 @@ function openWindow(appId) {
     }
   };
 
-  if (appId === "browser") { initScramjetBrowser(content); }
-  if (appId === "games") { initGNGames(content); }
-  if (appId === "movies") { initMovies(content); }
+  // Load apps
+  if (appId === "browser") { await initScramjetBrowser(content, "https://search.brave.com/"); }
+  if (appId === "games") { await initGNGames(content); }
   if (appId === "chat") { initChat(content); }
   if (appId === "settings") { content.innerHTML = `<p>Settings coming soon</p>`; }
+  if (appId === "movies") { await initScramjetBrowser(content, "https://www.cineby.gd/"); }
 }
 
 function updateTaskbar() {
@@ -173,6 +169,7 @@ function makeDraggable(el) {
   const bar = el.querySelector(".title-bar");
   let offsetX, offsetY, dragging = false;
   bar.addEventListener("mousedown", e => {
+    if (el.classList.contains("fullscreen")) return;
     dragging = true;
     offsetX = e.clientX - el.offsetLeft;
     offsetY = e.clientY - el.offsetTop;
@@ -184,7 +181,7 @@ function makeDraggable(el) {
       el.style.top = (e.clientY - offsetY) + "px";
     }
   });
-  document.addEventListener("mouseup", () => dragging = false);
+  document.addEventListener("mouseup", () => { dragging = false; });
 }
 
 /* ================= SCRAMJET ================= */
@@ -194,10 +191,10 @@ async function initScramjet() {
   if (scramjetReady) return;
   const { ScramjetController } = $scramjetLoadController();
   scramjet = new ScramjetController({
-    files: {
-      wasm: "/scram/scramjet.wasm.wasm",
-      all: "/scram/scramjet.all.js",
-      sync: "/scram/scramjet.sync.js"
+    files: { 
+      wasm: "/scram/scramjet.wasm.wasm", 
+      all: "/scram/scramjet.all.js", 
+      sync: "/scram/scramjet.sync.js" 
     }
   });
   await scramjet.init();
@@ -205,7 +202,7 @@ async function initScramjet() {
   scramjetReady = true;
 }
 
-async function initScramjetBrowser(container) {
+async function initScramjetBrowser(container, url) {
   if (!scramjetReady) await initScramjet();
   await registerSW();
 
@@ -215,23 +212,112 @@ async function initScramjetBrowser(container) {
   browserFrame.frame.style.border = "none";
   container.appendChild(browserFrame.frame);
 
-  if (browserFrame.waitUntilReady) await browserFrame.waitUntilReady();
+  const wispUrl = (location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/wisp/";
+  if ((await connection.getTransport()) !== "/libcurl/index.mjs") {
+    await connection.setTransport("/libcurl/index.mjs", [{ websocket: wispUrl }]);
+  }
 
-  browserFrame.go("https://duckduckgo.com/");
+  if (browserFrame.waitUntilReady) await browserFrame.waitUntilReady();
+  browserFrame.go(url);
 }
 
-/* ================= MOVIES ================= */
-async function initMovies(container) {
+/* ================= GN-MATH GAMES ================= */
+async function initGNGames(container) {
+  container.innerHTML = `<div id="gnGamesContainer" style="width:100%;height:100%;overflow:auto;display:flex;flex-wrap:wrap;gap:10px;padding:10px;">Loading games...</div>`;
+  try {
+    const zonesURL = "https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json";
+    const coverURL = "https://cdn.jsdelivr.net/gh/gn-math/covers@main";
+    const htmlURL = "https://cdn.jsdelivr.net/gh/gn-math/html@main";
+
+    const response = await fetch(zonesURL);
+    const zones = await response.json();
+    const containerDiv = document.getElementById("gnGamesContainer");
+    containerDiv.innerHTML = "";
+
+    zones.forEach(zone => {
+      const card = document.createElement("div");
+      card.style.width = "120px";
+      card.style.height = "140px";
+      card.style.background = "#111";
+      card.style.borderRadius = "10px";
+      card.style.overflow = "hidden";
+      card.style.display = "flex";
+      card.style.flexDirection = "column";
+      card.style.alignItems = "center";
+      card.style.justifyContent = "center";
+      card.style.cursor = "pointer";
+
+      const img = document.createElement("img");
+      img.src = zone.cover.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL);
+      img.style.width = "100%";
+      img.style.height = "80px";
+      img.style.objectFit = "cover";
+      card.appendChild(img);
+
+      const label = document.createElement("span");
+      label.innerText = zone.name;
+      label.style.fontSize = "12px";
+      label.style.textAlign = "center";
+      label.style.marginTop = "5px";
+      card.appendChild(label);
+
+      card.onclick = () => openGNGame(zone.url, container);
+      containerDiv.appendChild(card);
+    });
+  } catch (err) {
+    container.innerHTML = "Failed to load GN-Math games: " + err;
+  }
+}
+
+async function openGNGame(url, contentDiv) {
   if (!scramjetReady) await initScramjet();
-  await registerSW();
+  contentDiv.innerHTML = "";
 
   const frame = scramjet.createFrame();
   frame.frame.style.width = "100%";
   frame.frame.style.height = "100%";
   frame.frame.style.border = "none";
-  container.appendChild(frame.frame);
+  contentDiv.appendChild(frame.frame);
 
-  if (frame.waitUntilReady) await frame.waitUntilReady();
+  try {
+    let fullURL = url.replace("{HTML_URL}", "https://cdn.jsdelivr.net/gh/gn-math/html@main");
+    const res = await fetch(fullURL);
+    let html = await res.text();
 
-  frame.go("https://www.cineby.gd/");
+    html = html.replace(/((src|href)=["'])(?!https?:|data:)/g, `$1https://cdn.jsdelivr.net/gh/gn-math/html@main/`);
+
+    const dataURL = "data:text/html;charset=utf-8," + encodeURIComponent(html);
+    frame.go(dataURL);
+  } catch (err) {
+    contentDiv.innerHTML = "Failed to load game: " + err;
+  }
+}
+
+/* ================= CHAT ================= */
+function initChat(container) {
+  container.innerHTML = `
+    <div id="chat-window" style="height:100%;overflow:auto;background:rgba(0,0,0,0.7);padding:10px;margin-bottom:5px;"></div>
+    <input id="chat-input" style="width:80%;padding:5px;border-radius:5px;" placeholder="Type a message...">
+    <button id="chat-send">Send</button>
+  `;
+  const chatWindow = document.getElementById("chat-window");
+  const chatInput = document.getElementById("chat-input");
+  const chatSend = document.getElementById("chat-send");
+  const ws = new WebSocket("wss://yourserver.com"); // replace with your WS server
+
+  ws.onmessage = msg => {
+    const data = JSON.parse(msg.data);
+    chatWindow.innerHTML += `<div><strong>${data.user}</strong>: ${data.message}</div>`;
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  };
+
+  chatSend.addEventListener("click", () => {
+    if (chatInput.value.trim() === "") return;
+    ws.send(JSON.stringify({ user: "Guest", message: chatInput.value }));
+    chatInput.value = "";
+  });
+
+  chatInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") chatSend.click();
+  });
 }
