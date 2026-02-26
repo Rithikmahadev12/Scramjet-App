@@ -111,7 +111,6 @@ async function openWindow(appId) {
 
   const content = document.getElementById(`${appId}-content`);
 
-  // Window control buttons
   const btnClose = win.querySelector(".close");
   const btnMin = win.querySelector(".minimize");
   const btnFS = win.querySelector(".fullscreen");
@@ -185,26 +184,37 @@ function makeDraggable(el) {
 }
 
 /* ================= SCRAMJET ================= */
-let scramjet, connection, scramjetReady = false;
+let scramjet, connection, scramjetReady = false, scramjetInitPromise = null;
 
 async function initScramjet() {
-  if (scramjetReady) return;
-  const { ScramjetController } = $scramjetLoadController();
-  scramjet = new ScramjetController({
-    files: { 
-      wasm: "/scram/scramjet.wasm.wasm", 
-      all: "/scram/scramjet.all.js", 
-      sync: "/scram/scramjet.sync.js" 
-    }
-  });
-  await scramjet.init();
-  connection = new BareMux.BareMuxConnection("/baremux/worker.js");
-  scramjetReady = true;
+  if (scramjetInitPromise) return scramjetInitPromise;
+
+  scramjetInitPromise = (async () => {
+    const { ScramjetController } = $scramjetLoadController();
+    scramjet = new ScramjetController({
+      files: { 
+        wasm: "/scram/scramjet.wasm.wasm", 
+        all: "/scram/scramjet.all.js", 
+        sync: "/scram/scramjet.sync.js" 
+      }
+    });
+    await scramjet.init();
+    connection = new BareMux.BareMuxConnection("/baremux/worker.js");
+    scramjetReady = true;
+  })();
+
+  return scramjetInitPromise;
 }
 
 async function initScramjetBrowser(container, url) {
-  if (!scramjetReady) await initScramjet();
+  await initScramjet();
   await registerSW();
+
+  // Ensure libcurl WASM is fully loaded
+  if (!scramjet._wasmLoaded) {
+    if (scramjet.loadWasm) await scramjet.loadWasm();
+    scramjet._wasmLoaded = true;
+  }
 
   const browserFrame = scramjet.createFrame();
   browserFrame.frame.style.width = "100%";
@@ -270,7 +280,7 @@ async function initGNGames(container) {
 }
 
 async function openGNGame(url, contentDiv) {
-  if (!scramjetReady) await initScramjet();
+  await initScramjet();
   contentDiv.innerHTML = "";
 
   const frame = scramjet.createFrame();
