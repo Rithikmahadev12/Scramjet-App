@@ -1,2 +1,5 @@
+packages:
+  - "."            # <- THIS IS THE KEY ADDITION
+
 onlyBuiltDependencies:
   - '@mercuryworkshop/scramjet'
