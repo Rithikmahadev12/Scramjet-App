@@ -9,6 +9,7 @@ window.addEventListener("resize", () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 });
+
 const particles = [];
 for (let i = 0; i < 200; i++) {
   particles.push({
@@ -19,6 +20,19 @@ for (let i = 0; i < 200; i++) {
     vy: (Math.random() - 0.5) * 0.5
   });
 }
+
+canvas.addEventListener("mousemove", e => {
+  particles.forEach(p => {
+    const dx = e.clientX - p.x;
+    const dy = e.clientY - p.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 100) {
+      p.vx -= dx * 0.0005;
+      p.vy -= dy * 0.0005;
+    }
+  });
+});
+
 function animateParticles() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   particles.forEach(p => {
@@ -56,16 +70,44 @@ navigator.getBattery().then(b => {
 });
 
 /* ================= ONBOARDING ================= */
-document.getElementById("enter-os-btn").addEventListener("click", () => {
-  document.getElementById("onboarding").style.display = "none";
+const onboarding = document.getElementById("onboarding");
+const usernameInput = document.createElement("input");
+usernameInput.placeholder = "Enter your name";
+usernameInput.style.padding = "10px";
+usernameInput.style.borderRadius = "5px";
+usernameInput.style.marginTop = "10px";
+usernameInput.id = "username";
+
+const nextBtn = document.createElement("button");
+nextBtn.innerText = "Next";
+nextBtn.className = "next-btn";
+nextBtn.style.marginTop = "15px";
+
+const onboardingContent = onboarding.querySelector(".onboard-content");
+onboardingContent.appendChild(usernameInput);
+onboardingContent.appendChild(nextBtn);
+
+nextBtn.addEventListener("click", () => {
+  if (usernameInput.value.trim() === "") return alert("Enter your name!");
+  localStorage.setItem("username", usernameInput.value);
+  onboarding.style.display = "none";
+});
+
+/* ================= THEME TOGGLE ================= */
+const themeToggle = document.getElementById("theme-toggle");
+themeToggle.addEventListener("click", () => {
+  const currentBg = getComputedStyle(document.body).backgroundImage;
+  if (currentBg.includes("unsplash")) {
+    document.body.style.background = "url('https://images.unsplash.com/photo-1612832020620-d12504dbb7dc?q=80&w=1170&auto=format&fit=crop') center/cover no-repeat fixed";
+  } else {
+    document.body.style.background = "url('https://images.unsplash.com/photo-1514897575457-c4db467cf78e?q=80&w=1170&auto=format&fit=crop') center/cover no-repeat fixed";
+  }
 });
 
 /* ================= LAUNCHPAD ================= */
 const launchpad = document.getElementById("launchpad");
 const startBtn = document.getElementById("start-btn");
-startBtn.addEventListener("click", () => {
-  launchpad.classList.toggle("hidden");
-});
+startBtn.addEventListener("click", () => launchpad.classList.toggle("hidden"));
 launchpad.querySelectorAll(".launch-app").forEach(btn => {
   btn.addEventListener("click", async () => {
     const appId = btn.dataset.app;
@@ -87,7 +129,7 @@ async function openWindow(appId) {
   }
 
   const win = document.createElement("div");
-  win.className = "window";
+  win.className = "window open";
   win.style.width = "400px";
   win.style.height = "300px";
   win.style.top = "100px";
@@ -110,7 +152,6 @@ async function openWindow(appId) {
   updateTaskbar();
 
   const content = document.getElementById(`${appId}-content`);
-
   const btnClose = win.querySelector(".close");
   const btnMin = win.querySelector(".minimize");
   const btnFS = win.querySelector(".fullscreen");
@@ -142,12 +183,12 @@ async function openWindow(appId) {
     }
   };
 
-  // Load apps
-  if (appId === "browser") { await initScramjetBrowser(content, "https://search.brave.com/"); }
-  if (appId === "games") { await initGNGames(content); }
-  if (appId === "chat") { initChat(content); }
-  if (appId === "settings") { content.innerHTML = `<p>Settings coming soon</p>`; }
-  if (appId === "movies") { await initScramjetBrowser(content, "https://www.cineby.gd/"); }
+  // =================== LOAD APPS ===================
+  if (appId === "browser") await initScramjetBrowser(content, "https://search.brave.com/");
+  if (appId === "games") await initGNGames(content);
+  if (appId === "chat") initChat(content);
+  if (appId === "settings") content.innerHTML = `<p>Settings coming soon</p>`;
+  if (appId === "movies") await initScramjetBrowser(content, "https://www.cineby.gd/");
 }
 
 function updateTaskbar() {
@@ -183,7 +224,7 @@ function makeDraggable(el) {
   document.addEventListener("mouseup", () => { dragging = false; });
 }
 
-/* ================= SCRAMJET ================= */
+/* =================== SCRAMJET =================== */
 let scramjet, connection, scramjetReady = false, scramjetInitPromise = null;
 
 async function initScramjet() {
@@ -210,7 +251,6 @@ async function initScramjetBrowser(container, url) {
   await initScramjet();
   await registerSW();
 
-  // Ensure libcurl WASM is fully loaded
   if (!scramjet._wasmLoaded) {
     if (scramjet.loadWasm) await scramjet.loadWasm();
     scramjet._wasmLoaded = true;
