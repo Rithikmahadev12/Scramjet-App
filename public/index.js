@@ -71,27 +71,53 @@ navigator.getBattery().then(b => {
 
 /* ================= ONBOARDING ================= */
 const onboarding = document.getElementById("onboarding");
+const onboardingContent = onboarding.querySelector(".onboard-content");
+onboardingContent.innerHTML = `
+  <h1 style="font-size:60px; background:linear-gradient(45deg,#ff6a00,#e52e71); -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:glow 2s infinite alternate;">Welcome to Matriarchs OS</h1>
+  <p style="margin:20px 0; font-size:20px; opacity:0.9;">Your private universe awaits</p>
+`;
+
 const usernameInput = document.createElement("input");
 usernameInput.placeholder = "Enter your name";
-usernameInput.style.padding = "10px";
-usernameInput.style.borderRadius = "5px";
-usernameInput.style.marginTop = "10px";
 usernameInput.id = "username";
+usernameInput.style.padding = "12px 15px";
+usernameInput.style.borderRadius = "25px";
+usernameInput.style.marginTop = "20px";
+usernameInput.style.border = "none";
+usernameInput.style.width = "250px";
+usernameInput.style.fontSize = "16px";
+usernameInput.style.outline = "none";
+usernameInput.style.zIndex = "201";
+usernameInput.style.textAlign = "center";
 
-const nextBtn = document.createElement("button");
-nextBtn.innerText = "Next";
-nextBtn.className = "next-btn";
-nextBtn.style.marginTop = "15px";
+const enterBtn = document.createElement("button");
+enterBtn.innerText = "Enter OS";
+enterBtn.style.marginTop = "15px";
+enterBtn.style.padding = "15px 50px";
+enterBtn.style.border = "none";
+enterBtn.style.borderRadius = "40px";
+enterBtn.style.background = "linear-gradient(45deg,#ff6a00,#e52e71)";
+enterBtn.style.color = "white";
+enterBtn.style.fontSize = "18px";
+enterBtn.style.cursor = "pointer";
+enterBtn.style.transition = ".3s";
+enterBtn.style.boxShadow = "0 0 20px rgba(255,106,0,0.5)";
+enterBtn.style.zIndex = "201";
 
-const onboardingContent = onboarding.querySelector(".onboard-content");
-onboardingContent.appendChild(usernameInput);
-onboardingContent.appendChild(nextBtn);
+enterBtn.addEventListener("mouseenter", () => enterBtn.style.transform = "scale(1.1)");
+enterBtn.addEventListener("mouseleave", () => enterBtn.style.transform = "scale(1)");
 
-nextBtn.addEventListener("click", () => {
-  if (usernameInput.value.trim() === "") return alert("Enter your name!");
-  localStorage.setItem("username", usernameInput.value);
+enterBtn.addEventListener("click", () => {
+  if (usernameInput.value.trim() === "") return alert("Please enter your name!");
+  localStorage.setItem("username", usernameInput.value.trim());
   onboarding.style.display = "none";
 });
+
+onboardingContent.appendChild(usernameInput);
+onboardingContent.appendChild(enterBtn);
+
+// Autofocus input
+usernameInput.focus();
 
 /* ================= THEME TOGGLE ================= */
 const themeToggle = document.getElementById("theme-toggle");
