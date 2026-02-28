@@ -36,10 +36,28 @@
   <button class="launch-app" data-app="settings">⚙ Settings</button>
 </div>
 
-<section id="onboarding" class="screen active">
-  <div class="onboard-content">
+<!-- Multi-step Onboarding -->
+<section id="onboarding" class="screen">
+  <div class="onboard-step step-1 active">
     <h1>Welcome to Matriarchs OS</h1>
-    <p>Your private universe awaits</p>
+    <p>Enter your name to start your private universe</p>
+    <input type="text" id="username" placeholder="Your Name" />
+    <button class="next-btn">Next →</button>
+  </div>
+
+  <div class="onboard-step step-2">
+    <h1>Pick a Theme</h1>
+    <div class="theme-options">
+      <div class="theme" data-bg="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&w=1170&q=80">🌌</div>
+      <div class="theme" data-bg="https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&w=1170&q=80">🌄</div>
+      <div class="theme" data-bg="https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?auto=format&w=1170&q=80">🌃</div>
+    </div>
+    <button class="next-btn">Next →</button>
+  </div>
+
+  <div class="onboard-step step-3">
+    <h1>All Set!</h1>
+    <p>Welcome, <span id="display-name"></span> ✨</p>
     <button id="enter-os-btn">Enter OS</button>
   </div>
 </section>
