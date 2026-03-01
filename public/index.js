@@ -98,10 +98,10 @@ async function openWindow(appId) {
 
   const win = document.createElement("div");
   win.className = "window open";
-  win.style.width = "500px"; win.style.height = "350px"; win.style.top = "100px"; win.style.left = "100px";
+  win.style.width = "550px"; win.style.height = "400px"; win.style.top = "100px"; win.style.left = "100px";
   win.innerHTML = `<div class="title-bar"><span class="title">${appId.charAt(0).toUpperCase() + appId.slice(1)}</span>
   <div class="controls"><button class="minimize">−</button><button class="fullscreen">⬜</button><button class="close">×</button></div></div>
-  <div class="content" id="${appId}-content"></div>`;
+  <div class="content" id="${appId}-content" style="height:100%;"></div>`;
   desktop.appendChild(win); windows[appId] = win;
 
   makeDraggable(win); updateTaskbar();
@@ -121,11 +121,11 @@ async function openWindow(appId) {
     }
   };
 
-  if (appId === "browser") initCustomTabbedBrowser(content);
+  if (appId === "browser") initScramjetTabbedBrowser(content);
   if (appId === "games") initGNGames(content);
   if (appId === "chat") initChat(content);
   if (appId === "settings") content.innerHTML = "<p>Settings coming soon</p>";
-  if (appId === "movies") initScramjetBrowser(content, "https://www.cineby.gd/");
+  if (appId === "movies") initScramjetTabbedBrowser(content, "https://www.cineby.gd/");
 }
 
 function updateTaskbar() {
@@ -149,11 +149,11 @@ function makeDraggable(el) {
   document.addEventListener("mouseup", () => { dragging = false; });
 }
 
-/* CUSTOM TABBED BROWSER */
-function initCustomTabbedBrowser(container) {
+/* CUSTOM TABBED SCRAMJET BROWSER */
+async function initScramjetTabbedBrowser(container, initialURL) {
   container.innerHTML = `
     <div style="display:flex;flex-direction:column;height:100%;">
-      <div id="tab-bar" style="display:flex;gap:5px;padding:5px;background:rgba(255,255,255,0.1);border-radius:10px;"></div>
+      <div id="tab-bar" style="display:flex;gap:5px;padding:5px;background:rgba(255,255,255,0.1);border-radius:10px;overflow-x:auto;"></div>
       <div id="browser-controls" style="display:flex;gap:5px;padding:5px;margin-top:5px;">
         <button id="back">◀</button>
         <button id="forward">▶</button>
@@ -178,13 +178,13 @@ function initCustomTabbedBrowser(container) {
   const tabs = [];
   let activeTabIndex = -1;
 
-  function createTab(url = "https://example.com") {
+  function createTab(url = (initialURL || "https://duckduckgo.com")) {
     const iframe = document.createElement("iframe");
     iframe.style.width = "100%"; iframe.style.height = "100%"; iframe.style.position = "absolute"; iframe.style.top = 0; iframe.style.left = 0;
     iframe.style.border = "none"; frameContainer.querySelectorAll("iframe").forEach(f => f.style.display = "none");
     frameContainer.appendChild(iframe);
 
-    const tabBtn = document.createElement("button"); tabBtn.innerText = "New Tab"; tabBar.appendChild(tabBtn);
+    const tabBtn = document.createElement("button"); tabBtn.innerText = "New Tab"; tabBtn.style.flexShrink = "0"; tabBar.appendChild(tabBtn);
     const tab = { iframe, history: [url], current: 0, tabBtn };
     tabs.push(tab);
 
@@ -196,15 +196,10 @@ function initCustomTabbedBrowser(container) {
     if (index < 0 || index >= tabs.length) return;
     const tab = tabs[index];
     frameContainer.querySelectorAll("iframe").forEach(f => f.style.display = "none");
-    iframeContainerAdd(tab.iframe);
+    frameContainer.appendChild(tab.iframe);
     tab.iframe.style.display = "block";
     urlInput.value = tab.history[tab.current];
     activeTabIndex = index;
-  }
-
-  function iframeContainerAdd(iframe) {
-    frameContainer.querySelectorAll("iframe").forEach(f => f.style.display = "none");
-    frameContainer.appendChild(iframe);
   }
 
   function navigate(url) {
@@ -233,7 +228,7 @@ function initCustomTabbedBrowser(container) {
   });
   reloadBtn.addEventListener("click", () => { if (activeTabIndex >= 0) tabs[activeTabIndex].iframe.src = tabs[activeTabIndex].history[tabs[activeTabIndex].current]; });
   newTabBtn.addEventListener("click", () => createTab());
-  createTab();
+  createTab(initialURL);
 }
 
 /* GN-MATH GAMES */
@@ -285,13 +280,4 @@ function initChat(container) {
   ws.onmessage = msg => { const data = JSON.parse(msg.data); chatWindow.innerHTML += `<div><strong>${data.user}</strong>: ${data.message}</div>`; chatWindow.scrollTop = chatWindow.scrollHeight; };
   chatSend.addEventListener("click", () => { if (chatInput.value.trim() === "") return; ws.send(JSON.stringify({ user: "Guest", message: chatInput.value })); chatInput.value = ""; });
   chatInput.addEventListener("keydown", e => { if (e.key === "Enter") chatSend.click(); });
-}
-
-/* MOVIES APP - Scramjet Browser */
-async function initScramjetBrowser(container, url) {
-  container.innerHTML = "";
-  const iframe = document.createElement("iframe");
-  iframe.style.width = "100%"; iframe.style.height = "100%"; iframe.style.border = "none";
-  container.appendChild(iframe);
-  iframe.src = url;
 }
