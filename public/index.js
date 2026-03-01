@@ -1,9 +1,8 @@
 "use strict";
 
 /* =========================
-   PARTICLE SYSTEM (ADVANCED)
+   OS PARTICLE BACKGROUND
 ========================= */
-
 const canvas = document.getElementById("particle-canvas");
 const ctx = canvas.getContext("2d");
 
@@ -15,89 +14,65 @@ resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
 const particles = [];
-const PARTICLE_COUNT = 180;
-const MAX_DISTANCE = 120;
+for (let i = 0; i < 200; i++) {
+  particles.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 2 + 1,
+    vx: (Math.random() - 0.5) * 0.5,
+    vy: (Math.random() - 0.5) * 0.5
+  });
+}
 
-let mouse = {
-  x: null,
-  y: null,
-  radius: 140
-};
-
+const mouse = { x: null, y: null };
 canvas.addEventListener("mousemove", e => {
   mouse.x = e.clientX;
   mouse.y = e.clientY;
 });
-
 canvas.addEventListener("mouseleave", () => {
   mouse.x = null;
   mouse.y = null;
 });
 
-class Particle {
-  constructor() {
-    this.reset();
-  }
-
-  reset() {
-    this.x = Math.random() * canvas.width;
-    this.y = Math.random() * canvas.height;
-    this.baseX = this.x;
-    this.baseY = this.y;
-    this.size = Math.random() * 2 + 1;
-    this.density = Math.random() * 30 + 1;
-  }
-
-  draw() {
-    ctx.fillStyle = "rgba(255,255,255,0.6)";
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  update() {
-    if (mouse.x !== null) {
-      let dx = mouse.x - this.x;
-      let dy = mouse.y - this.y;
-      let distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance < mouse.radius) {
-        let forceDirectionX = dx / distance;
-        let forceDirectionY = dy / distance;
-        let force = (mouse.radius - distance) / mouse.radius;
-        let directionX = forceDirectionX * force * this.density;
-        let directionY = forceDirectionY * force * this.density;
-
-        this.x -= directionX;
-        this.y -= directionY;
-      } else {
-        // return to base
-        this.x += (this.baseX - this.x) / 15;
-        this.y += (this.baseY - this.y) / 15;
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => {
+    // mouse repulsion
+    if (mouse.x !== null && mouse.y !== null) {
+      const dx = p.x - mouse.x;
+      const dy = p.y - mouse.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 100) {
+        p.vx -= dx * 0.0005;
+        p.vy -= dy * 0.0005;
       }
     }
 
-    // wrap if off screen
-    if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
-      this.reset();
-    }
-  }
-}
+    // move particle
+    p.x += p.vx;
+    p.y += p.vy;
 
-for (let i = 0; i < PARTICLE_COUNT; i++) {
-  particles.push(new Particle());
-}
+    // wrap around
+    if (p.x > canvas.width) p.x = 0;
+    if (p.x < 0) p.x = canvas.width;
+    if (p.y > canvas.height) p.y = 0;
+    if (p.y < 0) p.y = canvas.height;
 
-function connectParticles() {
+    // draw
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.fill();
+  });
+
+  // draw connecting lines
   for (let a = 0; a < particles.length; a++) {
     for (let b = a; b < particles.length; b++) {
-      let dx = particles[a].x - particles[b].x;
-      let dy = particles[a].y - particles[b].y;
-      let distance = dx * dx + dy * dy;
-
-      if (distance < MAX_DISTANCE * MAX_DISTANCE) {
+      const dx = particles[a].x - particles[b].x;
+      const dy = particles[a].y - particles[b].y;
+      const dist = dx * dx + dy * dy;
+      if (dist < 120 * 120) {
         ctx.strokeStyle = "rgba(255,255,255,0.08)";
-        ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(particles[a].x, particles[a].y);
         ctx.lineTo(particles[b].x, particles[b].y);
@@ -105,13 +80,11 @@ function connectParticles() {
       }
     }
 
-    // connect to mouse
-    if (mouse.x !== null) {
-      let dx = particles[a].x - mouse.x;
-      let dy = particles[a].y - mouse.y;
-      let distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance < 150) {
+    if (mouse.x !== null && mouse.y !== null) {
+      const dx = particles[a].x - mouse.x;
+      const dy = particles[a].y - mouse.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 140) {
         ctx.strokeStyle = "rgba(255,255,255,0.2)";
         ctx.beginPath();
         ctx.moveTo(particles[a].x, particles[a].y);
@@ -120,27 +93,14 @@ function connectParticles() {
       }
     }
   }
-}
-
-function animateParticles() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  particles.forEach(p => {
-    p.update();
-    p.draw();
-  });
-
-  connectParticles();
 
   requestAnimationFrame(animateParticles);
 }
-
 animateParticles();
 
 /* =========================
    STATUS BAR
 ========================= */
-
 function updateTime() {
   const now = new Date();
   const time = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -161,49 +121,42 @@ navigator.getBattery().then(b => {
 /* =========================
    ONBOARDING
 ========================= */
-
 const onboarding = document.getElementById("onboarding");
 const usernameInput = document.getElementById("username");
 const enterBtn = document.getElementById("enter-os-btn");
 
 function enterOS() {
   const name = usernameInput.value.trim();
-  if (!name) {
-    alert("Please enter your name");
-    usernameInput.focus();
-    return;
-  }
+  if (!name) { alert("Please enter your name"); usernameInput.focus(); return; }
   localStorage.setItem("username", name);
   onboarding.style.display = "none";
 }
-
 enterBtn.addEventListener("click", enterOS);
-usernameInput.addEventListener("keydown", e => {
-  if (e.key === "Enter") enterOS();
-});
+usernameInput.addEventListener("keydown", e => { if (e.key === "Enter") enterOS(); });
+usernameInput.focus();
 
 /* =========================
    THEME TOGGLE
 ========================= */
-
 document.getElementById("theme-toggle").addEventListener("click", () => {
-  document.body.classList.toggle("light");
+  const curr = getComputedStyle(document.body).backgroundImage;
+  if (curr.includes("unsplash")) {
+    document.body.style.background = "url('https://images.unsplash.com/photo-1612832020620-d12504dbb7dc?q=80&w=1170&auto=format&fit=crop') center/cover no-repeat fixed";
+  } else {
+    document.body.style.background = "url('https://images.unsplash.com/photo-1514897575457-c4db467cf78e?q=80&w=1170&auto=format&fit=crop') center/cover no-repeat fixed";
+  }
 });
 
 /* =========================
-   WINDOWS SYSTEM
+   WINDOWS & TASKBAR
 ========================= */
-
 const launchpad = document.getElementById("launchpad");
 const startBtn = document.getElementById("start-btn");
 const desktop = document.getElementById("desktop");
 const taskbarWindows = document.getElementById("taskbar-windows");
 const windows = {};
 
-startBtn.addEventListener("click", () =>
-  launchpad.classList.toggle("hidden")
-);
-
+startBtn.addEventListener("click", () => launchpad.classList.toggle("hidden"));
 launchpad.querySelectorAll(".launch-app").forEach(btn => {
   btn.addEventListener("click", async () => {
     const appId = btn.dataset.app;
@@ -212,6 +165,31 @@ launchpad.querySelectorAll(".launch-app").forEach(btn => {
   });
 });
 
+/* =========================
+   DRAGGABLE WINDOWS
+========================= */
+function makeDraggable(el) {
+  const bar = el.querySelector(".title-bar");
+  let offsetX, offsetY, dragging = false;
+  bar.addEventListener("mousedown", e => {
+    if (el.classList.contains("fullscreen")) return;
+    dragging = true;
+    offsetX = e.clientX - el.offsetLeft;
+    offsetY = e.clientY - el.offsetTop;
+    el.style.zIndex = Date.now();
+  });
+  document.addEventListener("mousemove", e => {
+    if (dragging) {
+      el.style.left = (e.clientX - offsetX) + "px";
+      el.style.top = (e.clientY - offsetY) + "px";
+    }
+  });
+  document.addEventListener("mouseup", () => { dragging = false; });
+}
+
+/* =========================
+   OPEN WINDOWS
+========================= */
 async function openWindow(appId) {
   if (windows[appId]) {
     windows[appId].style.display = "flex";
@@ -220,15 +198,15 @@ async function openWindow(appId) {
   }
 
   const win = document.createElement("div");
-  win.className = "window";
+  win.className = "window open";
   win.style.width = "700px";
   win.style.height = "500px";
   win.style.top = "100px";
-  win.style.left = "150px";
+  win.style.left = "100px";
 
   win.innerHTML = `
     <div class="title-bar">
-      <span>${appId.toUpperCase()}</span>
+      <span class="title">${appId.charAt(0).toUpperCase() + appId.slice(1)}</span>
       <div class="controls">
         <button class="minimize">−</button>
         <button class="fullscreen">⬜</button>
@@ -240,36 +218,66 @@ async function openWindow(appId) {
 
   desktop.appendChild(win);
   windows[appId] = win;
-
   makeDraggable(win);
   updateTaskbar();
 
   const content = document.getElementById(`${appId}-content`);
+  const btnClose = win.querySelector(".close");
+  const btnMin = win.querySelector(".minimize");
+  const btnFS = win.querySelector(".fullscreen");
+  let prevState = {};
 
-  if (appId === "browser") {
-    await initScramjetBrowser(content, location.origin);
-  }
+  btnClose.onclick = () => { desktop.removeChild(win); delete windows[appId]; updateTaskbar(); };
+  btnMin.onclick = () => { win.style.display = "none"; updateTaskbar(); };
+  btnFS.onclick = () => {
+    if (!win.classList.contains("fullscreen")) {
+      prevState = { width: win.style.width, height: win.style.height, top: win.style.top, left: win.style.left };
+      win.style.width = "100%";
+      win.style.height = "100%";
+      win.style.top = "0";
+      win.style.left = "0";
+      win.classList.add("fullscreen");
+    } else {
+      win.style.width = prevState.width;
+      win.style.height = prevState.height;
+      win.style.top = prevState.top;
+      win.style.left = prevState.left;
+      win.classList.remove("fullscreen");
+    }
+  };
+
+  // Load apps
+  if (appId === "browser") await initScramjetBrowser(content, "https://search.brave.com/"); // you can change default URL here
+  if (appId === "games") await initGNGames(content);
+  if (appId === "chat") initChat(content);
+  if (appId === "settings") content.innerHTML = "<p>Settings coming soon</p>";
+  if (appId === "movies") await initScramjetBrowser(content, "https://www.cineby.gd/");
+}
+
+function updateTaskbar() {
+  taskbarWindows.innerHTML = "";
+  Object.keys(windows).forEach(appId => {
+    const btn = document.createElement("button");
+    btn.innerText = appId.charAt(0).toUpperCase() + appId.slice(1);
+    btn.onclick = () => { const win = windows[appId]; win.style.display = "flex"; win.style.zIndex = Date.now(); };
+    taskbarWindows.appendChild(btn);
+  });
 }
 
 /* =========================
-   SCRAMJET BROWSER
+   SCRAMJET BROWSER INIT
 ========================= */
-
-let scramjet, connection;
+let scramjet, connection, scramjetReady = false;
 
 async function initScramjet() {
+  if (scramjetReady) return;
   const { ScramjetController } = $scramjetLoadController();
-
   scramjet = new ScramjetController({
-    files: {
-      wasm: "/scram/scramjet.wasm.wasm",
-      all: "/scram/scramjet.all.js",
-      sync: "/scram/scramjet.sync.js"
-    }
+    files: { wasm: "/scram/scramjet.wasm.wasm", all: "/scram/scramjet.all.js", sync: "/scram/scramjet.sync.js" }
   });
-
   await scramjet.init();
   connection = new BareMux.BareMuxConnection("/baremux/worker.js");
+  scramjetReady = true;
 }
 
 async function initScramjetBrowser(container, url) {
@@ -281,6 +289,7 @@ async function initScramjetBrowser(container, url) {
   browserFrame.frame.style.height = "100%";
   browserFrame.frame.style.border = "none";
 
+  container.innerHTML = "";
   container.appendChild(browserFrame.frame);
   browserFrame.go(url);
 }
