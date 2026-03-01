@@ -1,7 +1,7 @@
 "use strict";
 
 /* =========================
-   OS PARTICLE BACKGROUND (Original style)
+   OS PARTICLE BACKGROUND (unchanged)
 ========================= */
 const canvas = document.getElementById("particle-canvas");
 const ctx = canvas.getContext("2d");
@@ -37,7 +37,6 @@ canvas.addEventListener("mouseleave", () => {
 function animateParticles() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   particles.forEach(p => {
-    // mouse repulsion
     if (mouse.x !== null && mouse.y !== null) {
       const dx = p.x - mouse.x;
       const dy = p.y - mouse.y;
@@ -48,24 +47,20 @@ function animateParticles() {
       }
     }
 
-    // move particle
     p.x += p.vx;
     p.y += p.vy;
 
-    // wrap around
     if (p.x > canvas.width) p.x = 0;
     if (p.x < 0) p.x = canvas.width;
     if (p.y > canvas.height) p.y = 0;
     if (p.y < 0) p.y = canvas.height;
 
-    // draw
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
     ctx.fillStyle = "rgba(255,255,255,0.5)";
     ctx.fill();
   });
 
-  // draw connecting lines
   for (let a = 0; a < particles.length; a++) {
     for (let b = a; b < particles.length; b++) {
       const dx = particles[a].x - particles[b].x;
@@ -249,37 +244,33 @@ async function openWindow(appId) {
   /* =========================
      LOAD APPS
   ========================== */
-  if (appId === "browser") {
+  if (appId === "browser" || appId === "movies") {
     await initScramjet();
     await registerSW();
 
-    // clear content
     content.innerHTML = "";
+    const frame = scramjet.createFrame();
+    frame.frame.style.width = "100%";
+    frame.frame.style.height = "100%";
+    frame.frame.style.border = "none";
+    content.appendChild(frame.frame);
 
-    // create Scramjet browser frame
-    const browserFrame = scramjet.createFrame();
-    browserFrame.frame.style.width = "100%";
-    browserFrame.frame.style.height = "100%";
-    browserFrame.frame.style.border = "none";
-    content.appendChild(browserFrame.frame);
-
-    // create particle canvas inside browser
+    // optional particle background inside browser
     const bCanvas = document.createElement("canvas");
     bCanvas.style.position = "absolute";
     bCanvas.style.top = "0";
     bCanvas.style.left = "0";
     bCanvas.style.width = "100%";
     bCanvas.style.height = "100%";
-    bCanvas.style.pointerEvents = "none"; // allow clicks through
+    bCanvas.style.pointerEvents = "none";
     content.appendChild(bCanvas);
 
     const bctx = bCanvas.getContext("2d");
     bCanvas.width = bCanvas.offsetWidth;
     bCanvas.height = bCanvas.offsetHeight;
 
-    // browser particles
     const bParticles = [];
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 80; i++) {
       bParticles.push({
         x: Math.random() * bCanvas.width,
         y: Math.random() * bCanvas.height,
@@ -301,21 +292,20 @@ async function openWindow(appId) {
 
         bctx.beginPath();
         bctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        bctx.fillStyle = "rgba(255,255,255,0.5)";
+        bctx.fillStyle = "rgba(255,255,255,0.3)";
         bctx.fill();
       }
       requestAnimationFrame(animateBrowserParticles);
     }
     animateBrowserParticles();
 
-    // default homepage inside proxy browser
-    browserFrame.go("https://example.com"); // set your default home page
+    if (appId === "browser") frame.go("https://example.com"); // homepage
+    if (appId === "movies") frame.go("https://www.cineby.gd/"); // movies
   }
 
   if (appId === "games") await initGNGames(content);
   if (appId === "chat") initChat(content);
   if (appId === "settings") content.innerHTML = "<p>Settings coming soon</p>";
-  if (appId === "movies") await initScramjetBrowser(content, "https://www.cineby.gd/");
 }
 
 function updateTaskbar() {
