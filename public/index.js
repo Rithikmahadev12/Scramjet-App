@@ -1,7 +1,7 @@
 "use strict";
 
 /* =========================
-   OS PARTICLE BACKGROUND
+   OS PARTICLE BACKGROUND (Original style)
 ========================= */
 const canvas = document.getElementById("particle-canvas");
 const ctx = canvas.getContext("2d");
@@ -213,7 +213,7 @@ async function openWindow(appId) {
         <button class="close">×</button>
       </div>
     </div>
-    <div class="content" id="${appId}-content"></div>
+    <div class="content" id="${appId}-content" style="position:relative; overflow:hidden;"></div>
   `;
 
   desktop.appendChild(win);
@@ -246,8 +246,72 @@ async function openWindow(appId) {
     }
   };
 
-  // Load apps
-  if (appId === "browser") await initScramjetBrowser(content, "https://search.brave.com/"); // you can change default URL here
+  /* =========================
+     LOAD APPS
+  ========================== */
+  if (appId === "browser") {
+    await initScramjet();
+    await registerSW();
+
+    // clear content
+    content.innerHTML = "";
+
+    // create Scramjet browser frame
+    const browserFrame = scramjet.createFrame();
+    browserFrame.frame.style.width = "100%";
+    browserFrame.frame.style.height = "100%";
+    browserFrame.frame.style.border = "none";
+    content.appendChild(browserFrame.frame);
+
+    // create particle canvas inside browser
+    const bCanvas = document.createElement("canvas");
+    bCanvas.style.position = "absolute";
+    bCanvas.style.top = "0";
+    bCanvas.style.left = "0";
+    bCanvas.style.width = "100%";
+    bCanvas.style.height = "100%";
+    bCanvas.style.pointerEvents = "none"; // allow clicks through
+    content.appendChild(bCanvas);
+
+    const bctx = bCanvas.getContext("2d");
+    bCanvas.width = bCanvas.offsetWidth;
+    bCanvas.height = bCanvas.offsetHeight;
+
+    // browser particles
+    const bParticles = [];
+    for (let i = 0; i < 100; i++) {
+      bParticles.push({
+        x: Math.random() * bCanvas.width,
+        y: Math.random() * bCanvas.height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        size: Math.random() * 2 + 1
+      });
+    }
+
+    function animateBrowserParticles() {
+      bctx.clearRect(0, 0, bCanvas.width, bCanvas.height);
+      for (let p of bParticles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x > bCanvas.width) p.x = 0;
+        if (p.x < 0) p.x = bCanvas.width;
+        if (p.y > bCanvas.height) p.y = 0;
+        if (p.y < 0) p.y = bCanvas.height;
+
+        bctx.beginPath();
+        bctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        bctx.fillStyle = "rgba(255,255,255,0.5)";
+        bctx.fill();
+      }
+      requestAnimationFrame(animateBrowserParticles);
+    }
+    animateBrowserParticles();
+
+    // default homepage inside proxy browser
+    browserFrame.go("https://example.com"); // set your default home page
+  }
+
   if (appId === "games") await initGNGames(content);
   if (appId === "chat") initChat(content);
   if (appId === "settings") content.innerHTML = "<p>Settings coming soon</p>";
@@ -265,9 +329,9 @@ function updateTaskbar() {
 }
 
 /* =========================
-   SCRAMJET BROWSER INIT
+   SCRAMJET INIT
 ========================= */
-let scramjet, connection, scramjetReady = false;
+let scramjet, scramjetReady = false;
 
 async function initScramjet() {
   if (scramjetReady) return;
@@ -276,20 +340,5 @@ async function initScramjet() {
     files: { wasm: "/scram/scramjet.wasm.wasm", all: "/scram/scramjet.all.js", sync: "/scram/scramjet.sync.js" }
   });
   await scramjet.init();
-  connection = new BareMux.BareMuxConnection("/baremux/worker.js");
   scramjetReady = true;
-}
-
-async function initScramjetBrowser(container, url) {
-  await initScramjet();
-  await registerSW();
-
-  const browserFrame = scramjet.createFrame();
-  browserFrame.frame.style.width = "100%";
-  browserFrame.frame.style.height = "100%";
-  browserFrame.frame.style.border = "none";
-
-  container.innerHTML = "";
-  container.appendChild(browserFrame.frame);
-  browserFrame.go(url);
 }
